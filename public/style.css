@@ -1,0 +1,224 @@
+:root {
+    --accent: #448aff;
+    --color-err: #ff5144;
+    --color-white: rgba(255,255,255, .52);
+    --color-gray: rgba(255,255,255, .24);
+    --color-dark: rgba(255,255,255, .12);
+    /* https://material.io/design/motion/speed.html#easing */
+    --anim-std: cubic-bezier(0.4, 0.0, 0.2, 1);
+    --anim-peak-to-rest: cubic-bezier(0.0, 0.0, 0.2, 1);
+    --anim-rest-to-peak: cubic-bezier(0.4, 0.0, 1, 1);
+    --anim-ez-overshoot: cubic-bezier(0.4, 0.0, 0.2, 1.4);
+    --anim-hard-overshoot: cubic-bezier(0.4, 0.0, 0.2, 1.6);
+    font-size: 16px;
+    line-height: 1.5;
+}
+summary {
+    cursor: pointer;
+}
+
+.container {
+    padding: 1em;
+    margin: 0 auto;
+    max-width: 840px;
+}
+
+.yt-embed {
+    position: relative;
+    padding-top: 56.25%;
+    background-color: #000;
+}
+.yt-embed * {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+}
+
+a[href] {
+    color: var(--accent);
+}
+
+iframe {
+    display: block;
+    width: 100%;
+}
+
+code {
+    font-size: 87%;
+    padding: .2em .4em;
+    background-color: #353535;
+    color: #F06292;
+    border-radius: 2px;
+}
+
+samp {
+    font-size: 92%;
+}
+
+/***********************************************************
+ * yt
+ */
+
+.yt {
+    border: 1px solid var(--color-gray);
+    overflow: hidden;
+}
+
+.yt-dl__lists {
+    display: flex;
+    flex-flow: wrap;
+}
+
+.yt-dl__lists > ul {
+    flex: 1;
+}
+
+.yt-embed, .yt-dl {
+    border-bottom: 1px solid var(--color-gray);
+}
+.yt-dl {
+    padding: 1rem;
+}
+.yt-meta {
+    padding: 1rem;
+    padding-bottom: 0;
+}
+.yt-meta__title {
+    display: block;
+    font-size: 1.75rem;
+    margin: .5rem 0;
+    font-weight: bolder;
+}
+.yt-meta[data-category] .yt-meta__title::before {
+    font-family: "Material Icons";
+    display: inline-block;
+    margin-right: .25em;
+    opacity: .52;
+    font-size: 20px;
+}
+
+.yt-meta[data-category="Music"] .yt-meta__title::before {
+    content: "music_note";
+}
+
+.yt-meta__data {
+    opacity: .72;
+    display: block;
+    margin: .125rem 0;
+}
+.yt-desc {
+    white-space: pre-wrap;
+    padding: 1rem;
+}
+
+.yt-related {
+    overflow-x: auto;
+    overflow-y: hidden;
+    white-space: nowrap;
+    line-height: 0;
+    margin: 0;
+    padding: 1rem;
+    padding-bottom: 0;
+    -webkit-overflow-scrolling: touch;
+    -ms-scroll-snap-type: x proximity;
+    scroll-snap-type: x proximity;
+    scroll-padding: 1rem;
+}
+.yt-card {
+    position: relative;
+    display: inline-block;
+    width: 240px;
+    height: 137.5px;
+    border-radius: 4px;
+    border: 1px solid #3b3b3b;
+    margin-right: 1rem;
+    background-size: cover;
+    vertical-align: bottom;
+    white-space: normal;
+    line-height: 1.5;
+    scroll-snap-align: start;
+    color: inherit !important;
+    text-decoration: inherit;
+}
+.yt-card--info {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    width: 100%;
+    padding: .5rem;
+    /* background: linear-gradient(transparent,rgba(0,0,0, .46)); */
+}
+.yt-card--info * {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/***********************************************************
+ * yt-input
+ */
+ .yt-input {
+    background: 0;
+    border: 0;
+    color: inherit;
+    font: inherit;
+    font-size: 87.5%;
+
+    border-bottom: 2px solid var(--color-gray);
+    outline: 0;
+    /* border-radius: 2px; */
+    padding: .25em;
+
+    transition:
+        border .2s var(--anim-std),
+        background .2s var(--anim-std)
+    ;
+}
+.yt-input:focus {
+    color: #fafafa;
+    border-bottom-color: var(--accent);
+    /* background-color: var(--dark); */
+}
+
+/***********************************************************
+ * Media queries
+ */
+@media only screen and (max-width: 600px) {
+    .container .view {
+        margin: -1em;
+    }
+    .yt-meta {
+        padding: 1rem;
+        border-bottom: 1px solid var(--color-gray);
+    }
+    .yt {
+        border: 0;
+        margin: 0;
+    }
+    .yt-dl__lists ul:nth-of-type(3) {
+        flex: 1 100%;
+    }
+}
+
+/***********************************************************
+ * Anims
+ */
+
+@media not all and (prefers-reduced-motion: reduce) {
+    .view {
+        animation: sliding-into-dms-like .6s var(--anim-peak-to-rest);
+    }
+}
+
+@keyframes sliding-into-dms-like {
+    from {
+        opacity: 0;
+        transform: translateY(5em);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "yt-for-me",
+  "version": "0.1.0",
+  "description": "Steals videos from YouTube, how fun!",
+  "main": "dist/server.js",
+  "author": "MindfulMinun <importantmails4bc@gmail.com> (https://benjic.xyz)",
+  "contributors": [],
+  "homepage": "https://github.com/MindfulMinun/yt-for-me",
+  "repository": "github:MindfulMinun/yt-for-me",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "build": "rm -rf dist && babel src -d dist",
+    "watch": "nodemon --watch src --exec 'npm run build && npm start'",
+    "start": "node dist/server.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "engines": {
+    "node": ">=8.0.0 <11.0.0"
+  },
+  "devDependencies": {
+    "@babel/cli": "^7.6.4",
+    "@babel/core": "^7.6.4",
+    "@babel/preset-env": "^7.6.3"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "ytdl-core": "^1.0.0"
+  }
+}
