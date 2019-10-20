@@ -10,15 +10,18 @@
 
     bootstrapView(location.pathname.substr(1))
 
-    window.onpopstate = function (e) {
-        guard(
-            document.querySelector('.view'),
-            view => cont.classList.add('anim--fuck-this-shit-im-out')
-        )
-        bootstrapView(e.state)
-    }
+    window.addEventListener('popstate', function (e) {
+        if (e.state) {
+            guard(
+                document.querySelector('.view'),
+                view => cont.classList.add('anim--fuck-this-shit-im-out')
+            )
+            bootstrapView(e.state)
+        }
+    })
 
     function bootstrapView(id) {
+        history.pushState(id, id, '/' + id)
         const loading = document.createElement('p')
         loading.classList.add('loading')
         loading.innerHTML = choose(dict.loadingBlobs)
@@ -164,7 +167,6 @@
                 const id = this.dataset.id
                 cont.classList.add('anim--fuck-this-shit-im-out')
                 bootstrapView(id)
-                history.pushState(id, id, '/' + id)
             }
             card.classList.add('yt-card')
             // card.style.backgroundImage = `url(${vid.iurlhq})`
@@ -183,8 +185,6 @@
             `
             rel.appendChild(card);
         })
-    
-        console.log(view)
     
         return view
     }
