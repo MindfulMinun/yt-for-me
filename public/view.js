@@ -1,118 +1,70 @@
-(function() {
-    'use strict';
-    window.vid = {};
-    var cont = document.querySelector('.container')
-    const LOCALE = 'en-US'
-    const countF = new Intl.NumberFormat(LOCALE, {style: 'decimal'})
-    const dateF = new Intl.DateTimeFormat(LOCALE, {
+(function () {
+    'use strict'
+    const cont = document.querySelector('.container')
+    const countF = new Intl.NumberFormat(dict.LOCALE, {style: 'decimal'})
+    const dateF = new Intl.DateTimeFormat(dict.LOCALE, {
         dateStyle: "medium",
-        timeStyle: "medium"
+        timeStyle: "medium",
+        timeZone: "utc"
     })
 
-    var loadingBlobs = [
-        "Loading...",
-        "Stealing your YT credentials...",
-        "ちょっと待って下さい",
-        "beep boop boop loading...",
-        "i'm not sentient, i promise!!!",
-        "An exception has occurred. Please wait five seconds.",
-        "Ready?",
-        "Sleeping with your sister...",
-        "Calling <code>setTimeout(render, 5000)</code>...",
-        "Brewing some coffee...",
-        "Give me a minute, I just woke up...",
-        "Generating a blob...",
-        "Showing up late to class yet again...",
-        "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"
-    ]
-    var vids = [
-        '1iKZhsc8WGs', // Moe Shop - Charm
-        '0E5l2GHBxB8', // Stal
-        // 'yD2FSwTy2lw', // No one's around to help
-        'VgUR1pna5cY', // Moe Shop - Natural
-        'dQw4w9WgXcQ'  // get rickrolled lol
-    ]
+    bootstrapView(location.pathname.substr(1))
 
-    if (location.pathname === '/') {
-        cont.innerHTML = `
-            <h1>yt-for-me</h1>
-            <p>Hi there. This app steals videos from YouTube. Give it a try.</p>
-            <p>Might I suggest <a href="/${choose(vids)}">a video</a>?</p>
-            <p>
-            Or enter your own: 
-            <input type="text" placeholder="YouTube video ID" class="yt-input">
-            </p>
-        `
-
-        cont.querySelector('input').addEventListener('keypress', event => {
-            if (event.key === "Enter") {
-                window.location.href += /([a-zA-Z0-9\-\_]{11})/.exec(event.target.value)[1]
-            }
-        });
-        return
-    } else {
-        cont.innerHTML = `
-            <p class="loading">${choose(loadingBlobs)}</p>
-        `
+    window.onpopstate = function (e) {
+        guard(
+            document.querySelector('.view'),
+            view => cont.classList.add('anim--fuck-this-shit-im-out')
+        )
+        bootstrapView(e.state)
     }
 
-    fetch("/info" + location.pathname)
-        .then(res => res.json())
-        .then(json => json.error ? Promise.reject(json) : json)
-        .then(function (info) {
-            document.title = `${info.title} • yt-for-me`
-            cont.innerHTML = ''
-            cont.appendChild(genView(info))
-            window.vid = info
-            console.log('Video info (window.vid):', info)
-            // var pre = document.createElement('pre')
-            // pre.innerHTML = JSON.stringify(info, null, 4)
-            // cont.appendChild(pre)
-        })
-        .catch(function (err) {
-            console.log(err)
-            cont.innerHTML = `
-                <h1>oh no a level 400 error</h1>
-                <p>The server says: <samp>${err.error}</samp></p>
-                <p>
-                    you did something wrong, that video probably doesn’t exist.
-                </p>
-                <p>
-                    if you think <em>i</em> fucked up, then
-                    <a href="https://benjic.xyz/#contact" target="_blank">let me know</a>
-                </p>
-                <p>
-                    otherwise, <a href="/">start over</a>
-                </p>
-            `
-        })
+    function bootstrapView(id) {
+        const loading = document.createElement('p')
+        loading.classList.add('loading')
+        loading.innerHTML = choose(dict.loadingBlobs)
+        cont.prepend(loading)
+        fetch(`/api/info?id=${location.pathname.substr(1)}`)
+            .then(res => res.json())
+            .then(json => json.error ? Promise.reject(json) : json)
+            .then(function (info) {
+                document.title = `${info.title} • yt-for-me`
+                cont.innerHTML = ''
+                cont.classList.remove('anim--fuck-this-shit-im-out')
+                cont.appendChild(genView(info))
+                window.vid = info
+                console.log('Video info (window.vid):', info)
+            })
+            .catch(function (err) {
+                console.log(err)
+                cont.innerHTML = dict.errors.error400(err.error)
+            })
+    }
 
     function genView(info) {
-        var view = document.createElement('div')
+        const view = document.createElement('div')
         const ps = info.player_response || {}
         view.classList.add('view')
-
     
         view.innerHTML = `
             <div class="yt">
                 <details class="yt-dl">
-                    <summary>Download</summary>
-                    <p>Links are sorted by quality. For the 100% best experience, I recommend downloading the highest quality video, highest quality audio, and merge them using something like <code>ffmpeg</code>.</p>
+                    <summary>${dict.view.dlSummaryLabel()}</summary>
+                    <p>${dict.view.dlSummaryPara()}</p>
                     <div class="yt-dl__lists">
                         <ul>
-                            <li><strong>Video + Audio</strong></li>
+                            <li><strong>${dict.view.dlListBoth()}</strong></li>
                         </ul>
                         <ul>
-                            <li><strong>Audio only</strong></li>
+                            <li><strong>${dict.view.dlListAudio()}</strong></li>
                         </ul>
                         <ul>
-                            <li><strong>Video only</strong></li>
+                            <li><strong>${dict.view.dlListVideo()}</strong></li>
                         </ul>
                     </div>
                 </details>
                 <div class="yt-embed">
                     <iframe
-                        title="${info.title} - Embedded YouTube player"
+                        title="${dict.view.iframeA11yLabel(info.title)}"
                         width="853" height="480" frameborder="0"
                         src="https://www.youtube.com/embed/${info.video_id}?rel=0"
                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -125,12 +77,16 @@
                         (info.media && info.media.song) || info.title
                     }</span>
                     <span class="yt-meta__data">${
-                        countF.format(
-                            info.player_response.videoDetails.viewCount
+                        dict.view.metaViews(
+                            countF.format(ps.videoDetails.viewCount)
                         )
-                    } views • Published on ${dateF.format(info.published)}</span>
-                    <span class="yt-meta__data">by ${
-                        (info.media && info.media.artist) || info.author.name
+                    }</span>
+                    <span class="yt-meta__data">${
+                        dict.view.metaPublished(dateF.format(info.published))
+                    }</span>
+                    <span class="yt-meta__data">${
+                        dict.view.metaAuthor((info.media && info.media.artist
+                        ) || info.author.name)
                     }</span>
                 </div>
                 <div class="yt-desc">${
@@ -139,7 +95,7 @@
                         pmr => guard(
                             pmr.description, desc => desc.simpleText
                         )
-                    )) || info.transform
+                    )) || info.description
                 }</div>
             </div>
         `
@@ -163,7 +119,7 @@
     
         info.formats.forEach(function (f, i) {
             // f for format
-            var li = document.createElement('li')
+            let li = document.createElement('li')
             ,   inner = ''
             ,   dlList;
     
@@ -195,12 +151,21 @@
             dlList.appendChild(li)
         })
     
-        var rel = view.querySelector('.yt-related')
+        const rel = view.querySelector('.yt-related')
         
         info.related_videos.forEach(function (vid, i) {
             if (vid.list) return;
             let card = document.createElement('a')
             card.href = '/' + vid.id
+            card.dataset.id = vid.id
+            card.onclick = function (e) {
+                e.preventDefault()
+                console.log(this)
+                const id = this.dataset.id
+                cont.classList.add('anim--fuck-this-shit-im-out')
+                bootstrapView(id)
+                history.pushState(id, id, '/' + id)
+            }
             card.classList.add('yt-card')
             // card.style.backgroundImage = `url(${vid.iurlhq})`
             card.style.backgroundImage = `
@@ -210,8 +175,10 @@
             card.innerHTML = `
                 <div class="yt-card--info">
                     <strong>${vid.title}</strong>
-                    <span>by ${vid.author}</span>
-                    <span>${vid.short_view_count_text} views</span>
+                    <span${dict.view.cardAuthor(vid.author)}</span>
+                    <span>${
+                        dict.view.cardViews(vid.short_view_count_text)
+                    }</span>
                 </div>
             `
             rel.appendChild(card);
@@ -222,7 +189,8 @@
         return view
     }
 
-}());
+
+})()
 
 /**
  * Selects a random element from an array
@@ -237,7 +205,7 @@ function choose(arr) {
 }
 
 /**
- * Decaffinate-style guard
+ * Decaffeinate-style guard
  * @param {*} what - The thing that might be null or undefined
  * @param {function} mod - The modifier
  * @returns {*} The return value of your function or undefined if nullish

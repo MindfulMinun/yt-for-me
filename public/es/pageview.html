@@ -1,0 +1,99 @@
+<!doctype html>
+<!--
+    Made with love by MindfulMinun
+    https://benjic.xyz
+-->
+<html class="no-js" lang="en-US">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>yt-for-me</title>
+        <meta name="viewport" content="width=device-width">
+        <meta name="theme-color" content="#448aff">
+
+        <!-- Import styles -->
+        <!-- Import Material Icons, Roboto & Roboto Mono -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|Roboto:100,100i,200,200i,300,300i,400,400i,500,500i|Roboto+Mono:300">
+        <style media="screen">
+            :root, html, body {
+                font-family: "Roboto", Helvetica, Arial, sans-serif;
+                margin: 0;
+                line-height: 1.5;
+                background-color: #1e1e1e;
+                color: #fafafa;
+            }
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+            .no-js .no-js-hide {
+                display: none;
+            }
+        </style>
+        <link rel="stylesheet" href="/style.css">
+        <script>
+            window.dict = {
+                LOCALE: 'es-MX',
+                errors: {
+                    error400: err => `
+                        <h1>Ay carámba, ¡¡un error nivel 400!!</h1>
+                        <p>El servidor se enojó y me dijo: <samp>${err}</samp> (habla inglés)</p>
+                        <p>
+                            Parece que te equivocaste, ese video probablemente
+                            no existe.
+                        </p>
+                        <p>
+                            Si crees que me equivoqué <em>yo</em>, entonces
+                            <a href="https://benjic.xyz/#contact" target="_blank">házmelo saber</a>
+                            (hablo español)
+                        </p>
+                        <p>
+                            De lo contrario, <a href="/">inténtalo de nuevo</a>
+                        </p>
+                    `
+                },
+                view: {
+                    dlSummaryLabel: () => "Descargar",
+                    dlSummaryPara: () => `
+                        Los enlaces están en orden de mayor a peor calidad. Para obtener la mejor calidad, recomiendo descargar el video de mejor calidad, el audio de mejor calidad, y usar una herramienta como <code>ffmpeg</code> para unirlos.
+                    `,
+                    dlListBoth: () => "Video y audio",
+                    dlListAudio: () => "Solo audio",
+                    dlListVideo: () => "Solo video",
+                    iframeA11yLabel: title => `${title} - Repdroductor YouTube`,
+                    metaViews: views => `${views} vistas`,
+                    metaPublished: date => `Publicado el ${date}`,
+                    metaAuthor: name => `por ${name}`,
+                    cardAuthor: name => `por ${name}`,
+                    cardViews: views => `${views.replace(/([a-z]+)/i, ' $1')} vistas`
+                },
+                loadingBlobs: [
+                    "Cargando...",
+                    "Descargando los virus...",
+                    "ちょっと待って下さい",
+                    "bip bip bip cargando...",
+                    "Demorando un rato a ver si te enfadas...",
+                    "Ocurrió un error. Por favor espere 5 segundos.",
+                    "¿Listos?",
+                    "Durmiendo un rato...",
+                    "Executando <code>setTimeout(render, 5000)</code>...",
+                    "Haciéndome un café...",
+                    "Dame un segundo, me acabo de levantar...",
+                    "Generando un blob...",
+                    "Llegando tarde a clases de nuevo...",
+                    "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"
+                ]
+            }
+        </script>
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">edge &gt; ie</p>
+        <![endif]-->
+        <main>
+            <div class="container">
+            </div>
+        </main>
+    </body>
+    <script>document.documentElement.classList.remove("no-js")</script>
+    <script src="view.js"></script>
+</html>

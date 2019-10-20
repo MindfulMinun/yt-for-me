@@ -17,6 +17,11 @@ summary {
     cursor: pointer;
 }
 
+.loading {
+    position: absolute;
+    opacity: 0;
+}
+
 .container {
     padding: 1em;
     margin: 0 auto;
@@ -63,6 +68,7 @@ samp {
 .yt {
     border: 1px solid var(--color-gray);
     overflow: hidden;
+    background-color: #1e1e1e;
 }
 
 .yt-dl__lists {
@@ -162,6 +168,7 @@ samp {
  .yt-input {
     background: 0;
     border: 0;
+    width: auto;
     color: inherit;
     font: inherit;
     font-size: 87.5%;
@@ -207,8 +214,18 @@ samp {
  */
 
 @media not all and (prefers-reduced-motion: reduce) {
+    .loading {
+        animation: loading-fade-in .2s var(--anim-peak-to-rest);
+        animation-fill-mode: forwards;
+        animation-delay: 1s;
+    }
     .view {
-        animation: sliding-into-dms-like .6s var(--anim-peak-to-rest);
+        animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
+        animation-fill-mode: forwards;
+    }
+    .anim--fuck-this-shit-im-out .view {
+        animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
+        animation-fill-mode: forwards;
     }
 }
 
@@ -220,5 +237,25 @@ samp {
     to {
         opacity: 1;
         transform: translateY(0);
+    }
+}
+
+@keyframes fuck-this-shit-im-out {
+    from {
+        opacity: 1;
+        transform: translateY(0);
+    }
+    to {
+        opacity: 0;
+        transform: translateY(5em);
+    }
+}
+
+@keyframes loading-fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
     }
 }
