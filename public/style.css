@@ -13,6 +13,15 @@
     font-size: 16px;
     line-height: 1.5;
 }
+
+noscript {
+    display: block;
+    border: 1px solid #ff5144;
+    border: 1px solid var(--color-err);
+    border-radius: 4px;
+    padding: 0 1em;
+}
+
 summary {
     cursor: pointer;
 }
@@ -40,7 +49,7 @@ summary {
     height: 100%;
 }
 
-a[href] {
+a, [href] {
     color: var(--accent);
 }
 
@@ -59,6 +68,82 @@ code {
 
 samp {
     font-size: 92%;
+}
+
+.with-love {
+    margin: 3em 0 2em 0;
+    text-align: center;
+    color: var(--color-white);
+    font-style: italic;
+}
+.with-love a {
+    color: inherit;
+}
+
+
+/***********************************************************
+ * Search lol
+ */
+
+ul.a11y-list,
+ol.a11y-list {
+    margin: 0;
+    padding: 0;
+    text-indent: 0;
+    list-style-type: none;
+}
+
+.search-list {
+    border: 1px solid var(--color-gray);
+    border-bottom: 0;
+}
+.search-card {
+    display: flex;
+    color: inherit;
+    text-decoration: inherit;
+    border-bottom: 1px solid var(--color-gray);
+}
+.search-card-content {
+    flex: 1;
+    padding: .5em;
+    order: 2;
+}
+.search-card-cover {
+    display: block;
+    position: relative;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 30%;
+    max-width: 180px;
+    resize: horizontal;
+    order: 1;
+}
+.search-card-cover::after {
+    flex: 1;
+    content: '';
+    display: block;
+    padding-top: 56.25%;
+}
+.search-card-duration {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    font-size: 11px;
+    padding: .25em .5em;
+    background-color: rgba(0, 0, 0, .2);
+    color: #fff;
+}
+.search-card-entry {
+    opacity: .72;
+    display: block;
+    margin-bottom: .25em;
+    font-weight: 300;
+}
+.search-card-entry:first-child {
+    opacity: 1;
+    font-weight: 400;
+    font-size: 16px;
 }
 
 /***********************************************************
@@ -168,7 +253,6 @@ samp {
  .yt-input {
     background: 0;
     border: 0;
-    width: auto;
     color: inherit;
     font: inherit;
     font-size: 87.5%;
@@ -193,6 +277,10 @@ samp {
  * Media queries
  */
 @media only screen and (max-width: 600px) {
+    .container .mobile-edge-flush {
+        margin-left: -1em;
+        margin-right: -1em;
+    }
     .container .view {
         margin: -1em;
     }
@@ -217,7 +305,7 @@ samp {
     .loading {
         animation: loading-fade-in .2s var(--anim-peak-to-rest);
         animation-fill-mode: forwards;
-        animation-delay: 1s;
+        animation-delay: .4s;
     }
     .view {
         animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);

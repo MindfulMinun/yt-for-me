@@ -1,14 +1,14 @@
 (function () {
     'use strict'
-    const cont = document.querySelector('.container')
-    const countF = new Intl.NumberFormat(dict.LOCALE, {style: 'decimal'})
-    const dateF = new Intl.DateTimeFormat(dict.LOCALE, {
-        dateStyle: "medium",
-        timeStyle: "medium",
-        timeZone: "utc"
-    })
 
-    bootstrapView(location.pathname.substr(1))
+    if (!yt) {
+        throw Error("yt isn't defined, idk what to do.")
+    }
+
+    yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/
+
+    const dict = yt.dict
+    const cont = document.querySelector('.container')
 
     window.addEventListener('popstate', function (e) {
         if (e.state) {
@@ -20,13 +20,23 @@
         }
     })
 
+    bootstrapView(
+        guard(yt.REGEX_CAPTURE_ID.exec(location.pathname.slice(1) || ''), match => {
+            return match[0]
+        }) || ''
+    )
+
     function bootstrapView(id) {
+        if (!yt.REGEX_CAPTURE_ID.test(id)) {
+            cont.innerHTML = dict.errors.idAssertionFailed(id)
+            throw Error("ID didn't match regex, something's wrong.")
+        }
         history.pushState(id, id, '/' + id)
         const loading = document.createElement('p')
         loading.classList.add('loading')
         loading.innerHTML = choose(dict.loadingBlobs)
         cont.prepend(loading)
-        fetch(`/api/info?id=${location.pathname.substr(1)}`)
+        fetch(`/api/info?id=${id}`)
             .then(res => res.json())
             .then(json => json.error ? Promise.reject(json) : json)
             .then(function (info) {
@@ -47,6 +57,7 @@
         const view = document.createElement('div')
         const ps = info.player_response || {}
         view.classList.add('view')
+        view.classList.add('mobile-edge-flush')
     
         view.innerHTML = `
             <div class="yt">
@@ -80,12 +91,10 @@
                         (info.media && info.media.song) || info.title
                     }</span>
                     <span class="yt-meta__data">${
-                        dict.view.metaViews(
-                            countF.format(ps.videoDetails.viewCount)
-                        )
+                        dict.view.metaViews(ps.videoDetails.viewCount)
                     }</span>
                     <span class="yt-meta__data">${
-                        dict.view.metaPublished(dateF.format(info.published))
+                        dict.view.metaPublished(info.published)
                     }</span>
                     <span class="yt-meta__data">${
                         dict.view.metaAuthor((info.media && info.media.artist
@@ -124,7 +133,7 @@
             // f for format
             let li = document.createElement('li')
             ,   inner = ''
-            ,   dlList;
+            , dlList
     
             if (f.encoding && f.audioEncoding) {
                 // Both
@@ -157,7 +166,7 @@
         const rel = view.querySelector('.yt-related')
         
         info.related_videos.forEach(function (vid, i) {
-            if (vid.list) return;
+            if (vid.list) return
             let card = document.createElement('a')
             card.href = '/' + vid.id
             card.dataset.id = vid.id
@@ -183,7 +192,7 @@
                     }</span>
                 </div>
             `
-            rel.appendChild(card);
+            rel.appendChild(card)
         })
     
         return view
@@ -214,5 +223,5 @@ function choose(arr) {
  * @version 1.0.0
  */
 function guard(what, mod) {
-    return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0;
+    return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0
 }

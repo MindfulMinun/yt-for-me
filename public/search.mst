@@ -1,0 +1,90 @@
+<!doctype html>
+<!--
+    Made with love by MindfulMinun
+    https://benjic.xyz
+-->
+<html class="no-js" lang="{{ d.lang }}">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>yt-for-me</title>
+        <meta name="viewport" content="width=device-width">
+        <meta name="theme-color" content="#448aff">
+
+        <!-- Import styles -->
+        <!-- Import Material Icons, Roboto & Roboto Mono -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|Roboto:100,100i,200,200i,300,300i,400,400i,500,500i|Roboto+Mono:300">
+        <style media="screen">
+            :root, html, body {
+                font-family: "Roboto", Helvetica, Arial, sans-serif;
+                margin: 0;
+                line-height: 1.5;
+                background-color: #1e1e1e;
+                color: #fafafa;
+            }
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+            .no-js .no-js-hide {
+                display: none;
+            }
+            /* this is only for this page lol */
+            .yt-input.yt-input {
+                width: 100%;
+                font-size: 18px;
+                margin: 1em 0;
+            }
+        </style>
+        <link rel="stylesheet" href="/style.css">
+        <script>window.lang = "{{ d.lang }}";</script>
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">edge &gt; ie</p>
+        <![endif]-->
+        <main>
+            <div class="container">
+
+                <input type="text" placeholder="{{ d.welcome.searchPlaceholder }}" class="yt-input no-js-hide" value="{{query}}">
+
+                <noscript>{{{ d.welcome.nojs }}}</noscript>
+
+                <p>
+                    {{#d.search.resultsFor}}{{query}}{{/d.search.resultsFor}}
+                </p>
+
+                {{^vids}}
+                    <p>No vids :(</p>
+                {{/vids}}
+
+                <ul class="a11y-list search-list mobile-edge-flush">
+                    {{#vids}}
+                        <li class="search-li"><a
+                            class="search-card"
+                            href="/{{ videoId }}"
+                            title="{{ title }}"
+                            aria-label="{{ title }}">
+                            <div class="search-card-content">
+                                <span class="search-card-entry">{{ title }}</span>
+                                <span class="search-card-entry">
+                                    {{#d.search.by}}{{ author.name }}{{/d.search.by}}
+                                </span>
+                                <span class="search-card-entry">
+                                    {{#d.search.relTime}}{{ ago }}{{/d.search.relTime}}
+                                </span>
+                            </div>
+                            <div class="search-card-cover" style="background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),url('{{{ thumb }}}');" aria-hidden>
+                                <span class="search-card-duration">{{duration.timestamp}}</span>
+                            </div>
+                        </a></li>
+                    {{/vids}}
+                </ul>
+
+                <p class="with-love">{{{ d.welcome.love }}}</p>
+
+            </div>
+        </main>
+    </body>
+    <script>document.documentElement.classList.remove("no-js")</script>
+    <script src="search.js"></script>
+</html>
