@@ -6,10 +6,6 @@ import mustacheExpress from 'mustache-express'
 const app = express()
 const root = resolve(__dirname + '/../')
 
-const randomVideos = [
-    'ckRSn2zWt_o'
-]
-
 app.use(require('cookie-parser')())
 app.engine('mst', mustacheExpress(__dirname + '/public', '.mst'))
 app.set('view engine', 'mustache')
@@ -32,7 +28,7 @@ app.get(/\.css$/, function (req, res) {
 
 app.get('/search', function (req, res) {
     const q = req.query.q || ''
-    const page = req.query.page || 1;
+    const page = req.query.page || 1
     const lang = getLang(req)
 
     ytSearch({
@@ -48,13 +44,9 @@ app.get('/search', function (req, res) {
                 d: require(`./langs/${lang}.js`),
                 query: q,
                 page: page,
-                vids: results.videos.map(v => {
-                    v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
-                    delete v.url
-                    return v
-                })
+                vids: []
             })
-            return;
+            return
         }
         
         res.render(root + '/public/search.mst', {
@@ -62,7 +54,8 @@ app.get('/search', function (req, res) {
             d: require(`./langs/${lang}.js`),
             query: q,
             page: page,
-            vids: results.videos.map(v => {
+            vids: results.videos.map((v, i) => {
+                v.index = i // for mustashe lol
                 v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
                 delete v.url
                 return v
@@ -94,7 +87,7 @@ app.get('/api/info', function (req, res) {
 
 app.get('/api/search', function (req, res) {
     const q = req.query.q || ''
-    const page = req.query.page || 1;
+    const page = req.query.page || 1
 
     ytSearch({
         query: q,
@@ -106,13 +99,13 @@ app.get('/api/search', function (req, res) {
             res.json({
                 error: err.toString().replace(/^Error(?::\s*)/, '')
             })
-            return;
+            return
         }
         
         res.json({
             query: q,
             page: page,
-            vids: results.videos.map(v => {
+            vids: results.videos.map((v, i) => {
                 v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
                 delete v.url
                 return v
@@ -139,7 +132,7 @@ function getLang(req) {
     const qLang = (req.query.lang || '').slice(0, 2)
     const browser = req.acceptsLanguages(supported)
 
-    if (supported.includes(qLang)) { return qLang; }
+    if (supported.includes(qLang)) { return qLang }
     if (browser) return browser
     return 'en'
 }

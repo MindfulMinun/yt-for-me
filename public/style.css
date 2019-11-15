@@ -96,7 +96,22 @@ ol.a11y-list {
 .search-list {
     border: 1px solid var(--color-gray);
     border-bottom: 0;
+    animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
+    animation-fill-mode: forwards;
 }
+
+
+@supports (--css: variables) {
+    .search-li {
+        opacity: 0;
+        animation-name: slide-in;
+        animation-duration: 250ms;
+        animation-delay: calc(var(--animation-order) * 50ms);
+        animation-fill-mode: forwards;
+        animation-timing-function: var(--anim-peak-to-rest);
+    }
+}
+
 .search-card {
     display: flex;
     color: inherit;
@@ -105,8 +120,9 @@ ol.a11y-list {
 }
 .search-card-content {
     flex: 1;
-    padding: .5em;
+    padding: 1em;
     order: 2;
+    margin: auto 0;
 }
 .search-card-cover {
     display: block;
@@ -114,8 +130,8 @@ ol.a11y-list {
     background-size: cover;
     background-repeat: no-repeat;
     background-position: center;
-    width: 30%;
-    max-width: 180px;
+    width: 180px;
+    max-width: 30%;
     resize: horizontal;
     order: 1;
 }
@@ -137,13 +153,14 @@ ol.a11y-list {
 .search-card-entry {
     opacity: .72;
     display: block;
-    margin-bottom: .25em;
+    font-size: 12px;
+    margin-bottom: .125em;
     font-weight: 300;
 }
 .search-card-entry:first-child {
     opacity: 1;
     font-weight: 400;
-    font-size: 16px;
+    font-size: 14px;
 }
 
 /***********************************************************
@@ -281,6 +298,9 @@ ol.a11y-list {
         margin-left: -1em;
         margin-right: -1em;
     }
+    .search-card-content {
+        padding: .5em;
+    }
     .container .view {
         margin: -1em;
     }
@@ -303,7 +323,7 @@ ol.a11y-list {
 
 @media not all and (prefers-reduced-motion: reduce) {
     .loading {
-        animation: loading-fade-in .2s var(--anim-peak-to-rest);
+        animation: fade-in .2s var(--anim-peak-to-rest);
         animation-fill-mode: forwards;
         animation-delay: .4s;
     }
@@ -339,11 +359,22 @@ ol.a11y-list {
     }
 }
 
-@keyframes loading-fade-in {
+@keyframes fade-in {
     from {
         opacity: 0;
     }
     to {
         opacity: 1;
+    }
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: scale(.72) translateY(-.5em);
+    }
+    to {
+        opacity: 1;
+        transform: 0;
     }
 }

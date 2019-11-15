@@ -59,7 +59,7 @@
 
                 <ul class="a11y-list search-list mobile-edge-flush">
                     {{#vids}}
-                        <li class="search-li"><a
+                        <li class="search-li" style="--animation-order: {{ index }};"><a
                             class="search-card"
                             href="/{{ videoId }}"
                             title="{{ title }}"

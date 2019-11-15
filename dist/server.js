@@ -14,7 +14,6 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 var app = (0, _express["default"])();
 var root = (0, _path.resolve)(__dirname + '/../');
-var randomVideos = ['ckRSn2zWt_o'];
 app.use(require('cookie-parser')());
 app.engine('mst', (0, _mustacheExpress["default"])(__dirname + '/public', '.mst'));
 app.set('view engine', 'mustache');
@@ -48,11 +47,7 @@ app.get('/search', function (req, res) {
         d: require("./langs/".concat(lang, ".js")),
         query: q,
         page: page,
-        vids: results.videos.map(function (v) {
-          v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
-          delete v.url;
-          return v;
-        })
+        vids: []
       });
       return;
     }
@@ -62,7 +57,9 @@ app.get('/search', function (req, res) {
       d: require("./langs/".concat(lang, ".js")),
       query: q,
       page: page,
-      vids: results.videos.map(function (v) {
+      vids: results.videos.map(function (v, i) {
+        v.index = i; // for mustashe lol
+
         v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
         delete v.url;
         return v;
@@ -107,7 +104,7 @@ app.get('/api/search', function (req, res) {
     res.json({
       query: q,
       page: page,
-      vids: results.videos.map(function (v) {
+      vids: results.videos.map(function (v, i) {
         v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
         delete v.url;
         return v;
