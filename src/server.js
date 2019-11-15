@@ -30,6 +30,19 @@ app.get('/search', function (req, res) {
     const q = req.query.q || ''
     const page = req.query.page || 1
     const lang = getLang(req)
+    const render = {
+        lang: lang,
+        d: require(`./langs/${lang}.js`),
+        query: q,
+        page: page
+    }
+
+    if (q.trim().length === 0) {
+        res.render(root + '/public/search.mst', Object.assign(render, {
+            vids: []
+        }))
+        return
+    }
 
     ytSearch({
         query: q,
@@ -38,29 +51,21 @@ app.get('/search', function (req, res) {
     }, function (err, results) {
         if (err) {
             res.status(400)
-            res.render(root + '/public/search.mst', {
+            res.render(root + '/public/search.mst', Object.assign(render, {
                 error: err.toString().replace(/^Error(?::\s*)/, ''),
-                lang: lang,
-                d: require(`./langs/${lang}.js`),
-                query: q,
-                page: page,
                 vids: []
-            })
+            }))
             return
         }
         
-        res.render(root + '/public/search.mst', {
-            lang: lang,
-            d: require(`./langs/${lang}.js`),
-            query: q,
-            page: page,
+        res.render(root + '/public/search.mst', Object.assign(render, {
             vids: results.videos.map((v, i) => {
                 v.index = i // for mustashe lol
                 v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
                 delete v.url
                 return v
             })
-        })
+        }))
     })
 })
 

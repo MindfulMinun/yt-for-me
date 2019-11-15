@@ -48,8 +48,13 @@
                 <p class="no-js-hide">{{{ d.welcome.vid }}}</p>
                 <p class="no-js-hide">
                     {{ d.welcome.searchPre }}
-                    <input type="text" placeholder="{{ d.welcome.searchPlaceholder }}" class="yt-input">
                 </p>
+                
+                <form action="/search">
+                    <input type="text" class="yt-input no-js-hide"
+                        name="q" pattern="^\s*(\S[\s\S]*)\s*$"
+                        placeholder="{{ d.welcome.searchPlaceholder }}">
+                </form>
             </div>
         </main>
     </body>

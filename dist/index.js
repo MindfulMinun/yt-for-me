@@ -1,7 +1,7 @@
 "use strict";
 
 // index.js
-var search = document.querySelector('input[type="text"]');
+// const search = document.querySelector('input[type="text"]')
 var rand = document.querySelectorAll('[data-random]');
 var vids = ['ckRSn2zWt_o', // Shyness Boy
 'VgUR1pna5cY', // Natural
@@ -11,11 +11,6 @@ var vids = ['ckRSn2zWt_o', // Shyness Boy
 ];
 rand.forEach(function (el) {
   return el.href = choose(vids);
-});
-search.addEventListener('keypress', function (event) {
-  if (event.key === "Enter") {
-    window.location.href = "/search?q=".concat(encodeURIComponent(event.target.value));
-  }
 });
 /**
  * Decaffeinate-style guard

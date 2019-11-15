@@ -34,6 +34,20 @@ app.get('/search', function (req, res) {
   var q = req.query.q || '';
   var page = req.query.page || 1;
   var lang = getLang(req);
+  var render = {
+    lang: lang,
+    d: require("./langs/".concat(lang, ".js")),
+    query: q,
+    page: page
+  };
+
+  if (q.trim().length === 0) {
+    res.render(root + '/public/search.mst', Object.assign(render, {
+      vids: []
+    }));
+    return;
+  }
+
   (0, _ytSearch["default"])({
     query: q,
     pageStart: page,
@@ -41,22 +55,14 @@ app.get('/search', function (req, res) {
   }, function (err, results) {
     if (err) {
       res.status(400);
-      res.render(root + '/public/search.mst', {
+      res.render(root + '/public/search.mst', Object.assign(render, {
         error: err.toString().replace(/^Error(?::\s*)/, ''),
-        lang: lang,
-        d: require("./langs/".concat(lang, ".js")),
-        query: q,
-        page: page,
         vids: []
-      });
+      }));
       return;
     }
 
-    res.render(root + '/public/search.mst', {
-      lang: lang,
-      d: require("./langs/".concat(lang, ".js")),
-      query: q,
-      page: page,
+    res.render(root + '/public/search.mst', Object.assign(render, {
       vids: results.videos.map(function (v, i) {
         v.index = i; // for mustashe lol
 
@@ -64,7 +70,7 @@ app.get('/search', function (req, res) {
         delete v.url;
         return v;
       })
-    });
+    }));
   });
 });
 app.get('/:id', function (req, res) {

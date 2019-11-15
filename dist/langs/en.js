@@ -39,8 +39,11 @@
     search: {
       resultsFor: function resultsFor() {
         return function (text, render) {
-          return "\n                Results for \u201C".concat(render(text), "\u201D\n            ");
+          return "Results for \u201C".concat(render(text), "\u201D");
         };
+      },
+      emptySearch: function emptySearch() {
+        return "It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.";
       },
       count: function count() {
         return function (text, render) {
@@ -92,6 +95,9 @@
       },
       cardViews: function cardViews(views) {
         return "".concat(views, " views");
+      },
+      searchLabel: function searchLabel() {
+        return "Back to search";
       }
     },
     loadingBlobs: ["Loading...", "Stealing your YT credentials...", "ちょっと待って下さい", "beep boop boop loading...", "i'm not sentient, i promise!!!", "An exception has occurred. Please wait five seconds.", "Ready?", "Sleeping with your sister...", "Calling <code>setTimeout(render, 5000)</code>...", "Brewing some coffee...", "Give me a minute, I just woke up...", "Generating a blob...", "Showing up late to class yet again...", "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]

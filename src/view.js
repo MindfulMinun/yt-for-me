@@ -11,12 +11,15 @@
     const cont = document.querySelector('.container')
 
     window.addEventListener('popstate', function (e) {
-        if (e.state) {
-            guard(
-                document.querySelector('.view'),
-                view => cont.classList.add('anim--fuck-this-shit-im-out')
-            )
+        console.log(e)
+        guard(
+            document.querySelector('.view'),
+            view => cont.classList.add('anim--fuck-this-shit-im-out')
+        )
+        if (e.state && (e.state !== (window.vid && window.vid.video_id))) {
             bootstrapView(e.state)
+        } else {
+            history.back()
         }
     })
 
@@ -44,6 +47,11 @@
                 cont.innerHTML = ''
                 cont.classList.remove('anim--fuck-this-shit-im-out')
                 cont.appendChild(genView(info))
+                cont.appendChild((p => {
+                    p.classList.add('with-love')
+                    p.innerHTML = dict.welcome.love
+                    return p
+                })(document.createElement('p')))
                 window.vid = info
                 console.log('Video info (window.vid):', info)
             })
@@ -164,15 +172,31 @@
         })
     
         const rel = view.querySelector('.yt-related')
-        
-        info.related_videos.forEach(function (vid, i) {
+
+        // Append end search card
+        ;((card, search) => {
+            card.href = '/search' + (search ? '?q=' + search : '')
+            card.classList.add('yt-card')
+            card.classList.add('yt-card--back-to-search')
+            card.setAttribute('aria-label', dict.view.searchLabel())
+            card.innerHTML = `
+            <div class="yt-card--back-to-search__container">
+                <i class="material-icons">search</i>
+                <span class="yt-card-label">${dict.view.searchLabel()}</span>
+            </div>
+        `
+            card.onclick = e => cont.classList.add('anim--fuck-this-shit-im-out')
+
+            rel.appendChild(card)
+        })(document.createElement('a'), sessionStorage && sessionStorage.getItem('lastSearch') || '')
+    
+        ;info.related_videos.forEach(function (vid, i) {
             if (vid.list) return
             let card = document.createElement('a')
             card.href = '/' + vid.id
             card.dataset.id = vid.id
             card.onclick = function (e) {
                 e.preventDefault()
-                console.log(this)
                 const id = this.dataset.id
                 cont.classList.add('anim--fuck-this-shit-im-out')
                 bootstrapView(id)
@@ -194,7 +218,7 @@
             `
             rel.appendChild(card)
         })
-    
+
         return view
     }
 

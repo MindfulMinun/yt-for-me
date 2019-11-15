@@ -40,7 +40,7 @@
       nojs: "\n                <p>Desafortunadamente, esta p\xE1gina muy padre requiere de <em>JavaScript</em>.\n                Sin esta, se te ser\xE1 casi imposible navegar las redes sin que te exigen que la prendas.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favorzote y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
       searchPre: "O busca lo que tu quieras:",
-      searchPlaceholder: "Búsqueda"
+      searchPlaceholder: "Buscar"
     },
     errors: {
       error400: function error400(err) {
@@ -53,8 +53,11 @@
     search: {
       resultsFor: function resultsFor() {
         return function (text, render) {
-          return "\n                Resultados para la b\xFAsqueda \u201C".concat(render(text), "\u201D\n            ");
+          return "Resultados para la b\xFAsqueda \u201C".concat(render(text), "\u201D");
         };
+      },
+      emptySearch: function emptySearch() {
+        return "Parece que no buscaste nada. \xBFAcaso no quieres ver nada? Si te cambias de opini\xF3n, puedes intentarlo de nuevo con la barra de arriba.";
       },
       count: function count() {
         return function (text, render) {
@@ -69,7 +72,7 @@
       relTime: function relTime() {
         return function (text, render) {
           var arr = render(text).split(/\s/);
-          return "Hace ".concat(arr[0] === 1 ? 'un' : arr[0], " ").concat(relativeTimes[arr[1]]);
+          return "Hace ".concat(arr[0] === '1' ? 'un' : arr[0], " ").concat(relativeTimes[arr[1]]);
         };
       }
     },
@@ -106,8 +109,11 @@
       },
       cardViews: function cardViews(views) {
         return "".concat(views.replace(/([a-z]+)/i, ' $1'), " vistas");
+      },
+      searchLabel: function searchLabel() {
+        return "Regresar a la búsqueda";
       }
     },
-    loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Executando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
+    loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Ejecutando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
   };
 });

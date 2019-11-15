@@ -1,5 +1,5 @@
 // index.js
-const search = document.querySelector('input[type="text"]')
+// const search = document.querySelector('input[type="text"]')
 const rand = document.querySelectorAll('[data-random]')
 
 const vids = [
@@ -11,13 +11,6 @@ const vids = [
 ]
 
 rand.forEach(el => el.href = choose(vids))
-
-search.addEventListener('keypress', event => {
-    if (event.key === "Enter") {
-        window.location.href = `/search?q=${encodeURIComponent(event.target.value)}`
-    }
-})
-
 
 /**
  * Decaffeinate-style guard

@@ -59,9 +59,8 @@
             `
         },
         search: {
-            resultsFor: () => (text, render) => `
-                Results for “${render(text)}”
-            `,
+            resultsFor: () => (text, render) => `Results for “${render(text)}”`,
+            emptySearch: () => `It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.`,
             count: () => (text, render) => `${render(text)} views`,
             by: () => (text, render) => `by ${render(text)}`,
             relTime: () => (text, render) => render(text) // It's in English by default
@@ -79,7 +78,8 @@
             metaPublished: date => `Published on ${dateFormatter.format(date)}`,
             metaAuthor: name => `by ${name}`,
             cardAuthor: name => `by ${name}`,
-            cardViews: views => `${views} views`
+            cardViews: views => `${views} views`,
+            searchLabel: () => "Back to search"
         },
         loadingBlobs: [
             "Loading...",

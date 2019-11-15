@@ -4,6 +4,7 @@
     --color-white: rgba(255,255,255, .52);
     --color-gray: rgba(255,255,255, .24);
     --color-dark: rgba(255,255,255, .12);
+    --card-border: #424242;
     /* https://material.io/design/motion/speed.html#easing */
     --anim-std: cubic-bezier(0.4, 0.0, 0.2, 1);
     --anim-peak-to-rest: cubic-bezier(0.0, 0.0, 0.2, 1);
@@ -100,17 +101,7 @@ ol.a11y-list {
     animation-fill-mode: forwards;
 }
 
-
-@supports (--css: variables) {
-    .search-li {
-        opacity: 0;
-        animation-name: slide-in;
-        animation-duration: 250ms;
-        animation-delay: calc(var(--animation-order) * 50ms);
-        animation-fill-mode: forwards;
-        animation-timing-function: var(--anim-peak-to-rest);
-    }
-}
+/* see anim for search-li anims */
 
 .search-card {
     display: flex;
@@ -235,11 +226,10 @@ ol.a11y-list {
 }
 .yt-card {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
     width: 240px;
     height: 137.5px;
-    border-radius: 4px;
-    border: 1px solid #3b3b3b;
+    border: 1px solid var(--card-border);
     margin-right: 1rem;
     background-size: cover;
     vertical-align: bottom;
@@ -249,6 +239,22 @@ ol.a11y-list {
     color: inherit !important;
     text-decoration: inherit;
 }
+/* Last card lol */
+.yt-card--back-to-search__container {
+    margin: auto;
+    text-align: center;
+}
+.yt-card--back-to-search i.material-icons {
+    display: inline-block;
+    padding: .25em;
+    font-size: 32px;
+    /* border: 1px solid var(--color-gray); */
+    border-radius: 50px;
+}
+.yt-card--back-to-search .yt-card-label {
+    display: block;
+}
+
 .yt-card--info {
     position: absolute;
     bottom: 0;
@@ -273,12 +279,11 @@ ol.a11y-list {
     color: inherit;
     font: inherit;
     font-size: 87.5%;
-
-    border-bottom: 2px solid var(--color-gray);
+    border: 2px solid var(--color-gray);
     outline: 0;
-    /* border-radius: 2px; */
-    padding: .25em;
-
+    padding: .5em .75em;
+    width: 100%;
+    font-size: 18px;
     transition:
         border .2s var(--anim-std),
         background .2s var(--anim-std)
@@ -286,7 +291,7 @@ ol.a11y-list {
 }
 .yt-input:focus {
     color: #fafafa;
-    border-bottom-color: var(--accent);
+    border-color: var(--accent);
     /* background-color: var(--dark); */
 }
 
@@ -310,6 +315,7 @@ ol.a11y-list {
     }
     .yt {
         border: 0;
+        border-bottom: 1px solid var(--color-gray);
         margin: 0;
     }
     .yt-dl__lists ul:nth-of-type(3) {
@@ -322,6 +328,17 @@ ol.a11y-list {
  */
 
 @media not all and (prefers-reduced-motion: reduce) {
+    @supports (--css: variables) {
+        .search-li {
+            opacity: 0;
+            animation-name: slide-in;
+            animation-duration: 250ms;
+            animation-delay: calc(var(--animation-order) * 50ms);
+            animation-fill-mode: forwards;
+            animation-timing-function: var(--anim-peak-to-rest);
+        }
+    }
+
     .loading {
         animation: fade-in .2s var(--anim-peak-to-rest);
         animation-fill-mode: forwards;
@@ -331,7 +348,12 @@ ol.a11y-list {
         animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
         animation-fill-mode: forwards;
     }
-    .anim--fuck-this-shit-im-out .view {
+    .search {
+        animation: fade-in .4s var(--anim-peak-to-rest);
+        animation-fill-mode: forwards;
+    }
+    .anim--fuck-this-shit-im-out .view,
+    .anim--fuck-this-shit-im-out .search {
         animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
         animation-fill-mode: forwards;
     }

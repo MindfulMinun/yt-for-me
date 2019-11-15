@@ -28,12 +28,6 @@
             .no-js .no-js-hide {
                 display: none;
             }
-            /* this is only for this page lol */
-            .yt-input.yt-input {
-                width: 100%;
-                font-size: 18px;
-                margin: 1em 0;
-            }
         </style>
         <link rel="stylesheet" href="/style.css">
         <script>window.lang = "{{ d.lang }}";</script>
@@ -43,9 +37,14 @@
             <p class="browserupgrade">edge &gt; ie</p>
         <![endif]-->
         <main>
-            <div class="container">
+            <div class="container search">
 
-                <input type="text" placeholder="{{ d.welcome.searchPlaceholder }}" class="yt-input no-js-hide" value="{{query}}">
+                <form action="/search">
+                    <input type="text" class="yt-input no-js-hide"
+                        id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
+                        placeholder="{{ d.welcome.searchPlaceholder }}"
+                        value="{{query}}">
+                </form>
 
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
 
@@ -54,7 +53,7 @@
                 </p>
 
                 {{^vids}}
-                    <p>No vids :(</p>
+                    <p>{{d.search.emptySearch}}</p>
                 {{/vids}}
 
                 <ul class="a11y-list search-list mobile-edge-flush">
@@ -85,6 +84,18 @@
             </div>
         </main>
     </body>
-    <script>document.documentElement.classList.remove("no-js")</script>
-    <script src="search.js"></script>
+    <script>
+        document.documentElement.classList.remove("no-js");
+
+        window.encodeURIComponent &&
+        window.sessionStorage &&
+        window.sessionStorage.setItem('lastSearch', document.getElementById('search').value);
+
+        [].forEach.call(document.querySelectorAll('.search-list a.search-card'), function (el) {
+            el.onclick = function (e) {
+                document.querySelector('main').classList.add('anim--fuck-this-shit-im-out');
+            };
+        });
+
+    </script>
 </html>
