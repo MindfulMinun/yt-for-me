@@ -32,9 +32,9 @@
         <link rel="stylesheet" href="/style.css">
         <script>window.yt = {
             lang: "{{ lang }}",
-            i18n: "{{ i18n }}"
         };</script>
         <script src="./langs/{{ lang }}.js"></script>
+        <script src="./common.js"></script>
     </head>
     <body>
         <!--[if lte IE 9]>
@@ -51,10 +51,11 @@
                 </p>
                 
                 <form action="/search">
-                    <input type="text" class="yt-input no-js-hide"
+                    <input type="search" class="yt-input no-js-hide"
                         name="q" pattern="^\s*(\S[\s\S]*)\s*$"
                         placeholder="{{ d.welcome.searchPlaceholder }}">
                 </form>
+
             </div>
         </main>
     </body>

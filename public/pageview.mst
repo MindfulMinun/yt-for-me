@@ -32,15 +32,21 @@
         <link rel="stylesheet" href="/style.css">
         <script>window.yt = {
             lang: "{{ lang }}",
-            i18n: "{{ i18n }}"
         };</script>
         <script src="./langs/{{ lang }}.js"></script>
+        <script src="./common.js"></script>
     </head>
     <body>
         <!--[if lte IE 9]>
             <p class="browserupgrade">edge &gt; ie</p>
         <![endif]-->
         <main>
+            <form action="/search" class="container">
+                <input type="search" class="yt-input no-js-hide"
+                    id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
+                    placeholder="{{ d.welcome.searchPlaceholder }}"
+                    value="{{query}}">
+            </form>
             <div class="container">
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
             </div>

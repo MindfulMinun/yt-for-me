@@ -26,7 +26,8 @@
       nojs: "\n                <p>Unfortunately, this really cool website needs you to enable <em>JavaScript</em>.\n                The internet won't stop asking you to enable it if you don't.\n                But most importantly, you won't be able to watch YouTube videos. :(</p>\n                \n                <p>Do yourself a favor and <a href=\"https://www.enable-javascript.com/\">enable it</a>.</p>\n                ",
       vid: "Might I suggest <a href=\"/VgUR1pna5cY\" data-random>a video</a>?",
       searchPre: "Or search for your own:",
-      searchPlaceholder: "Search"
+      searchPlaceholder: "Search",
+      languageA11yLabel: "Language"
     },
     errors: {
       error400: function error400(err) {
@@ -53,6 +54,11 @@
       by: function by() {
         return function (text, render) {
           return "by ".concat(render(text));
+        };
+      },
+      views: function views() {
+        return function (text, render) {
+          return "".concat(numFormatter.format(render(text)), " views");
         };
       },
       relTime: function relTime() {

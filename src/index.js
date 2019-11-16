@@ -1,6 +1,6 @@
 // index.js
-// const search = document.querySelector('input[type="text"]')
 const rand = document.querySelectorAll('[data-random]')
+const cont = document.querySelector('.container')
 
 const vids = [
     'ckRSn2zWt_o', // Shyness Boy
@@ -12,27 +12,4 @@ const vids = [
 
 rand.forEach(el => el.href = choose(vids))
 
-/**
- * Decaffeinate-style guard
- * @param {*} what - The thing that might be null or undefined
- * @param {function} mod - The modifier
- * @returns {*} The return value of your function or undefined if nullish
- * @author MindfulMinun
- * @since Oct 11, 2019
- * @version 1.0.0
- */
-function guard(what, mod) {
-    return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0;
-}
-
-/**
- * Selects a random element from an array
- * @param {Array} arr - The array to choose from
- * @returns {*} An element from the array
- * @author MindfulMinun
- * @since Oct 11, 2019
- * @version 1.0.0
- */
-function choose(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-}
+cont.appendChild(makeFooter())

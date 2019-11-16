@@ -40,7 +40,8 @@
       nojs: "\n                <p>Desafortunadamente, esta p\xE1gina muy padre requiere de <em>JavaScript</em>.\n                Sin esta, se te ser\xE1 casi imposible navegar las redes sin que te exigen que la prendas.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favorzote y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
       searchPre: "O busca lo que tu quieras:",
-      searchPlaceholder: "Buscar"
+      searchPlaceholder: "Buscar",
+      languageA11yLabel: "Idioma"
     },
     errors: {
       error400: function error400(err) {
@@ -59,14 +60,14 @@
       emptySearch: function emptySearch() {
         return "Parece que no buscaste nada. \xBFAcaso no quieres ver nada? Si te cambias de opini\xF3n, puedes intentarlo de nuevo con la barra de arriba.";
       },
-      count: function count() {
-        return function (text, render) {
-          return "".concat(render(text), " vistas");
-        };
-      },
       by: function by() {
         return function (text, render) {
           return "por ".concat(render(text));
+        };
+      },
+      views: function views() {
+        return function (text, render) {
+          return "".concat(numFormatter.format(render(text)), " vistas");
         };
       },
       relTime: function relTime() {

@@ -71,9 +71,11 @@ app.get('/search', function (req, res) {
 
 app.get('/:id', function (req, res) {
     const lang = getLang(req)
+    const q = req.query.q || ''
     res.render(root + `/public/pageview.mst`, {
         lang: lang,
-        d: require(`./langs/${lang}.js`)
+        d: require(`./langs/${lang}.js`),
+        query: q
     })
 })
 

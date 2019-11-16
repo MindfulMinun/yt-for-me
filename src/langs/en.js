@@ -29,7 +29,8 @@
                 `,
             vid: "Might I suggest <a href=\"/VgUR1pna5cY\" data-random>a video</a>?",
             searchPre: "Or search for your own:",
-            searchPlaceholder: "Search"
+            searchPlaceholder: "Search",
+            languageA11yLabel: "Language"
         },
         errors: {
             error400: err => `
@@ -63,6 +64,7 @@
             emptySearch: () => `It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.`,
             count: () => (text, render) => `${render(text)} views`,
             by: () => (text, render) => `by ${render(text)}`,
+            views: () => (text, render) => `${numFormatter.format(render(text))} views`,
             relTime: () => (text, render) => render(text) // It's in English by default
         },
         view: {

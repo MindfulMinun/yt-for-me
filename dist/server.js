@@ -75,9 +75,11 @@ app.get('/search', function (req, res) {
 });
 app.get('/:id', function (req, res) {
   var lang = getLang(req);
+  var q = req.query.q || '';
   res.render(root + "/public/pageview.mst", {
     lang: lang,
-    d: require("./langs/".concat(lang, ".js"))
+    d: require("./langs/".concat(lang, ".js")),
+    query: q
   });
 });
 app.get('/api/info', function (req, res) {

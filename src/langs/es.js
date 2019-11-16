@@ -44,7 +44,8 @@
             `,
             vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
             searchPre: "O busca lo que tu quieras:",
-            searchPlaceholder: "Buscar"
+            searchPlaceholder: "Buscar",
+            languageA11yLabel: "Idioma"
         },
         errors: {
             error400: err => `
@@ -77,8 +78,8 @@
         search: {
             resultsFor: () => (text, render) => `Resultados para la búsqueda “${render(text)}”`,
             emptySearch: () => `Parece que no buscaste nada. ¿Acaso no quieres ver nada? Si te cambias de opinión, puedes intentarlo de nuevo con la barra de arriba.`,
-            count: () => (text, render) => `${render(text)} vistas`,
             by: () => (text, render) => `por ${render(text)}`,
+            views: () => (text, render) => `${numFormatter.format(render(text))} vistas`,
             relTime: () => (text, render) => {
                 let arr = render(text).split(/\s/);
                 return `Hace ${arr[0] === '1' ? 'un' : arr[0]} ${relativeTimes[arr[1]]}`

@@ -19,7 +19,6 @@ noscript {
     display: block;
     border: 1px solid #ff5144;
     border: 1px solid var(--color-err);
-    border-radius: 4px;
     padding: 0 1em;
 }
 
@@ -27,14 +26,19 @@ summary {
     cursor: pointer;
 }
 
+form { display: flex; }
+form > :last-child:not(:first-child) { margin-left: .5em; }
+
 .loading {
     position: absolute;
-    opacity: 0;
+    opacity: 1;
+    margin: 0;
 }
 
 .container {
-    padding: 1em;
-    margin: 0 auto;
+    padding: 0 1em;
+    margin: 1em auto;
+    /* margin-bottom: 1rem; */
     max-width: 840px;
 }
 
@@ -72,15 +76,31 @@ samp {
 }
 
 .with-love {
-    margin: 3em 0 2em 0;
-    text-align: center;
     color: var(--color-white);
-    font-style: italic;
 }
 .with-love a {
     color: inherit;
 }
 
+.flex { display: flex; }
+.flex-stretch, .flex-stretch { flex: 1; margin: auto; }
+
+.yt-select {
+       -moz-appearance: none;
+    -webkit-appearance: none;
+            appearance: none;
+    background: 0;
+    background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNHB4IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzU0NTQ1NCI+PHBhdGggZD0iTTcgMTBsNSA1IDUtNXoiPjwvcGF0aD48L3N2Zz4=);
+    background-position: right 50%;
+    background-repeat: no-repeat;
+    border: 2px solid var(--color-gray);
+    color: var(--color-white);
+    font: inherit;
+    font-size: 14px;
+    margin: 1em 0;
+    padding: .5em 1.5em .5em 1em;
+    min-width: 120px;
+}
 
 /***********************************************************
  * Search lol
@@ -94,20 +114,18 @@ ol.a11y-list {
     list-style-type: none;
 }
 
-.search-list {
-    border: 1px solid var(--color-gray);
-    border-bottom: 0;
-    animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
-    animation-fill-mode: forwards;
-}
-
 /* see anim for search-li anims */
+.search-li {
+    border: 1px solid var(--color-gray);
+}
+.search-li:not(:last-child) {
+    border-bottom: 0;
+}
 
 .search-card {
     display: flex;
     color: inherit;
     text-decoration: inherit;
-    border-bottom: 1px solid var(--color-gray);
 }
 .search-card-content {
     flex: 1;
@@ -248,8 +266,6 @@ ol.a11y-list {
     display: inline-block;
     padding: .25em;
     font-size: 32px;
-    /* border: 1px solid var(--color-gray); */
-    border-radius: 50px;
 }
 .yt-card--back-to-search .yt-card-label {
     display: block;
@@ -306,16 +322,13 @@ ol.a11y-list {
     .search-card-content {
         padding: .5em;
     }
-    .container .view {
-        margin: -1em;
-    }
     .yt-meta {
         padding: 1rem;
         border-bottom: 1px solid var(--color-gray);
     }
     .yt {
-        border: 0;
-        border-bottom: 1px solid var(--color-gray);
+        border-left: 0;
+        border-right: 0;
         margin: 0;
     }
     .yt-dl__lists ul:nth-of-type(3) {
@@ -339,10 +352,16 @@ ol.a11y-list {
         }
     }
 
+    .search-list {
+        /* animation: sliding-into-dms-like .4s var(--anim-peak-to-rest); */
+        animation-fill-mode: forwards;
+    }
+
     .loading {
         animation: fade-in .2s var(--anim-peak-to-rest);
         animation-fill-mode: forwards;
         animation-delay: .4s;
+        opacity: 0;
     }
     .view {
         animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
@@ -353,7 +372,7 @@ ol.a11y-list {
         animation-fill-mode: forwards;
     }
     .anim--fuck-this-shit-im-out .view,
-    .anim--fuck-this-shit-im-out .search {
+    .anim--fuck-this-shit-im-out .search-list {
         animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
         animation-fill-mode: forwards;
     }
@@ -393,10 +412,11 @@ ol.a11y-list {
 @keyframes slide-in {
     from {
         opacity: 0;
-        transform: scale(.72) translateY(-.5em);
+        /* transform: scale(.72) translateY(-.5em); */
+        transform: scale(.72) translateX(10rem);
     }
     to {
         opacity: 1;
-        transform: 0;
+        transform: none;
     }
 }

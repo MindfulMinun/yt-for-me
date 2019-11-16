@@ -30,17 +30,21 @@
             }
         </style>
         <link rel="stylesheet" href="/style.css">
-        <script>window.lang = "{{ d.lang }}";</script>
+        <script>window.yt = {
+            lang: "{{ lang }}",
+        };</script>
+        <script src="./langs/{{ lang }}.js"></script>
+        <script src="./common.js"></script>
     </head>
     <body>
         <!--[if lte IE 9]>
             <p class="browserupgrade">edge &gt; ie</p>
         <![endif]-->
         <main>
-            <div class="container search">
+            <div class="container">
 
                 <form action="/search">
-                    <input type="text" class="yt-input no-js-hide"
+                    <input type="search" class="yt-input no-js-hide"
                         id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
                         placeholder="{{ d.welcome.searchPlaceholder }}"
                         value="{{query}}">
@@ -66,7 +70,8 @@
                             <div class="search-card-content">
                                 <span class="search-card-entry">{{ title }}</span>
                                 <span class="search-card-entry">
-                                    {{#d.search.by}}{{ author.name }}{{/d.search.by}}
+                                    {{#d.search.by}}{{ author.name }}{{/d.search.by}} •
+                                    {{#d.search.views}}{{ views }}{{/d.search.views}}
                                 </span>
                                 <span class="search-card-entry">
                                     {{#d.search.relTime}}{{ ago }}{{/d.search.relTime}}
@@ -79,23 +84,24 @@
                     {{/vids}}
                 </ul>
 
-                <p class="with-love">{{{ d.welcome.love }}}</p>
-
             </div>
         </main>
     </body>
     <script>
         document.documentElement.classList.remove("no-js");
 
-        window.encodeURIComponent &&
-        window.sessionStorage &&
-        window.sessionStorage.setItem('lastSearch', document.getElementById('search').value);
+        // window.encodeURIComponent &&
+        // window.sessionStorage &&
+        // window.sessionStorage.setItem('lastSearch', document.getElementById('search').value);
 
         [].forEach.call(document.querySelectorAll('.search-list a.search-card'), function (el) {
+            el.href = el.href + location.search
             el.onclick = function (e) {
-                document.querySelector('main').classList.add('anim--fuck-this-shit-im-out');
+                document.querySelector('main .search-list').classList.add('anim--fuck-this-shit-im-out');
             };
         });
+
+        document.querySelector('.container').appendChild(makeFooter())
 
     </script>
 </html>

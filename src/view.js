@@ -8,7 +8,7 @@
     yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/
 
     const dict = yt.dict
-    const cont = document.querySelector('.container')
+    const cont = document.querySelector('div.container')
 
     window.addEventListener('popstate', function (e) {
         console.log(e)
@@ -34,7 +34,7 @@
             cont.innerHTML = dict.errors.idAssertionFailed(id)
             throw Error("ID didn't match regex, something's wrong.")
         }
-        history.pushState(id, id, '/' + id)
+        history.pushState(id, id, '/' + id + location.search)
         const loading = document.createElement('p')
         loading.classList.add('loading')
         loading.innerHTML = choose(dict.loadingBlobs)
@@ -47,11 +47,7 @@
                 cont.innerHTML = ''
                 cont.classList.remove('anim--fuck-this-shit-im-out')
                 cont.appendChild(genView(info))
-                cont.appendChild((p => {
-                    p.classList.add('with-love')
-                    p.innerHTML = dict.welcome.love
-                    return p
-                })(document.createElement('p')))
+                cont.appendChild(makeFooter())
                 window.vid = info
                 console.log('Video info (window.vid):', info)
             })
@@ -86,9 +82,8 @@
                 </details>
                 <div class="yt-embed">
                     <iframe
-                        title="${dict.view.iframeA11yLabel(info.title)}"
-                        width="853" height="480" frameborder="0"
-                        src="https://www.youtube.com/embed/${info.video_id}?rel=0"
+                        title="${dict.view.iframeA11yLabel(info.title)}" frameborder="0"
+                        src="https://www.youtube.com/embed/${info.video_id}?autoplay=1&hl=${dict.lang}"
                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
                     ></iframe>
@@ -174,8 +169,8 @@
         const rel = view.querySelector('.yt-related')
 
         // Append end search card
-        ;((card, search) => {
-            card.href = '/search' + (search ? '?q=' + search : '')
+        ;((card) => {
+            card.href = '/search' + location.search
             card.classList.add('yt-card')
             card.classList.add('yt-card--back-to-search')
             card.setAttribute('aria-label', dict.view.searchLabel())
@@ -188,12 +183,12 @@
             card.onclick = e => cont.classList.add('anim--fuck-this-shit-im-out')
 
             rel.appendChild(card)
-        })(document.createElement('a'), sessionStorage && sessionStorage.getItem('lastSearch') || '')
+        })(document.createElement('a'))
     
         ;info.related_videos.forEach(function (vid, i) {
             if (vid.list) return
             let card = document.createElement('a')
-            card.href = '/' + vid.id
+            card.href = '/' + vid.id + location.search
             card.dataset.id = vid.id
             card.onclick = function (e) {
                 e.preventDefault()
@@ -224,28 +219,3 @@
 
 
 })()
-
-/**
- * Selects a random element from an array
- * @param {Array} arr - The array to choose from
- * @returns {*} An element from the array
- * @author MindfulMinun
- * @since Oct 11, 2019
- * @version 1.0.0
- */
-function choose(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-}
-
-/**
- * Decaffeinate-style guard
- * @param {*} what - The thing that might be null or undefined
- * @param {function} mod - The modifier
- * @returns {*} The return value of your function or undefined if nullish
- * @author MindfulMinun
- * @since Oct 11, 2019
- * @version 1.0.0
- */
-function guard(what, mod) {
-    return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0
-}
