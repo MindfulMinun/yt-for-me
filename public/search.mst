@@ -97,7 +97,11 @@
         [].forEach.call(document.querySelectorAll('.search-list a.search-card'), function (el) {
             el.href = el.href + location.search
             el.onclick = function (e) {
-                document.querySelector('main .search-list').classList.add('anim--fuck-this-shit-im-out');
+                document.querySelector('main').classList.add('anim--fuck-this-shit-im-out');
+                // e.preventDefault();
+                // requestAnimationFrame(() => {
+                //     location.href = el.href;
+                // });
             };
         });
 

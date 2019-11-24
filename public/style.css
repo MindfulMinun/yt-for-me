@@ -94,6 +94,7 @@ samp {
     background-position: right 50%;
     background-repeat: no-repeat;
     border: 2px solid var(--color-gray);
+    border-radius: 0;
     color: var(--color-white);
     font: inherit;
     font-size: 14px;
