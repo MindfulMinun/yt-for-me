@@ -68,6 +68,12 @@
                 <details class="yt-dl">
                     <summary>${dict.view.dlSummaryLabel()}</summary>
                     <p>${dict.view.dlSummaryPara()}</p>
+                    <div class="yt-btn-group">
+                        <button class="yt-btn">${dict.view.dlListBoth()}</button>
+                        <button class="yt-btn">${dict.view.dlListAudio()}</button>
+                        <button class="yt-btn">${dict.view.dlListVideo()}</button>
+                    </div>
+                    <!--
                     <div class="yt-dl__lists">
                         <ul>
                             <li><strong>${dict.view.dlListBoth()}</strong></li>
@@ -79,7 +85,8 @@
                             <li><strong>${dict.view.dlListVideo()}</strong></li>
                         </ul>
                     </div>
-                </details>
+                    -->
+                    </details>
                 <div class="yt-embed">
                     <iframe
                         title="${dict.view.iframeA11yLabel(info.title)}" frameborder="0"
@@ -133,6 +140,7 @@
 
     
         info.formats.forEach(function (f, i) {
+            return; // Just don't do anything for now.
             // f for format
             let li = document.createElement('li')
             ,   inner = ''
