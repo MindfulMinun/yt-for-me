@@ -37,7 +37,7 @@
     loading.classList.add('loading');
     loading.innerHTML = choose(dict.loadingBlobs);
     cont.prepend(loading);
-    fetch("/api/info?id=".concat(id)).then(function (res) {
+    fetch("/api/info?id=".concat(id, "&lang=").concat(yt.dict.lang)).then(function (res) {
       return res.json();
     }).then(function (json) {
       return json.error ? Promise.reject(json) : json;
@@ -144,9 +144,13 @@
       };
 
       card.classList.add('yt-card'); // card.style.backgroundImage = `url(${vid.iurlhq})`
+      // card.style.backgroundImage = `
+      //     linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)),
+      //     url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)
+      // `
 
-      card.style.backgroundImage = "\n                linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)),\n                url(https://img.youtube.com/vi/".concat(vid.id, "/mqdefault.jpg)\n            ");
-      card.innerHTML = "\n                <div class=\"yt-card--info\">\n                    <strong>".concat(vid.title, "</strong>\n                    <span").concat(dict.view.cardAuthor(vid.author), "</span>\n                    <span>").concat(dict.view.cardViews(vid.short_view_count_text), "</span>\n                </div>\n            ");
+      card.style.setProperty('--card-bg-image', "url(https://img.youtube.com/vi/".concat(vid.id, "/mqdefault.jpg)"));
+      card.innerHTML = "\n                <div class=\"yt-card--info\">\n                    <strong>".concat(vid.title, "</strong>\n                    <span>").concat(dict.view.cardAuthor(vid.author), "</span>\n                    <span>").concat(dict.view.cardViews(vid.short_view_count_text), "</span>\n                </div>\n            ");
       rel.appendChild(card);
     });
     return view;

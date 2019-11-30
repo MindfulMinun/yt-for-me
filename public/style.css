@@ -262,7 +262,29 @@ ol.a11y-list {
     scroll-snap-align: start;
     color: inherit !important;
     text-decoration: inherit;
+    transition: background .2s var(--anim-std);
+    /* The var is populated by JavaScript lol */
+    background-image: var(--card-bg-image);
 }
+.yt-card::before {
+    display: block;
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    transition: opacity .2s var(--anim-std);
+    opacity: .52;
+    background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.52));
+}
+.yt-card:hover::before,
+.yt-card:focus::before {
+    opacity: 1;
+}
+
+/* Remove the box shadow from the search dude (since no image is behind it, text is completely visible) */
+.yt-card.yt-card--back-to-search::before {
+    content: none;
+}
+
 /* Last card lol */
 .yt-card--back-to-search__container {
     margin: auto;

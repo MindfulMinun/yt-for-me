@@ -39,7 +39,7 @@
         loading.classList.add('loading')
         loading.innerHTML = choose(dict.loadingBlobs)
         cont.prepend(loading)
-        fetch(`/api/info?id=${id}`)
+        fetch(`/api/info?id=${id}&lang=${yt.dict.lang}`)
             .then(res => res.json())
             .then(json => json.error ? Promise.reject(json) : json)
             .then(function (info) {
@@ -206,17 +206,16 @@
             }
             card.classList.add('yt-card')
             // card.style.backgroundImage = `url(${vid.iurlhq})`
-            card.style.backgroundImage = `
-                linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)),
-                url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)
-            `
+            // card.style.backgroundImage = `
+            //     linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)),
+            //     url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)
+            // `
+            card.style.setProperty('--card-bg-image', `url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)`)
             card.innerHTML = `
                 <div class="yt-card--info">
                     <strong>${vid.title}</strong>
-                    <span${dict.view.cardAuthor(vid.author)}</span>
-                    <span>${
-                        dict.view.cardViews(vid.short_view_count_text)
-                    }</span>
+                    <span>${dict.view.cardAuthor(vid.author)}</span>
+                    <span>${dict.view.cardViews(vid.short_view_count_text)}</span>
                 </div>
             `
             rel.appendChild(card)

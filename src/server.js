@@ -1,12 +1,14 @@
 import express from 'express'
+import fs from 'fs'
 import { resolve } from 'path'
-import { getInfo } from 'ytdl-core'
+import ytdl from 'ytdl-core'
 import ytSearch from 'yt-search'
 import mustacheExpress from 'mustache-express'
 const app = express()
 const root = resolve(__dirname + '/../')
 
 app.use(require('cookie-parser')())
+app.use(express.json())
 app.engine('mst', mustacheExpress(__dirname + '/public', '.mst'))
 app.set('view engine', 'mustache')
 
@@ -79,22 +81,44 @@ app.get('/:id', function (req, res) {
     })
 })
 
+/**
+ * GET /info
+ * Request query parameters:
+ *     id: The YouTube ID of the video in question
+ * 
+ * 200 OK:
+ *     JSON of video metadata provided by ytdl-core
+ * 500 Internal Server Error
+ *     The error property describes the error
+ */
 app.get('/api/info', function (req, res) {
+    const lang = getLang(req)
     const id = req.query.id
 
-    getInfo(id).then(function (info) {
+    ytdl.getInfo(id, { lang }).then(function (info) {
         res.json(info)
     }).catch(function (err) {
-        res.status(400)
+        res.status(500)
         res.json({
             error: err.toString().replace(/^Error(?::\s*)/, '')
         })
     })
 })
 
+/**
+ * GET /search
+ * Request query parameters:
+ *     q: The search query
+ *     page: The search page results number. Starts at 1, can be omitted.
+ * 
+ * 200 OK:
+ *     JSON, the vids property returns results provided by ytSearch.
+ * 500 Internal Server Error
+ *     The error property describes the error
+ */
 app.get('/api/search', function (req, res) {
     const q = req.query.q || ''
-    const page = req.query.page || 1
+    const page = req.query.page || 0
 
     ytSearch({
         query: q,
@@ -102,7 +126,7 @@ app.get('/api/search', function (req, res) {
         pageEnd: page + 1
     }, function (err, results) {
         if (err) {
-            res.status(400)
+            res.status(500)
             res.json({
                 error: err.toString().replace(/^Error(?::\s*)/, '')
             })
@@ -119,6 +143,40 @@ app.get('/api/search', function (req, res) {
             })
         })
     })
+})
+
+/**
+ * GET /search
+ * Request query parameters:
+ *     q: The search query
+ *     page: The search page results number. Starts at 1, can be omitted.
+ * 
+ * 200 OK:
+ *     JSON, the vids property returns results provided by ytSearch.
+ * 500 Internal Server Error
+ *     The error property describes the error
+ */
+app.post('/api/download', function (req, res) {
+    console.log(req.body)
+    const id = req.body.id || ''
+    if (!ytdl.validateID(id)) {
+        res.status(400)
+        res.json({
+            error: "Assertion failed, ID invalid"
+        })
+        return
+    }
+
+    const audio = ytdlSave(id, 'audio')
+    const video = ytdlSave(id, 'video')
+
+    res.status(200)
+    res.send('OK')
+
+    Promise.allSettled([audio, video]).then(function (results) {
+        results.forEach(r => console.log(r))
+    })
+
 })
 
 app.listen(process.env.PORT || 8080, function () {
@@ -155,3 +213,38 @@ function getLang(req) {
 function choose(arr) {
     return arr[Math.floor(Math.random() * arr.length)]
 }
+
+
+function ytdlSave(id, kind) {
+    return new Promise(function (resolve, reject) {
+        const writeStream = fs.createWriteStream(`${root}/dls/${id}-${kind}`)
+        ytdl(id, {
+            quality: ['highestvideo', 'highestaudio'][
+                ['video', 'audio'].indexOf(kind)
+            ]
+        })
+            .pipe(writeStream)
+            .on('finish', function () {
+                resolve(writeStream)
+            })
+            .on('error', reject)
+    })
+}
+
+// All settled polyfill
+if (!Promise.allSettled) {
+    Promise.allSettled = promises =>
+      Promise.all(
+        promises.map((promise, i) =>
+          promise
+            .then(value => ({
+              status: "fulfilled",
+              value,
+            }))
+            .catch(reason => ({
+              status: "rejected",
+              reason,
+            }))
+        )
+      );
+  }

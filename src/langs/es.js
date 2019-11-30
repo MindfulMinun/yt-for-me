@@ -98,9 +98,10 @@
             metaPublished: date => `Publicado el ${dateFormatter.format(date)}`,
             metaAuthor: name => `por ${name}`,
             cardAuthor: name => `por ${name}`,
-            cardViews: views => `${views.replace(/([a-z]+)/i, ' $1')} vistas`,
+            cardViews: views => `${views.replace(/(\d+),(\d+)/i, '$1.$2')} vistas`,
             searchLabel: () => "Regresar a la búsqueda"
         },
+        // render(text).replace(/(\d+),(\d+)/gi, '$1.$2')
         loadingBlobs: [
             "Cargando...",
             "Descargando los virus...",

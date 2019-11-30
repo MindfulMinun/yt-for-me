@@ -109,12 +109,13 @@
         return "por ".concat(name);
       },
       cardViews: function cardViews(views) {
-        return "".concat(views.replace(/([a-z]+)/i, ' $1'), " vistas");
+        return "".concat(views.replace(/(\d+),(\d+)/i, '$1.$2'), " vistas");
       },
       searchLabel: function searchLabel() {
         return "Regresar a la búsqueda";
       }
     },
+    // render(text).replace(/(\d+),(\d+)/gi, '$1.$2')
     loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Ejecutando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
   };
 });
