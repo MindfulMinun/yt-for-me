@@ -1,11 +1,12 @@
 import express from 'express'
 import fs from 'fs'
-import { resolve } from 'path'
+import path from 'path'
 import ytdl from 'ytdl-core'
 import ytSearch from 'yt-search'
+import ffmpeg from 'fluent-ffmpeg'
 import mustacheExpress from 'mustache-express'
 const app = express()
-const root = resolve(__dirname + '/../')
+const root = path.resolve(__dirname + '/../')
 
 app.use(require('cookie-parser')())
 app.use(express.json())
@@ -80,6 +81,9 @@ app.get('/:id', function (req, res) {
         query: q
     })
 })
+
+// Keep track of video progresses lol
+const progresses = {}
 
 /**
  * GET /info
@@ -167,20 +171,35 @@ app.post('/api/download', function (req, res) {
         return
     }
 
-    const audio = ytdlSave(id, 'audio')
     const video = ytdlSave(id, 'video')
+    const audio = ytdlSave(id, 'audio')
 
     res.status(200)
     res.send('OK')
 
-    Promise.allSettled([audio, video]).then(function (results) {
-        results.forEach(r => console.log(r))
+    Promise.allSettled([video, audio]).then(function (results) {
+        console.log('Download finished, joining with ffmpeg')
+        const both = path.resolve(`${root}/yt-downloads/${id}-both.webm`);
+
+        // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
+        ffmpeg()
+            .input(results[0].value)
+            .videoCodec('copy')
+            .input(results[1].value)
+            .audioCodec('aac')
+            .format('mp4')
+            .inputOptions('-strict experimental')
+            .save(both)
+            .on('end', function () {
+                console.log('Merge finished!')
+            })
+            .on('error', console.log)
     })
 
 })
 
 app.listen(process.env.PORT || 8080, function () {
-    console.log('Server is live')
+    console.log(`Server is live`)
 })
 
 
@@ -214,37 +233,52 @@ function choose(arr) {
     return arr[Math.floor(Math.random() * arr.length)]
 }
 
-
 function ytdlSave(id, kind) {
     return new Promise(function (resolve, reject) {
-        const writeStream = fs.createWriteStream(`${root}/dls/${id}-${kind}`)
+        const output = path.resolve(`${root}/yt-downloads/${id}-${kind}.webm`)
+        const writeStream = fs.createWriteStream(output)
         ytdl(id, {
             quality: ['highestvideo', 'highestaudio'][
                 ['video', 'audio'].indexOf(kind)
             ]
         })
-            .pipe(writeStream)
+            .on('info', function () {
+                progresses[id] || (progresses[id] = {})
+                progresses[id][kind] || (progresses[id][kind] = {})
+                progresses[id][kind].isFinished = false
+                progresses[id][kind].progress = 0
+                
+            })
             .on('finish', function () {
-                resolve(writeStream)
+                progresses[id] || (progresses[id] = {})
+                progresses[id][kind].isFinished = true
+                // Resolve with the output, not the WritableStream
+                resolve(output)
+            })
+            .on('progress', function (a, b, c) {
+                // Save the progression on the progresses object
+                progresses[id][kind] || (progresses[id][kind] = {})
+                progresses[id][kind].progress = b / c
+                console.log(progresses[id])
             })
             .on('error', reject)
+            .pipe(writeStream)
     })
 }
 
 // All settled polyfill
 if (!Promise.allSettled) {
-    Promise.allSettled = promises =>
-      Promise.all(
-        promises.map((promise, i) =>
-          promise
+    Promise.allSettled = promises => Promise.all(
+        promises.map((promise,) =>
+            promise
             .then(value => ({
-              status: "fulfilled",
-              value,
+                status: "fulfilled",
+                value,
             }))
             .catch(reason => ({
-              status: "rejected",
-              reason,
+                status: "rejected",
+                reason,
             }))
         )
-      );
-  }
+    );
+}

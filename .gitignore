@@ -1,3 +1,6 @@
+# Ignore yt-downloads, the downloads are stored here
+yt-downloads/
+
 # Logs
 logs
 *.log

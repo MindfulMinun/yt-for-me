@@ -4,18 +4,22 @@ var _express = _interopRequireDefault(require("express"));
 
 var _fs = _interopRequireDefault(require("fs"));
 
-var _path = require("path");
+var _path = _interopRequireDefault(require("path"));
 
 var _ytdlCore = _interopRequireDefault(require("ytdl-core"));
 
 var _ytSearch = _interopRequireDefault(require("yt-search"));
+
+var _fluentFfmpeg = _interopRequireDefault(require("fluent-ffmpeg"));
 
 var _mustacheExpress = _interopRequireDefault(require("mustache-express"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var app = (0, _express["default"])();
-var root = (0, _path.resolve)(__dirname + '/../');
+
+var root = _path["default"].resolve(__dirname + '/../');
+
 app.use(require('cookie-parser')());
 app.use(_express["default"].json());
 app.engine('mst', (0, _mustacheExpress["default"])(__dirname + '/public', '.mst'));
@@ -84,7 +88,9 @@ app.get('/:id', function (req, res) {
     d: require("./langs/".concat(lang, ".js")),
     query: q
   });
-});
+}); // Keep track of video progresses lol
+
+var progresses = {};
 /**
  * GET /info
  * Request query parameters:
@@ -174,18 +180,24 @@ app.post('/api/download', function (req, res) {
     return;
   }
 
-  var audio = ytdlSave(id, 'audio');
   var video = ytdlSave(id, 'video');
+  var audio = ytdlSave(id, 'audio');
   res.status(200);
   res.send('OK');
-  Promise.allSettled([audio, video]).then(function (results) {
-    results.forEach(function (r) {
-      return console.log(r);
-    });
+  Promise.allSettled([video, audio]).then(function (results) {
+    console.log('Download finished, joining with ffmpeg');
+
+    var both = _path["default"].resolve("".concat(root, "/yt-downloads/").concat(id, "-both.webm"));
+
+    console.log(results); // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
+
+    (0, _fluentFfmpeg["default"])().input(results[0].value).videoCodec('copy').input(results[1].value).audioCodec('aac').format('mp4').inputOptions('-strict experimental').save(both).on('end', function () {
+      console.log('Merge finished!');
+    }).on('error', console.log);
   });
 });
 app.listen(process.env.PORT || 8080, function () {
-  console.log('Server is live');
+  console.log("Server is live");
 });
 /**
  * Returns a supported language
@@ -224,20 +236,35 @@ function choose(arr) {
 
 function ytdlSave(id, kind) {
   return new Promise(function (resolve, reject) {
-    var writeStream = _fs["default"].createWriteStream("".concat(root, "/dls/").concat(id, "-").concat(kind));
+    var output = _path["default"].resolve("".concat(root, "/yt-downloads/").concat(id, "-").concat(kind, ".webm"));
+
+    var writeStream = _fs["default"].createWriteStream(output);
 
     (0, _ytdlCore["default"])(id, {
       quality: ['highestvideo', 'highestaudio'][['video', 'audio'].indexOf(kind)]
-    }).pipe(writeStream).on('finish', function () {
-      resolve(writeStream);
-    }).on('error', reject);
+    }).on('info', function () {
+      progresses[id] || (progresses[id] = {});
+      progresses[id][kind] || (progresses[id][kind] = {});
+      progresses[id][kind].isFinished = false;
+      progresses[id][kind].progress = 0;
+    }).on('finish', function () {
+      progresses[id] || (progresses[id] = {});
+      progresses[id][kind].isFinished = true; // Resolve with the output, not the WritableStream
+
+      resolve(output);
+    }).on('progress', function (a, b, c) {
+      // Save the progression on the progresses object
+      progresses[id][kind] || (progresses[id][kind] = {});
+      progresses[id][kind].progress = b / c;
+      console.log(progresses[id]);
+    }).on('error', reject).pipe(writeStream);
   });
 } // All settled polyfill
 
 
 if (!Promise.allSettled) {
   Promise.allSettled = function (promises) {
-    return Promise.all(promises.map(function (promise, i) {
+    return Promise.all(promises.map(function (promise) {
       return promise.then(function (value) {
         return {
           status: "fulfilled",

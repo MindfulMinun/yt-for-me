@@ -73,7 +73,7 @@
           return pmr.category;
         });
       });
-    }) || info.media && info.media.category || null;
+    }) || false;
 
     if (category) {
       view.querySelector('.yt-meta').dataset.category = category;

@@ -131,14 +131,12 @@
                     pmr => pmr.category
                 )
             )
-        ) || (info.media && info.media.category) || null
-
+        ) || false
 
         if (category) {
             view.querySelector('.yt-meta').dataset.category = category
         }
 
-    
         info.formats.forEach(function (f, i) {
             return; // Just don't do anything for now.
             // f for format
