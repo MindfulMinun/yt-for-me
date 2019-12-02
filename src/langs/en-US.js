@@ -64,7 +64,18 @@
             emptySearch: () => `It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.`,
             count: () => (text, render) => `${render(text)} views`,
             by: () => (text, render) => `by ${render(text)}`,
-            views: () => (text, render) => `${numFormatter.format(render(text))} views`,
+            views: () => (text, render) => {
+                const views = render(text)
+                    
+                switch (views) {
+                    case "0":
+                        return "No views :("
+                    case "1":
+                        return "One singular view :O"
+                    default:
+                        return `${numFormatter.format(views)} views`
+                }
+            },
             relTime: () => (text, render) => render(text) // It's in English by default
         },
         view: {
@@ -76,12 +87,30 @@
             dlListAudio: () => "Audio only",
             dlListVideo: () => "Video only",
             iframeA11yLabel: title => `${title} - Embedded YouTube player`,
-            metaViews: views => `${numFormatter.format(views)} views`,
+            metaViews: views => {
+                switch (views) {
+                    case 0:
+                        return "No views :("
+                    case 1:
+                        return "One singular view :O"
+                    default:
+                        return `${numFormatter.format(views)} views`
+                }
+            },
             metaPublished: date => `Published on ${dateFormatter.format(date)}`,
             metaAuthor: name => `by ${name}`,
+            metaAlbum: album => `in ${album}`,
+            metaLicense: lic => `℗ ${lic}`,
             cardAuthor: name => `by ${name}`,
             cardViews: views => `${views} views`,
             searchLabel: () => "Back to search"
+        },
+        propertyLookup: {
+            song: "song",
+            album: "album",
+            artist: "artist",
+            license: "licensed_to_youtube_by",
+            explicit: "parental_warning"
         },
         loadingBlobs: [
             "Loading...",

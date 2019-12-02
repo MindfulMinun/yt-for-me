@@ -58,7 +58,18 @@
       },
       views: function views() {
         return function (text, render) {
-          return "".concat(numFormatter.format(render(text)), " views");
+          var views = render(text);
+
+          switch (views) {
+            case "0":
+              return "No views :(";
+
+            case "1":
+              return "One singular view :O";
+
+            default:
+              return "".concat(numFormatter.format(views), " views");
+          }
         };
       },
       relTime: function relTime() {
@@ -88,13 +99,28 @@
         return "".concat(title, " - Embedded YouTube player");
       },
       metaViews: function metaViews(views) {
-        return "".concat(numFormatter.format(views), " views");
+        switch (views) {
+          case 0:
+            return "No views :(";
+
+          case 1:
+            return "One singular view :O";
+
+          default:
+            return "".concat(numFormatter.format(views), " views");
+        }
       },
       metaPublished: function metaPublished(date) {
         return "Published on ".concat(dateFormatter.format(date));
       },
       metaAuthor: function metaAuthor(name) {
         return "by ".concat(name);
+      },
+      metaAlbum: function metaAlbum(album) {
+        return "in ".concat(album);
+      },
+      metaLicense: function metaLicense(lic) {
+        return "\u2117 ".concat(lic);
       },
       cardAuthor: function cardAuthor(name) {
         return "by ".concat(name);
@@ -105,6 +131,13 @@
       searchLabel: function searchLabel() {
         return "Back to search";
       }
+    },
+    propertyLookup: {
+      song: "song",
+      album: "album",
+      artist: "artist",
+      license: "licensed_to_youtube_by",
+      explicit: "parental_warning"
     },
     loadingBlobs: ["Loading...", "Stealing your YT credentials...", "ちょっと待って下さい", "beep boop boop loading...", "i'm not sentient, i promise!!!", "An exception has occurred. Please wait five seconds.", "Ready?", "Sleeping with your sister...", "Calling <code>setTimeout(render, 5000)</code>...", "Brewing some coffee...", "Give me a minute, I just woke up...", "Generating a blob...", "Showing up late to class yet again...", "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
   };

@@ -8,12 +8,27 @@
         throw Error("UMD exporting failed")
     }
 })(typeof self !== 'undefined' ? self : this, function () {
-    const numFormatter = new Intl.NumberFormat('es-MX', { style: 'decimal' })
-    const dateFormatter = new Intl.DateTimeFormat('es-MX', {
-        dateStyle: "medium",
-        timeStyle: "medium",
-        timeZone: "utc"
-    })
+    const numFormatter = new Intl.NumberFormat('es-US', { style: 'decimal' })
+    // const dateFormatter = new Intl.DateTimeFormat('es-US', {
+    //     dateStyle: "medium",
+    //     timeStyle: "medium"
+    // })
+    // dateFormatter.format(new Date)
+
+    function dateFormatter(date) {
+        date = new Date(date)
+        let out = ''
+        out += date.toLocaleDateString('es-US', {
+            dateStyle: "medium"
+        })
+        let right = date.toLocaleTimeString('es-US', {
+            timeStyle: "medium"
+        })
+
+        out += ` a la${/^(0?1):/.test(right) ? '' : 's'} `
+        out += right
+        return out
+    }
 
     const relativeTimes = {
         minute: "minuto",
@@ -31,7 +46,7 @@
     }
 
     return {
-        lang: 'es-MX',
+        lang: 'es-US',
         welcome: {
             hi: "Hola. Desde aquí puedes robarte videos de YouTube.",
             love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>",
@@ -79,9 +94,19 @@
             resultsFor: () => (text, render) => `Resultados para la búsqueda “${render(text)}”`,
             emptySearch: () => `Parece que no buscaste nada. ¿Acaso no quieres ver nada? Si te cambias de opinión, puedes intentarlo de nuevo con la barra de arriba.`,
             by: () => (text, render) => `por ${render(text)}`,
-            views: () => (text, render) => `${numFormatter.format(render(text))} vistas`,
+            views: () => (text, render) => {
+                const views = render(text)
+                switch (views) {
+                    case "0":
+                        return "Sin vistas :("
+                    case "1":
+                        return "Una sola vista :O"
+                    default:
+                        return `${numFormatter.format(views)} vistas`
+                }
+            },
             relTime: () => (text, render) => {
-                let arr = render(text).split(/\s/);
+                let arr = render(text).split(/\s/)
                 return `Hace ${arr[0] === '1' ? 'un' : arr[0]} ${relativeTimes[arr[1]]}`
             }
         },
@@ -94,12 +119,41 @@
             dlListAudio: () => "Solo audio",
             dlListVideo: () => "Solo video",
             iframeA11yLabel: title => `${title} - Repdroductor YouTube`,
-            metaViews: views => `${numFormatter.format(views)} vistas`,
-            metaPublished: date => `Publicado el ${dateFormatter.format(date)}`,
+            metaViews: views => {
+                switch (views) {
+                    case 0:
+                        return "Sin vistas :("
+                    case 1:
+                        return "Una sola vista :O"
+                    default:
+                        return `${numFormatter.format(views)} vistas`
+                }
+            },
+            metaPublished: date => `Publicado el ${dateFormatter(date)}`,
             metaAuthor: name => `por ${name}`,
+            metaAlbum: album => `en ${album}`,
+            metaLicense: lic => `℗ ${lic}`,
             cardAuthor: name => `por ${name}`,
-            cardViews: views => `${views.replace(/(\d+),(\d+)/i, '$1.$2')} vistas`,
+            cardViews: views => {
+                switch (false) {
+                    case views !== "0":
+                        return "Sin vistas"
+                    case views !== "1":
+                        return "Una sola vista"
+                    case !/[MB]$/i.test(views):
+                        return `${views} de vistas`
+                    default:
+                        return `${views} vistas`
+                }
+            },
             searchLabel: () => "Regresar a la búsqueda"
+        },
+        propertyLookup: {
+            song: "canción",
+            album: "álbum",
+            artist: "artista",
+            license: "con_licencia_para_youtube_de",
+            explicit: "advertencia_para_padres"
         },
         // render(text).replace(/(\d+),(\d+)/gi, '$1.$2')
         loadingBlobs: [
@@ -118,5 +172,5 @@
             "Llegando tarde a clases de nuevo...",
             "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"
         ]
-    };
-});
+    }
+})

@@ -62,6 +62,11 @@
         const ps = info.player_response || {}
         view.classList.add('view')
         view.classList.add('mobile-edge-flush')
+
+        // Cherry pick the properties we want from info and mod them here.
+        const vid = cherryPickProperties(info)
+
+        document.title = `${vid.title} • yt-for-me`
     
         view.innerHTML = `
             <div class="yt">
@@ -97,19 +102,7 @@
                 </div>
                 <div class="yt-related"></div>
                 <div class="yt-meta">
-                    <span class="yt-meta__title">${
-                        (info.media && info.media.song) || info.title
-                    }</span>
-                    <span class="yt-meta__data">${
-                        dict.view.metaViews(ps.videoDetails.viewCount)
-                    }</span>
-                    <span class="yt-meta__data">${
-                        dict.view.metaPublished(info.published)
-                    }</span>
-                    <span class="yt-meta__data">${
-                        dict.view.metaAuthor((info.media && info.media.artist
-                        ) || info.author.name)
-                    }</span>
+                    <span class="yt-meta__title">${vid.title}</span>
                 </div>
                 <div class="yt-desc">${
                     guard(ps.microformat, mf => guard(
@@ -121,7 +114,32 @@
                 }</div>
             </div>
         `
-    
+
+        ;(() => {
+            const meta = view.querySelector('.yt-meta')
+
+            ps.videoDetails.viewCount && meta.appendChild(createMetaTag(
+                dict.view.metaViews(ps.videoDetails.viewCount)
+            ))
+            
+            info.published && meta.appendChild(createMetaTag(
+                dict.view.metaPublished(info.published)
+            ))
+
+            vid.author && meta.appendChild(createMetaTag(
+                dict.view.metaAuthor(vid.author)
+            ))
+            vid.album && meta.appendChild(createMetaTag(
+                dict.view.metaAlbum(vid.album)
+            ))
+            vid.license && meta.appendChild(createMetaTag(
+                dict.view.metaLicense(vid.license)
+            ))
+
+        })();
+
+
+
         const category = guard(
             info.player_response,
             pr => guard(
@@ -222,5 +240,44 @@
         return view
     }
 
+    function cherryPickProperties(info) {
+        const vid = {}
+        const ps = info.ps || {}
+
+        // Check media title (song title),
+        // then check the microformat title (translated???)
+        // then default the basic property
+        vid.title = (info.media && info.media[
+            dict.propertyLookup.song
+        ]) || guard(ps.microformat, mf => guard(
+            mf.playerMicroformatRenderer,
+            r => guard(r.title, t => t.simpleText)
+        )) || info.title
+
+        vid.author = (info.media && info.media[
+            dict.propertyLookup.artist
+        ]) || info.author.name
+
+        vid.album = info.media && info.media[
+            dict.propertyLookup.album
+        ]
+
+        vid.license = info.media && info.media[
+            dict.propertyLookup.license
+        ]
+
+        vid.isExplicit = !!(info.media && info.media[
+            dict.propertyLookup.explicit
+        ])
+
+        return vid
+    }
+
+    function createMetaTag(innerHTML) {
+        const span = document.createElement('span')
+        span.classList.add('yt-meta__data')
+        span.innerHTML = innerHTML
+        return span
+    }
 
 })()

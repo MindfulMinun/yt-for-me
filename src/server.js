@@ -212,13 +212,13 @@ app.listen(process.env.PORT || 8080, function () {
  * @version 1.0.0
  */
 function getLang(req) {
-    const supported = ['en', 'es']
-    const qLang = (req.query.lang || '').slice(0, 2)
+    const supported = ['en-US', 'es-US']
+    const qLang = (req.query.lang || '')
     const browser = req.acceptsLanguages(supported)
 
     if (supported.includes(qLang)) { return qLang }
     if (browser) return browser
-    return 'en'
+    return 'en-US'
 }
 
 /**

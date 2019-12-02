@@ -59,14 +59,27 @@
     var view = document.createElement('div');
     var ps = info.player_response || {};
     view.classList.add('view');
-    view.classList.add('mobile-edge-flush');
-    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict.view.dlSummaryLabel(), "</summary>\n                    <p>").concat(dict.view.dlSummaryPara(), "</p>\n                    <div class=\"yt-btn-group\">\n                        <button class=\"yt-btn\">").concat(dict.view.dlListBoth(), "</button>\n                        <button class=\"yt-btn\">").concat(dict.view.dlListAudio(), "</button>\n                        <button class=\"yt-btn\">").concat(dict.view.dlListVideo(), "</button>\n                    </div>\n                    <!--\n                    <div class=\"yt-dl__lists\">\n                        <ul>\n                            <li><strong>").concat(dict.view.dlListBoth(), "</strong></li>\n                        </ul>\n                        <ul>\n                            <li><strong>").concat(dict.view.dlListAudio(), "</strong></li>\n                        </ul>\n                        <ul>\n                            <li><strong>").concat(dict.view.dlListVideo(), "</strong></li>\n                        </ul>\n                    </div>\n                    -->\n                    </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        title=\"").concat(dict.view.iframeA11yLabel(info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(info.media && info.media.song || info.title, "</span>\n                    <span class=\"yt-meta__data\">").concat(dict.view.metaViews(ps.videoDetails.viewCount), "</span>\n                    <span class=\"yt-meta__data\">").concat(dict.view.metaPublished(info.published), "</span>\n                    <span class=\"yt-meta__data\">").concat(dict.view.metaAuthor(info.media && info.media.artist || info.author.name), "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(guard(ps.microformat, function (mf) {
+    view.classList.add('mobile-edge-flush'); // Cherry pick the properties we want from info and mod them here.
+
+    var vid = cherryPickProperties(info);
+    document.title = "".concat(vid.title, " \u2022 yt-for-me");
+    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict.view.dlSummaryLabel(), "</summary>\n                    <p>").concat(dict.view.dlSummaryPara(), "</p>\n                    <div class=\"yt-btn-group\">\n                        <button class=\"yt-btn\">").concat(dict.view.dlListBoth(), "</button>\n                        <button class=\"yt-btn\">").concat(dict.view.dlListAudio(), "</button>\n                        <button class=\"yt-btn\">").concat(dict.view.dlListVideo(), "</button>\n                    </div>\n                    <!--\n                    <div class=\"yt-dl__lists\">\n                        <ul>\n                            <li><strong>").concat(dict.view.dlListBoth(), "</strong></li>\n                        </ul>\n                        <ul>\n                            <li><strong>").concat(dict.view.dlListAudio(), "</strong></li>\n                        </ul>\n                        <ul>\n                            <li><strong>").concat(dict.view.dlListVideo(), "</strong></li>\n                        </ul>\n                    </div>\n                    -->\n                    </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        title=\"").concat(dict.view.iframeA11yLabel(info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(guard(ps.microformat, function (mf) {
       return guard(mf.playerMicroformatRenderer, function (pmr) {
         return guard(pmr.description, function (desc) {
           return desc.simpleText;
         });
       });
     }) || info.description, "</div>\n            </div>\n        ");
+
+    (function () {
+      var meta = view.querySelector('.yt-meta');
+      ps.videoDetails.viewCount && meta.appendChild(createMetaTag(dict.view.metaViews(ps.videoDetails.viewCount)));
+      info.published && meta.appendChild(createMetaTag(dict.view.metaPublished(info.published)));
+      vid.author && meta.appendChild(createMetaTag(dict.view.metaAuthor(vid.author)));
+      vid.album && meta.appendChild(createMetaTag(dict.view.metaAlbum(vid.album)));
+      vid.license && meta.appendChild(createMetaTag(dict.view.metaLicense(vid.license)));
+    })();
+
     var category = guard(info.player_response, function (pr) {
       return guard(pr.microformat, function (mf) {
         return guard(mf.playerMicroformatRenderer, function (pmr) {
@@ -154,5 +167,32 @@
       rel.appendChild(card);
     });
     return view;
+  }
+
+  function cherryPickProperties(info) {
+    var vid = {};
+    var ps = info.ps || {}; // Check media title (song title),
+    // then check the microformat title (translated???)
+    // then default the basic property
+
+    vid.title = info.media && info.media[dict.propertyLookup.song] || guard(ps.microformat, function (mf) {
+      return guard(mf.playerMicroformatRenderer, function (r) {
+        return guard(r.title, function (t) {
+          return t.simpleText;
+        });
+      });
+    }) || info.title;
+    vid.author = info.media && info.media[dict.propertyLookup.artist] || info.author.name;
+    vid.album = info.media && info.media[dict.propertyLookup.album];
+    vid.license = info.media && info.media[dict.propertyLookup.license];
+    vid.isExplicit = !!(info.media && info.media[dict.propertyLookup.explicit]);
+    return vid;
+  }
+
+  function createMetaTag(innerHTML) {
+    var span = document.createElement('span');
+    span.classList.add('yt-meta__data');
+    span.innerHTML = innerHTML;
+    return span;
   }
 })();

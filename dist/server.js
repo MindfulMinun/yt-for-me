@@ -187,9 +187,8 @@ app.post('/api/download', function (req, res) {
   Promise.allSettled([video, audio]).then(function (results) {
     console.log('Download finished, joining with ffmpeg');
 
-    var both = _path["default"].resolve("".concat(root, "/yt-downloads/").concat(id, "-both.webm"));
+    var both = _path["default"].resolve("".concat(root, "/yt-downloads/").concat(id, "-both.webm")); // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
 
-    console.log(results); // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
 
     (0, _fluentFfmpeg["default"])().input(results[0].value).videoCodec('copy').input(results[1].value).audioCodec('aac').format('mp4').inputOptions('-strict experimental').save(both).on('end', function () {
       console.log('Merge finished!');
@@ -209,8 +208,8 @@ app.listen(process.env.PORT || 8080, function () {
  */
 
 function getLang(req) {
-  var supported = ['en', 'es'];
-  var qLang = (req.query.lang || '').slice(0, 2);
+  var supported = ['en-US', 'es-US'];
+  var qLang = req.query.lang || '';
   var browser = req.acceptsLanguages(supported);
 
   if (supported.includes(qLang)) {
@@ -218,7 +217,7 @@ function getLang(req) {
   }
 
   if (browser) return browser;
-  return 'en';
+  return 'en-US';
 }
 /**
  * Selects a random element from an array

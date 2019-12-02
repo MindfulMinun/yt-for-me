@@ -1,13 +1,13 @@
 "use strict";
 
 yt.langs = [{
-  name: "English",
+  name: "English (US)",
   code: "en",
   full: "en-US"
 }, {
-  name: "Español",
+  name: "Español (Estados Unidos)",
   code: "es",
-  full: "es-MX"
+  full: "es-US"
 }];
 
 function makeFooter() {
@@ -20,10 +20,10 @@ function makeFooter() {
   s.classList.add('yt-select');
   yt.langs.forEach(function (lang) {
     var o = document.createElement('option');
-    o.value = lang.code;
+    o.value = lang.full;
     o.innerText = lang.name;
 
-    if (lang.code === yt.lang) {
+    if (lang.full === yt.lang) {
       o.selected = true;
     }
 

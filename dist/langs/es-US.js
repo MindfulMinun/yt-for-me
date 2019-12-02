@@ -10,14 +10,28 @@
     throw Error("UMD exporting failed");
   }
 })(typeof self !== 'undefined' ? self : void 0, function () {
-  var numFormatter = new Intl.NumberFormat('es-MX', {
+  var numFormatter = new Intl.NumberFormat('es-US', {
     style: 'decimal'
-  });
-  var dateFormatter = new Intl.DateTimeFormat('es-MX', {
-    dateStyle: "medium",
-    timeStyle: "medium",
-    timeZone: "utc"
-  });
+  }); // const dateFormatter = new Intl.DateTimeFormat('es-US', {
+  //     dateStyle: "medium",
+  //     timeStyle: "medium"
+  // })
+  // dateFormatter.format(new Date)
+
+  function dateFormatter(date) {
+    date = new Date(date);
+    var out = '';
+    out += date.toLocaleDateString('es-US', {
+      dateStyle: "medium"
+    });
+    var right = date.toLocaleTimeString('es-US', {
+      timeStyle: "medium"
+    });
+    out += " a la".concat(/^(0?1):/.test(right) ? '' : 's', " ");
+    out += right;
+    return out;
+  }
+
   var relativeTimes = {
     minute: "minuto",
     minutes: "minutos",
@@ -33,7 +47,7 @@
     years: "años"
   };
   return {
-    lang: 'es-MX',
+    lang: 'es-US',
     welcome: {
       hi: "Hola. Desde aquí puedes robarte videos de YouTube.",
       love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>",
@@ -67,7 +81,18 @@
       },
       views: function views() {
         return function (text, render) {
-          return "".concat(numFormatter.format(render(text)), " vistas");
+          var views = render(text);
+
+          switch (views) {
+            case "0":
+              return "Sin vistas :(";
+
+            case "1":
+              return "Una sola vista :O";
+
+            default:
+              return "".concat(numFormatter.format(views), " vistas");
+          }
         };
       },
       relTime: function relTime() {
@@ -97,23 +122,57 @@
         return "".concat(title, " - Repdroductor YouTube");
       },
       metaViews: function metaViews(views) {
-        return "".concat(numFormatter.format(views), " vistas");
+        switch (views) {
+          case 0:
+            return "Sin vistas :(";
+
+          case 1:
+            return "Una sola vista :O";
+
+          default:
+            return "".concat(numFormatter.format(views), " vistas");
+        }
       },
       metaPublished: function metaPublished(date) {
-        return "Publicado el ".concat(dateFormatter.format(date));
+        return "Publicado el ".concat(dateFormatter(date));
       },
       metaAuthor: function metaAuthor(name) {
         return "por ".concat(name);
+      },
+      metaAlbum: function metaAlbum(album) {
+        return "en ".concat(album);
+      },
+      metaLicense: function metaLicense(lic) {
+        return "\u2117 ".concat(lic);
       },
       cardAuthor: function cardAuthor(name) {
         return "por ".concat(name);
       },
       cardViews: function cardViews(views) {
-        return "".concat(views.replace(/(\d+),(\d+)/i, '$1.$2'), " vistas");
+        switch (false) {
+          case views !== "0":
+            return "Sin vistas";
+
+          case views !== "1":
+            return "Una sola vista";
+
+          case !/[MB]$/i.test(views):
+            return "".concat(views, " de vistas");
+
+          default:
+            return "".concat(views, " vistas");
+        }
       },
       searchLabel: function searchLabel() {
         return "Regresar a la búsqueda";
       }
+    },
+    propertyLookup: {
+      song: "canción",
+      album: "álbum",
+      artist: "artista",
+      license: "con_licencia_para_youtube_de",
+      explicit: "advertencia_para_padres"
     },
     // render(text).replace(/(\d+),(\d+)/gi, '$1.$2')
     loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Ejecutando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
