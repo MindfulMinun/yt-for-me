@@ -1,15 +1,17 @@
 "use strict";
 
 (function () {
-  'use strict';
+  'use strict'; // Assert the global yt is defined
 
   if (!yt) {
     throw Error("yt isn't defined, idk what to do.");
-  }
+  } // Some locals for later
 
-  yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/;
+
   var dict = yt.dict;
-  var cont = document.querySelector('div.container');
+  var cont = document.querySelector('div.container'); // Listen for back/forward events
+  // Bootstrap view handles view loading
+
   window.addEventListener('popstate', function (e) {
     console.log(e);
     guard(document.querySelector('.view'), function (view) {
@@ -21,7 +23,8 @@
     } else {
       history.back();
     }
-  });
+  }); // On page load, load the video the URL is currently at
+
   bootstrapView(guard(yt.REGEX_CAPTURE_ID.exec(location.pathname.slice(1) || ''), function (match) {
     return match[0];
   }) || '');
@@ -32,21 +35,27 @@
       throw Error("ID didn't match regex, something's wrong.");
     }
 
-    history.pushState(id, id, '/' + id + location.search);
+    history.pushState(id, id, '/' + id + location.search); // Display a loading blob (blob = message before UI loads)
+
     var loading = document.createElement('p');
     loading.classList.add('loading');
     loading.innerHTML = choose(dict.loadingBlobs);
-    cont.prepend(loading);
+    cont.prepend(loading); // Get video data
+
     fetch("/api/info?id=".concat(id, "&lang=").concat(yt.dict.lang)).then(function (res) {
       return res.json();
     }).then(function (json) {
       return json.error ? Promise.reject(json) : json;
     }).then(function (info) {
-      document.title = "".concat(info.title, " \u2022 yt-for-me");
+      // Set the document title to the video title
+      document.title = "".concat(info.title, " \u2022 yt-for-me"); // Prepare the content div for population
+
       cont.innerHTML = '';
-      cont.classList.remove('anim--fuck-this-shit-im-out');
+      cont.classList.remove('anim--fuck-this-shit-im-out'); // Populate the div
+
       cont.appendChild(genView(info));
-      cont.appendChild(makeFooter());
+      cont.appendChild(makeFooter()); // Expose the vid data cuz why not
+
       window.vid = info;
       console.log('Video info (window.vid):', info);
     })["catch"](function (err) {
@@ -73,7 +82,7 @@
 
     (function () {
       var meta = view.querySelector('.yt-meta');
-      ps.videoDetails.viewCount && meta.appendChild(createMetaTag(dict.view.metaViews(ps.videoDetails.viewCount)));
+      vid.views && meta.appendChild(createMetaTag(dict.view.metaViews(vid.views)));
       info.published && meta.appendChild(createMetaTag(dict.view.metaPublished(info.published)));
       vid.author && meta.appendChild(createMetaTag(vid.album ? dict.view.metaAlbumAuthor(vid.album, vid.author) : dict.view.metaAuthor(vid.author)));
       vid.license && meta.appendChild(createMetaTag(dict.view.metaLicense(vid.license)));
@@ -170,7 +179,7 @@
 
   function cherryPickProperties(info) {
     var vid = {};
-    var ps = info.ps || {}; // Check media title (song title),
+    var ps = info.player_response || {}; // Check media title (song title),
     // then check the microformat title (translated???)
     // then default the basic property
 
@@ -185,6 +194,7 @@
     vid.album = info.media && info.media[dict.propertyLookup.album];
     vid.license = info.media && info.media[dict.propertyLookup.license];
     vid.isExplicit = !!(info.media && info.media[dict.propertyLookup.explicit]);
+    vid.views = +ps.videoDetails.viewCount;
     return vid;
   }
 

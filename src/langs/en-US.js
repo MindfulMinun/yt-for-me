@@ -18,7 +18,7 @@
         lang: 'en-US',
         welcome: {
             hi: "Hi there. This app steals videos from YouTube. Give it a try.",
-            love: "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>",
+            love: "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Source</a>",
             nojs: `
                 <p>Unfortunately, this really cool website needs you to enable <em>JavaScript</em>.
                 The internet won't stop asking you to enable it if you don't.

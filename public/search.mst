@@ -47,12 +47,13 @@
                     <input type="search" class="yt-input no-js-hide"
                         id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
                         placeholder="{{ d.welcome.searchPlaceholder }}"
-                        value="{{query}}">
+                        value="{{ query }}">
+                    <input type="hidden" name="lang" value="{{ lang }}">
                 </form>
 
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
 
-                <p>
+                <p class="fade-in-out">
                     {{#d.search.resultsFor}}{{query}}{{/d.search.resultsFor}}
                 </p>
 
@@ -90,18 +91,36 @@
     <script>
         document.documentElement.classList.remove("no-js");
 
-        // window.encodeURIComponent &&
-        // window.sessionStorage &&
-        // window.sessionStorage.setItem('lastSearch', document.getElementById('search').value);
-
         [].forEach.call(document.querySelectorAll('.search-list a.search-card'), function (el) {
-            el.href = el.href + location.search
+            el.href = el.href + location.search;
+
+            // Wait until the anim finishes before navigating
             el.onclick = function (e) {
+                // Start animation
                 document.querySelector('main').classList.add('anim--fuck-this-shit-im-out');
-                // e.preventDefault();
-                // requestAnimationFrame(() => {
-                //     location.href = el.href;
-                // });
+
+                // If a browser doesn't have animation events
+                // or if the user doesn't like animations, navigate immediately
+                const shouldWaitTillAnim = guard('AnimationEvent' in window && window.matchMedia,
+                    mm => mm('not all and (prefers-reduced-motion: reduce)').matches
+                ) || false;
+
+                if (!shouldWaitTillAnim) {
+                    return;
+                }
+
+                // Otherwise, stop the navigation event
+                e.preventDefault();
+
+                // Wait until the animation completes before navigating
+                document.querySelector('main .search-list').addEventListener('animationend', function() {
+                    location.href = el.href;
+                })
+
+                // In case the event listener fails unexpectedly, navigate after 700ms
+                setTimeout(function(){
+                    location.href = el.href;
+                }, 700)
             };
         });
 

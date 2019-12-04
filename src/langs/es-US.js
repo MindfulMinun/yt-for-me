@@ -49,7 +49,7 @@
         lang: 'es-US',
         welcome: {
             hi: "Hola. Desde aquí puedes robarte videos de YouTube.",
-            love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>",
+            love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
             nojs: `
                 <p>Desafortunadamente, esta página muy padre requiere de <em>JavaScript</em>.
                 Sin esta, se te será casi imposible navegar las redes sin que te exigen que la prendas.
@@ -118,7 +118,7 @@
             dlListBoth: () => "Video y audio",
             dlListAudio: () => "Solo audio",
             dlListVideo: () => "Solo video",
-            iframeA11yLabel: title => `${title} - Repdroductor YouTube`,
+            iframeA11yLabel: title => `${title} - Reproductor YouTube`,
             metaViews: views => {
                 switch (views) {
                     case 0:

@@ -1,3 +1,8 @@
+// Assert the global yt is defined
+if (!yt) {
+    throw Error("yt isn't defined, idk what to do.")
+}
+
 yt.langs = [{
     name: "English (US)",
     code: "en",
@@ -8,6 +13,9 @@ yt.langs = [{
     full: "es-US"
 }];
 
+// Matches a YouTube video id
+yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/
+
 function makeFooter() {
     const d = document.createElement('div')
     d.classList.add('with-love')
@@ -17,6 +25,7 @@ function makeFooter() {
     const s = document.createElement('select')
     d.appendChild(s)
     s.classList.add('yt-select')
+    // s.name = 'lang'
     yt.langs.forEach(lang => {
         const o = document.createElement('option')
         o.value = lang.full

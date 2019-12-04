@@ -1,6 +1,6 @@
 // index.js
 const rand = document.querySelectorAll('[data-random]')
-const cont = document.querySelector('.container')
+const form = document.querySelector('form')
 
 const vids = [
     'ckRSn2zWt_o', // Shyness Boy
@@ -12,4 +12,4 @@ const vids = [
 
 rand.forEach(el => el.href = choose(vids))
 
-cont.appendChild(makeFooter())
+form.appendChild(makeFooter())

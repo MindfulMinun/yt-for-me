@@ -1,15 +1,17 @@
 (function () {
     'use strict'
 
+    // Assert the global yt is defined
     if (!yt) {
         throw Error("yt isn't defined, idk what to do.")
     }
 
-    yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/
-
+    // Some locals for later
     const dict = yt.dict
     const cont = document.querySelector('div.container')
 
+    // Listen for back/forward events
+    // Bootstrap view handles view loading
     window.addEventListener('popstate', function (e) {
         console.log(e)
         guard(
@@ -23,10 +25,11 @@
         }
     })
 
+    // On page load, load the video the URL is currently at
     bootstrapView(
-        guard(yt.REGEX_CAPTURE_ID.exec(location.pathname.slice(1) || ''), match => {
-            return match[0]
-        }) || ''
+        guard(yt.REGEX_CAPTURE_ID.exec(location.pathname.slice(1) || ''),
+            match => match[0]
+        ) || ''
     )
 
     function bootstrapView(id) {
@@ -35,19 +38,30 @@
             throw Error("ID didn't match regex, something's wrong.")
         }
         history.pushState(id, id, '/' + id + location.search)
+
+        // Display a loading blob (blob = message before UI loads)
         const loading = document.createElement('p')
         loading.classList.add('loading')
         loading.innerHTML = choose(dict.loadingBlobs)
         cont.prepend(loading)
+        
+        // Get video data
         fetch(`/api/info?id=${id}&lang=${yt.dict.lang}`)
             .then(res => res.json())
             .then(json => json.error ? Promise.reject(json) : json)
             .then(function (info) {
+                // Set the document title to the video title
                 document.title = `${info.title} • yt-for-me`
+
+                // Prepare the content div for population
                 cont.innerHTML = ''
                 cont.classList.remove('anim--fuck-this-shit-im-out')
+
+                // Populate the div
                 cont.appendChild(genView(info))
                 cont.appendChild(makeFooter())
+
+                // Expose the vid data cuz why not
                 window.vid = info
                 console.log('Video info (window.vid):', info)
             })
@@ -157,8 +171,8 @@
         ;(() => {
             const meta = view.querySelector('.yt-meta')
 
-            ps.videoDetails.viewCount && meta.appendChild(createMetaTag(
-                dict.view.metaViews(ps.videoDetails.viewCount)
+            vid.views && meta.appendChild(createMetaTag(
+                dict.view.metaViews(vid.views)
             ))
             
             info.published && meta.appendChild(createMetaTag(
@@ -279,7 +293,7 @@
 
     function cherryPickProperties(info) {
         const vid = {}
-        const ps = info.ps || {}
+        const ps = info.player_response || {}
 
         // Check media title (song title),
         // then check the microformat title (translated???)
@@ -306,6 +320,8 @@
         vid.isExplicit = !!(info.media && info.media[
             dict.propertyLookup.explicit
         ])
+
+        vid.views = +ps.videoDetails.viewCount
 
         return vid
     }

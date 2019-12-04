@@ -38,9 +38,6 @@ details > summary:focus {
     outline-offset: -2px;
 }
 
-form { display: flex; }
-form > :last-child:not(:first-child) { margin-left: .5em; }
-
 .loading {
     position: absolute;
     opacity: 1;
@@ -416,42 +413,60 @@ ol.a11y-list {
 /***********************************************************
  * Anims
  */
-
-@media not all and (prefers-reduced-motion: reduce) {
-    @supports (--css: variables) {
-        .search-li {
-            opacity: 0;
-            animation-name: slide-in;
-            animation-duration: 250ms;
-            animation-delay: calc(var(--animation-order) * 50ms);
-            animation-fill-mode: forwards;
-            animation-timing-function: var(--anim-peak-to-rest);
-        }
-    }
-
-    .search-list {
-        /* animation: sliding-into-dms-like .4s var(--anim-peak-to-rest); */
-        animation-fill-mode: forwards;
-    }
-
-    .loading {
-        animation: fade-in .2s var(--anim-peak-to-rest);
-        animation-fill-mode: forwards;
-        animation-delay: .4s;
+@supports (--css: variables) {
+    .search-li {
         opacity: 0;
+        animation-name: slide-in;
+        animation-duration: 250ms;
+        animation-delay: calc(var(--animation-order) * 50ms);
+        animation-fill-mode: forwards;
+        animation-timing-function: var(--anim-peak-to-rest);
     }
+}
+
+.search-list {
+    /* animation: sliding-into-dms-like .4s var(--anim-peak-to-rest); */
+    animation-fill-mode: forwards;
+}
+
+.loading {
+    animation: fade-in .2s var(--anim-peak-to-rest);
+    animation-fill-mode: forwards;
+    animation-delay: .4s;
+    opacity: 0;
+}
+.view {
+    animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
+    animation-fill-mode: forwards;
+}
+.search {
+    animation: fade-in .4s var(--anim-peak-to-rest);
+    animation-fill-mode: forwards;
+}
+.fade-in-out {
+    animation: fade-in .4s var(--anim-peak-to-rest);
+    animation-fill-mode: both;
+}
+.anim--fuck-this-shit-im-out .view,
+.anim--fuck-this-shit-im-out .search-list {
+    animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
+    animation-fill-mode: forwards;
+}
+.anim--fuck-this-shit-im-out .fade-in-out {
+    animation: fade-out .4s var(--anim-rest-to-peak);
+}
+
+/* Reduced motion means _reduced_ motion, not no anims at all. */
+@media (prefers-reduced-motion: reduce) {
     .view {
-        animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
-        animation-fill-mode: forwards;
-    }
-    .search {
-        animation: fade-in .4s var(--anim-peak-to-rest);
-        animation-fill-mode: forwards;
+        animation-name: fade-in;
     }
     .anim--fuck-this-shit-im-out .view,
     .anim--fuck-this-shit-im-out .search-list {
-        animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
-        animation-fill-mode: forwards;
+        animation-name: fade-out;
+    }
+    .search-li {
+        animation-name: fade-in;
     }
 }
 
@@ -483,6 +498,15 @@ ol.a11y-list {
     }
     to {
         opacity: 1;
+    }
+}
+
+@keyframes fade-out {
+    from {
+        opacity: 1;
+    }
+    to {
+        opacity: 0;
     }
 }
 

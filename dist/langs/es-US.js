@@ -50,7 +50,7 @@
     lang: 'es-US',
     welcome: {
       hi: "Hola. Desde aquí puedes robarte videos de YouTube.",
-      love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>",
+      love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
       nojs: "\n                <p>Desafortunadamente, esta p\xE1gina muy padre requiere de <em>JavaScript</em>.\n                Sin esta, se te ser\xE1 casi imposible navegar las redes sin que te exigen que la prendas.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favorzote y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
       searchPre: "O busca lo que tu quieras:",
@@ -119,7 +119,7 @@
         return "Solo video";
       },
       iframeA11yLabel: function iframeA11yLabel(title) {
-        return "".concat(title, " - Repdroductor YouTube");
+        return "".concat(title, " - Reproductor YouTube");
       },
       metaViews: function metaViews(views) {
         switch (views) {

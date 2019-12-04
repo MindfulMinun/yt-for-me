@@ -1,5 +1,10 @@
 "use strict";
 
+// Assert the global yt is defined
+if (!yt) {
+  throw Error("yt isn't defined, idk what to do.");
+}
+
 yt.langs = [{
   name: "English (US)",
   code: "en",
@@ -8,7 +13,9 @@ yt.langs = [{
   name: "Español (Estados Unidos)",
   code: "es",
   full: "es-US"
-}];
+}]; // Matches a YouTube video id
+
+yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/;
 
 function makeFooter() {
   var d = document.createElement('div');
@@ -17,7 +24,8 @@ function makeFooter() {
   d.innerHTML = "<p class=\"flex-stretch\">".concat(yt.dict.welcome.love, "</p>");
   var s = document.createElement('select');
   d.appendChild(s);
-  s.classList.add('yt-select');
+  s.classList.add('yt-select'); // s.name = 'lang'
+
   yt.langs.forEach(function (lang) {
     var o = document.createElement('option');
     o.value = lang.full;
