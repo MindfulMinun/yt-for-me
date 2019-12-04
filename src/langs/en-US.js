@@ -11,8 +11,7 @@
     const numFormatter = new Intl.NumberFormat('en-US', { style: 'decimal' })
     const dateFormatter = new Intl.DateTimeFormat('en-US', {
         dateStyle: "medium",
-        timeStyle: "medium",
-        timeZone: "utc"
+        timeStyle: "medium"
     })
 
     return {
@@ -99,7 +98,7 @@
             },
             metaPublished: date => `Published on ${dateFormatter.format(date)}`,
             metaAuthor: name => `by ${name}`,
-            metaAlbum: album => `in ${album}`,
+            metaAlbumAuthor: (album, author) => `in ${author}’s album <em>${album}</em>`,
             metaLicense: lic => `℗ ${lic}`,
             cardAuthor: name => `by ${name}`,
             cardViews: views => `${views} views`,

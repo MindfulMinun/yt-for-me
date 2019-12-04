@@ -266,6 +266,9 @@ ol.a11y-list {
     /* The var is populated by JavaScript lol */
     background-image: var(--card-bg-image);
 }
+.yt-card:last-child {
+    margin-right: 0;
+}
 .yt-card::before {
     display: block;
     content: '';
@@ -376,6 +379,10 @@ ol.a11y-list {
     margin: 1em 0;
     padding: .5em 1.5em .5em 1em;
     min-width: 120px;
+}
+.yt-select.yt-select--compact {
+    padding: .25em 1.25em .25em .5em;
+    margin: 0;
 }
 .yt-select:focus {
     border-color: var(--accent);

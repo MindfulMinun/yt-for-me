@@ -73,11 +73,50 @@
                 <details class="yt-dl">
                     <summary>${dict.view.dlSummaryLabel()}</summary>
                     <p>${dict.view.dlSummaryPara()}</p>
+                    <!--
                     <div class="yt-btn-group">
                         <button class="yt-btn">${dict.view.dlListBoth()}</button>
                         <button class="yt-btn">${dict.view.dlListAudio()}</button>
                         <button class="yt-btn">${dict.view.dlListVideo()}</button>
                     </div>
+                    -->
+                    <label>
+                        Audio: 
+                        <select class="yt-select yt-select--compact">
+                        <option>Sin audio</option>
+                        <option>mp3</option>
+                        <option>acc</option>
+                        <option>ogg</option>
+                        <option>webm</option>
+                        </select>
+                    </label>
+                    <label>
+                        Video: 
+                        <select class="yt-select yt-select--compact">
+                            <option>Sin video</option>
+                            <option>mp4</option>
+                            <option>acc</option>
+                            <option>mpeg</option>
+                            <option>webm</option>
+                        </select>
+                    </label>
+                    <label>
+                        Salida: 
+                        <select class="yt-select yt-select--compact">
+                            <optgroup label="Audio">
+                                <option>mp3</option>
+                                <option>acc</option>
+                                <option>ogg</option>
+                                <option>webm</option>
+                            </optgroup>
+                            <optgroup label="Video (y también audio)">
+                                <option>mp4</option>
+                                <option>acc</option>
+                                <option>mpeg</option>
+                                <option>webm</option>
+                            </optgroup>
+                        </select>
+                    </label>
                     <!--
                     <div class="yt-dl__lists">
                         <ul>
@@ -125,12 +164,10 @@
             info.published && meta.appendChild(createMetaTag(
                 dict.view.metaPublished(info.published)
             ))
-
             vid.author && meta.appendChild(createMetaTag(
-                dict.view.metaAuthor(vid.author)
-            ))
-            vid.album && meta.appendChild(createMetaTag(
-                dict.view.metaAlbum(vid.album)
+                vid.album ?
+                    dict.view.metaAlbumAuthor(vid.album, vid.author) :
+                    dict.view.metaAuthor(vid.author)
             ))
             vid.license && meta.appendChild(createMetaTag(
                 dict.view.metaLicense(vid.license)

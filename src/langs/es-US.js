@@ -131,7 +131,7 @@
             },
             metaPublished: date => `Publicado el ${dateFormatter(date)}`,
             metaAuthor: name => `por ${name}`,
-            metaAlbum: album => `en ${album}`,
+            metaAlbumAuthor: (album, author) => `en el álbum <em>${album}</em> de ${author}`,
             metaLicense: lic => `℗ ${lic}`,
             cardAuthor: name => `por ${name}`,
             cardViews: views => {
@@ -142,6 +142,8 @@
                         return "Una sola vista"
                     case !/[MB]$/i.test(views):
                         return `${views} de vistas`
+                    // case !/K$/i.test(views):
+                    //     return `${views.replace(/K$/i, 'mil')} vistas`
                     default:
                         return `${views} vistas`
                 }

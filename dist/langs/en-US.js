@@ -15,8 +15,7 @@
   });
   var dateFormatter = new Intl.DateTimeFormat('en-US', {
     dateStyle: "medium",
-    timeStyle: "medium",
-    timeZone: "utc"
+    timeStyle: "medium"
   });
   return {
     lang: 'en-US',
@@ -116,8 +115,8 @@
       metaAuthor: function metaAuthor(name) {
         return "by ".concat(name);
       },
-      metaAlbum: function metaAlbum(album) {
-        return "in ".concat(album);
+      metaAlbumAuthor: function metaAlbumAuthor(album, author) {
+        return "in ".concat(author, "\u2019s album <em>").concat(album, "</em>");
       },
       metaLicense: function metaLicense(lic) {
         return "\u2117 ".concat(lic);

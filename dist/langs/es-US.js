@@ -139,8 +139,8 @@
       metaAuthor: function metaAuthor(name) {
         return "por ".concat(name);
       },
-      metaAlbum: function metaAlbum(album) {
-        return "en ".concat(album);
+      metaAlbumAuthor: function metaAlbumAuthor(album, author) {
+        return "en el \xE1lbum <em>".concat(album, "</em> de ").concat(author);
       },
       metaLicense: function metaLicense(lic) {
         return "\u2117 ".concat(lic);
@@ -158,6 +158,8 @@
 
           case !/[MB]$/i.test(views):
             return "".concat(views, " de vistas");
+          // case !/K$/i.test(views):
+          //     return `${views.replace(/K$/i, 'mil')} vistas`
 
           default:
             return "".concat(views, " vistas");
