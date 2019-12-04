@@ -87,64 +87,42 @@
                 <details class="yt-dl">
                     <summary>${dict.view.dlSummaryLabel()}</summary>
                     <p>${dict.view.dlSummaryPara()}</p>
-                    <!--
-                    <div class="yt-btn-group">
-                        <button class="yt-btn">${dict.view.dlListBoth()}</button>
-                        <button class="yt-btn">${dict.view.dlListAudio()}</button>
-                        <button class="yt-btn">${dict.view.dlListVideo()}</button>
+                    <div class="yt-dl__mini-form">
+                        <label id="label-audio">
+                            Audio: 
+                            <select class="yt-select yt-select--compact" disabled>
+                                <option value="none">Sin audio</option>
+                            </select>
+                        </label>
+                        <label id="label-video">
+                            Video: 
+                            <select class="yt-select yt-select--compact" disabled>
+                                <option value="none">Sin video</option>
+                            </select>
+                        </label>
+                        <label id="label-out">
+                            Salida: 
+                            <select class="yt-select yt-select--compact" disabled>
+                                <optgroup label="Audio">
+                                    <option value="mp3">mp3</option>
+                                    <option value="acc">acc</option>
+                                    <option value="ogg">ogg</option>
+                                </optgroup>
+                                <optgroup label="Video (y también audio)">
+                                    <option value="mp4">mp4</option>
+                                    <option value="mpeg">mpeg</option>
+                                </optgroup>
+                                <optgroup label="Ambos">
+                                    <option value="mp4" selected>mp4</option>
+                                    <option value="webm">webm</option>
+                                </optgroup>
+                            </select>
+                        </label>
+                        <label>
+                            <button class="yt-btn" disabled>Convertir</button>
+                        </label>
                     </div>
-                    -->
-                    <label>
-                        Audio: 
-                        <select class="yt-select yt-select--compact">
-                        <option>Sin audio</option>
-                        <option>mp3</option>
-                        <option>acc</option>
-                        <option>ogg</option>
-                        <option>webm</option>
-                        </select>
-                    </label>
-                    <label>
-                        Video: 
-                        <select class="yt-select yt-select--compact">
-                            <option>Sin video</option>
-                            <option>mp4</option>
-                            <option>acc</option>
-                            <option>mpeg</option>
-                            <option>webm</option>
-                        </select>
-                    </label>
-                    <label>
-                        Salida: 
-                        <select class="yt-select yt-select--compact">
-                            <optgroup label="Audio">
-                                <option>mp3</option>
-                                <option>acc</option>
-                                <option>ogg</option>
-                                <option>webm</option>
-                            </optgroup>
-                            <optgroup label="Video (y también audio)">
-                                <option>mp4</option>
-                                <option>acc</option>
-                                <option>mpeg</option>
-                                <option>webm</option>
-                            </optgroup>
-                        </select>
-                    </label>
-                    <!--
-                    <div class="yt-dl__lists">
-                        <ul>
-                            <li><strong>${dict.view.dlListBoth()}</strong></li>
-                        </ul>
-                        <ul>
-                            <li><strong>${dict.view.dlListAudio()}</strong></li>
-                        </ul>
-                        <ul>
-                            <li><strong>${dict.view.dlListVideo()}</strong></li>
-                        </ul>
-                    </div>
-                    -->
-                    </details>
+                </details>
                 <div class="yt-embed">
                     <iframe
                         title="${dict.view.iframeA11yLabel(info.title)}" frameborder="0"
@@ -168,6 +146,44 @@
             </div>
         `
 
+        const filteredFormats = info.formats.filter(f => {
+            // Get formats that aren't live, and are either all audio or all video
+            return !f.live & ((!!f.resolution) ^ (!!f.audioEncoding))
+        }).sort((a, b) => {
+            if (!!a.audioEncoding === !!b.audioEncoding) {
+                return 0
+            }
+            return !a.audioEncoding ? 1 : -1
+        })
+
+        view.querySelector('details').appendChild(createTable(filteredFormats))
+            
+        // Add the options in the dropdowns
+        filteredFormats.forEach(format => {
+            const select = [
+                view.querySelector('#label-audio select'),
+                view.querySelector('#label-video select')
+            ][format.audioEncoding ? 0 : 1]
+
+            const option = document.createElement('option')
+            option.innerText = `${format.itag}: ${
+                format.audioEncoding || format.encoding
+            } (${format.container})${
+                format.audio_sample_rate ?
+                    ' @ ' + Math.round(+format.audio_sample_rate / 100) / 10 + 'kHz' :
+                    ' @ ' + format.resolution
+            }`
+
+            option.value = format.itag
+
+            select.appendChild(option)
+        })
+            
+        // Enable the dropdowns and the dl button
+        view.querySelectorAll('.yt-dl__mini-form select, .yt-dl__mini-form button').forEach(el => {
+            el.removeAttribute('disabled')
+        })
+        
         ;(() => {
             const meta = view.querySelector('.yt-meta')
 
@@ -189,8 +205,6 @@
 
         })();
 
-
-
         const category = guard(
             info.player_response,
             pr => guard(
@@ -205,41 +219,6 @@
         if (category) {
             view.querySelector('.yt-meta').dataset.category = category
         }
-
-        info.formats.forEach(function (f, i) {
-            return; // Just don't do anything for now.
-            // f for format
-            let li = document.createElement('li')
-            ,   inner = ''
-            , dlList
-    
-            if (f.encoding && f.audioEncoding) {
-                // Both
-                dlList = view.querySelectorAll('.yt-dl ul')[0]
-            } else if (!f.encoding && f.audioEncoding) {
-                // Audio only
-                dlList = view.querySelectorAll('.yt-dl ul')[1]
-            } else if (f.encoding && !f.audioEncoding) {
-                // Video only
-                dlList = view.querySelectorAll('.yt-dl ul')[2]
-            } else {
-                // Neither?
-                return
-            }
-    
-            if (f.encoding) {
-                inner += `${f.container} (${f.resolution})`
-            }
-            if (f.audioEncoding) {
-                inner ? inner += " " : false
-                inner += `${f.audioEncoding} (${f.audioBitrate})`
-            }
-    
-            li.innerHTML = `
-                <a href="${f.url}" download>${inner}</a>
-            `
-            dlList.appendChild(li)
-        })
     
         const rel = view.querySelector('.yt-related')
 
@@ -333,4 +312,40 @@
         return span
     }
 
+    function createTable(filteredFormats) {
+        const div = document.createElement('div')
+        const table = document.createElement('table')
+        div.classList.add('yt-table')
+        table.innerHTML = `
+            <thead>
+                <tr>
+                    <th>Tipo</th>
+                    <th>Valor itag</th>
+                    <th>Codificación</th>
+                    <th>Contenedor</th>
+                    <th>Resolución</th>
+                    <th>Freq. de muestreo</th>
+                </tr>
+            </thead>
+            <tbody></tbody>
+        `
+        
+        const tbody = table.querySelector('tbody')
+    
+        filteredFormats.forEach(f => {
+            const tr = document.createElement('tr')
+        
+            tr.innerHTML = `
+                <th>${f.audioEncoding ? 'Audio' : 'Video'}</th>
+                <th>${f.itag}</th>
+                <th>${f.audioEncoding || f.encoding}</th>
+                <th>${f.container}</th>
+                <th>${f.resolution || ''}</th>
+                <th>${f.audio_sample_rate ? Math.round(+f.audio_sample_rate / 100) / 10 + 'kHz' : ''}</th>
+            `
+            tbody.appendChild(tr)
+        });
+        div.appendChild(table)
+        return div
+    }
 })()

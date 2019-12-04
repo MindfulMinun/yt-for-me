@@ -98,11 +98,11 @@ samp {
 .flex { display: flex; }
 .flex-stretch, .flex-stretch { flex: 1; margin: auto; }
 
-.yt-btn-group {
+/* .yt-btn-group {
     display: grid;
     grid-gap: .5em;
     grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-}
+} */
 
 /***********************************************************
  * Search lol
@@ -187,13 +187,10 @@ ol.a11y-list {
     overflow: hidden;
 }
 
-.yt-dl__lists {
-    display: flex;
-    flex-flow: wrap;
-}
-
-.yt-dl__lists > ul {
-    flex: 1;
+.yt-dl__mini-form {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: .25em;
 }
 
 .yt-embed, .yt-dl {
@@ -341,23 +338,25 @@ ol.a11y-list {
 .yt-btn {
     background: 0;
     border: 0;
-    color: inherit;
+    color: var(--color-white);
     font: inherit;
-    font-size: 16px;
-    border: 1px solid var(--color-gray);
+    font-size: 14px;
+    border: 2px solid var(--color-gray);
     outline: 0;
-    padding: .5em .75em;
-    width: 100%;
+    padding: .25em .5em;
     transition:
         border .2s var(--anim-std),
         background .2s var(--anim-std)
     ;
 }
-
 .yt-btn:focus {
     color: #fafafa;
     outline: 2px solid var(--accent);
     /* background-color: var(--dark); */
+}
+.yt-btn:disabled {
+    border-color: var(--color-dark);
+    border-style: dashed;
 }
 
 .yt-select {
@@ -383,6 +382,42 @@ ol.a11y-list {
 }
 .yt-select:focus {
     border-color: var(--accent);
+}
+.yt-select:disabled {
+    border-color: var(--color-dark);
+    border-style: dashed;
+}
+
+/***********************************************************
+ * yt-table
+ */
+.yt-table {
+    margin: 1em -1em -1em -1em;
+    overflow: scroll;
+    white-space: nowrap;
+}
+.yt-table table {
+    width: 100%;
+    border: 0;
+    /* border: 1px solid var(--color-gray); */
+    text-align: left;
+    border-collapse: collapse;
+}
+.yt-table th {
+    padding: .25em 1em;
+}
+.yt-table thead {
+    border-bottom: 1px solid var(--color-gray);
+}
+.yt-table thead tr th {
+    font-weight: bold;
+}
+
+.yt-table tbody tr th {
+    font-weight: inherit;
+}
+.yt-table tbody tr:nth-child(2n + 1) {
+    background-color: var(--color-dark);
 }
 
 /***********************************************************

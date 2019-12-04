@@ -70,7 +70,9 @@ app.get('/search', function (req, res) {
     }
 
     res.render(root + '/public/search.mst', Object.assign(render, {
-      vids: results.videos.map(function (v, i) {
+      vids: results.videos.filter(function (e) {
+        return e.id !== 'L&ai';
+      }).map(function (v, i) {
         v.index = i; // for mustashe lol
 
         v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
@@ -79,6 +81,9 @@ app.get('/search', function (req, res) {
       })
     }));
   });
+});
+app.get('/yt-downloads/:vid', function (req, res) {
+  res.sendFile(_path["default"].resolve("".concat(root, "/yt-downloads/").concat(req.params.vid)));
 });
 app.get('/:id', function (req, res) {
   var lang = getLang(req);
@@ -157,10 +162,13 @@ app.get('/api/search', function (req, res) {
   });
 });
 /**
- * GET /search
- * Request query parameters:
- *     q: The search query
- *     page: The search page results number. Starts at 1, can be omitted.
+ * POST /download
+ * Makes the server download a video (pog)
+ * POST:
+ *     id: The ytid of the video (obviously)
+ *     videoItag: The itag of the video file
+ *     audioItag: The itag of the audio file
+ *     outFormat: The format of the output file
  * 
  * 200 OK:
  *     JSON, the vids property returns results provided by ytSearch.
@@ -169,6 +177,7 @@ app.get('/api/search', function (req, res) {
  */
 
 app.post('/api/download', function (req, res) {
+  var acceptedFormats = ['mp3', 'acc', 'ogg', 'mp4', 'mpeg', 'webm'];
   console.log(req.body);
   var id = req.body.id || '';
 
@@ -180,19 +189,79 @@ app.post('/api/download', function (req, res) {
     return;
   }
 
-  var video = ytdlSave(id, 'video');
-  var audio = ytdlSave(id, 'audio');
-  res.status(200);
-  res.send('OK');
+  var _req$body = req.body,
+      videoItag = _req$body.videoItag,
+      audioItag = _req$body.audioItag,
+      outFormat = _req$body.outFormat;
+
+  if (acceptedFormats.indexOf(req.body.outFormat) === -1) {
+    res.status(400);
+    res.json({
+      error: "outFormat is not an accepted format"
+    });
+    return;
+  }
+
+  var video = videoItag === 'none' ? null : ytdlSave(id, videoItag);
+  var audio = audioItag === 'none' ? null : ytdlSave(id, audioItag);
+
+  if (!(video || audio)) {
+    res.status(400);
+    res.json({
+      error: "No input files to work with"
+    });
+  }
+
   Promise.allSettled([video, audio]).then(function (results) {
     console.log('Download finished, joining with ffmpeg');
+    var outFileName = "".concat(id, ".").concat(req.body.outFormat);
 
-    var both = _path["default"].resolve("".concat(root, "/yt-downloads/").concat(id, "-both.webm")); // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
+    var both = _path["default"].resolve("".concat(root, "/yt-downloads/").concat(outFileName));
 
-
-    (0, _fluentFfmpeg["default"])().input(results[0].value).videoCodec('copy').input(results[1].value).audioCodec('aac').format('mp4').inputOptions('-strict experimental').save(both).on('end', function () {
+    var command = (0, _fluentFfmpeg["default"])();
+    command.on('end', function () {
       console.log('Merge finished!');
-    }).on('error', console.log);
+      res.json({
+        url: "/yt-downloads/".concat(outFileName)
+      });
+    });
+    command.on('error', function (e) {
+      console.log(e);
+      res.status(400);
+      res.json({
+        error: e.toString() || "An unexpected error occurred"
+      });
+    });
+
+    if (video) {
+      command.input(results[0].value.output); //    .videoCodec(results[0].value.codec)
+    }
+
+    if (audio) {
+      command.input(results[1].value.output); //    .audioCodec(results[1].value.codec)
+    }
+
+    command.format(outFormat).inputOptions('-strict experimental').save(both); // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
+    // ffmpeg()
+    //     .input(results[0].value)
+    //     .videoCodec('copy')
+    //     .input(results[1].value)
+    //     .audioCodec('aac')
+    //     .format('mp4')
+    //     .inputOptions('-strict experimental')
+    //     .save(both)
+    //     .on('end', function () {
+    //         console.log('Merge finished!')
+    //         res.json({
+    //             url: `/yt-downloads/${outFileName}`
+    //         })
+    //     })
+    //     .on('error', function (e) {
+    //         res.status(400)
+    //         res.json({
+    //             error: e.toString() || "An unexpected error occurred"
+    //         })
+    //     })
   });
 });
 app.listen(process.env.PORT || 8080, function () {
@@ -232,31 +301,61 @@ function getLang(req) {
 function choose(arr) {
   return arr[Math.floor(Math.random() * arr.length)];
 }
+/**
+ * Decaffeinate-style guard
+ * @param {*} what - The thing that might be null or undefined
+ * @param {function} mod - The modifier
+ * @returns {*} The return value of your function or undefined if nullish
+ * @author MindfulMinun
+ * @since Oct 11, 2019
+ * @version 1.0.0
+ */
 
-function ytdlSave(id, kind) {
+
+function guard(what, mod) {
+  return typeof what !== 'undefined' && what !== null ? mod(what) : void 0;
+}
+
+function ytdlSave(id, itag) {
   return new Promise(function (resolve, reject) {
-    var output = _path["default"].resolve("".concat(root, "/yt-downloads/").concat(id, "-").concat(kind, ".webm"));
-
-    var writeStream = _fs["default"].createWriteStream(output);
-
-    (0, _ytdlCore["default"])(id, {
-      quality: ['highestvideo', 'highestaudio'][['video', 'audio'].indexOf(kind)]
-    }).on('info', function () {
+    var output = "".concat(root, "/yt-downloads/").concat(id, "-").concat(itag, ".");
+    var writeStream;
+    var codec;
+    var stream = (0, _ytdlCore["default"])(id, {
+      quality: itag
+    }).on('info', function (e) {
       progresses[id] || (progresses[id] = {});
-      progresses[id][kind] || (progresses[id][kind] = {});
-      progresses[id][kind].isFinished = false;
-      progresses[id][kind].progress = 0;
+      progresses[id][itag] || (progresses[id][itag] = {});
+      progresses[id][itag].isFinished = false;
+      progresses[id][itag].progress = 0;
+      codec = guard(e.formats.filter(function (a) {
+        return a.itag === itag;
+      })[0], function (f) {
+        return f.audioEncoding || f.encoding;
+      }); // Before writing to the output stream, we gotta get the container lol
+      // So we call ytdl before we know the container, then pipe it to the output
+
+      output += guard(e.formats.filter(function (a) {
+        return a.itag === itag;
+      })[0], function (f) {
+        return f.container;
+      });
+      writeStream = _fs["default"].createWriteStream(_path["default"].resolve(output));
+      stream.pipe(writeStream);
     }).on('finish', function () {
       progresses[id] || (progresses[id] = {});
-      progresses[id][kind].isFinished = true; // Resolve with the output, not the WritableStream
+      progresses[id][itag].isFinished = true; // Resolve with the output, not the WritableStream
 
-      resolve(output);
+      resolve({
+        output: output,
+        codec: codec
+      });
     }).on('progress', function (a, b, c) {
       // Save the progression on the progresses object
-      progresses[id][kind] || (progresses[id][kind] = {});
-      progresses[id][kind].progress = b / c;
+      progresses[id][itag] || (progresses[id][itag] = {});
+      progresses[id][itag].progress = b / c;
       console.log(progresses[id]);
-    }).on('error', reject).pipe(writeStream);
+    }).on('error', reject);
   });
 } // All settled polyfill
 
@@ -264,6 +363,7 @@ function ytdlSave(id, kind) {
 if (!Promise.allSettled) {
   Promise.allSettled = function (promises) {
     return Promise.all(promises.map(function (promise) {
+      promise = promise || Promise.reject();
       return promise.then(function (value) {
         return {
           status: "fulfilled",
