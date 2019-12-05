@@ -13,10 +13,12 @@
   // Bootstrap view handles view loading
 
   window.addEventListener('popstate', function (e) {
-    console.log(e);
+    console.log(e); // Anim the card out
+
     guard(document.querySelector('.view'), function (view) {
       return cont.classList.add('anim--fuck-this-shit-im-out');
-    });
+    }); // If there's a state, load it.
+    // Otherwise, the user was probably trying to go back.
 
     if (e.state && e.state !== (window.vid && window.vid.video_id)) {
       bootstrapView(e.state);
@@ -27,9 +29,10 @@
 
   bootstrapView(guard(yt.REGEX_CAPTURE_ID.exec(location.pathname.slice(1) || ''), function (match) {
     return match[0];
-  }) || '');
+  }) || ''); // Get video information required for loading the view
 
   function bootstrapView(id) {
+    // Assert that the id is a YouTube id
     if (!yt.REGEX_CAPTURE_ID.test(id)) {
       cont.innerHTML = dict.errors.idAssertionFailed(id);
       throw Error("ID didn't match regex, something's wrong.");
@@ -48,37 +51,37 @@
       return json.error ? Promise.reject(json) : json;
     }).then(function (info) {
       // Set the document title to the video title
+      // (may be overwritten later)
       document.title = "".concat(info.title, " \u2022 yt-for-me"); // Prepare the content div for population
 
       cont.innerHTML = '';
       cont.classList.remove('anim--fuck-this-shit-im-out'); // Populate the div
 
       cont.appendChild(genView(info));
-      cont.appendChild(makeFooter()); // Expose the vid data cuz why not
+      cont.appendChild(makeFooter()); // Expose the vid data into the global cuz why not
 
       window.vid = info;
       console.log('Video info (window.vid):', info);
     })["catch"](function (err) {
-      console.log(err);
+      console.log(err); // If an error occurred, tell the user about it.
+
       cont.innerHTML = dict.errors.error400(err.error);
     });
-  }
+  } // Once we've recieved the vid data, generate the view
+
 
   function genView(info) {
+    // Wrapper div yay
     var view = document.createElement('div');
-    var ps = info.player_response || {};
     view.classList.add('view');
     view.classList.add('mobile-edge-flush'); // Cherry pick the properties we want from info and mod them here.
 
-    var vid = cherryPickProperties(info);
-    document.title = "".concat(vid.title, " \u2022 yt-for-me");
-    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict.view.dlSummaryLabel(), "</summary>\n                    <p>").concat(dict.view.dlSummaryPara(), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            Audio: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <option value=\"none\">Sin audio</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            Video: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <option value=\"none\">Sin video</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            Salida: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <optgroup label=\"Audio\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"Video (y tambi\xE9n audio)\">\n                                    <option value=\"mp4\">mp4</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                </optgroup>\n                                <optgroup label=\"Ambos\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <label>\n                            <button class=\"yt-btn\" disabled>Convertir</button>\n                        </label>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        title=\"").concat(dict.view.iframeA11yLabel(info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(guard(ps.microformat, function (mf) {
-      return guard(mf.playerMicroformatRenderer, function (pmr) {
-        return guard(pmr.description, function (desc) {
-          return desc.simpleText;
-        });
-      });
-    }) || info.description, "</div>\n            </div>\n        ");
+    var vid = cherryPickProperties(info); // Overwrite the video title (neccesary if the vid's a music vid)
+
+    document.title = "".concat(vid.title, " \u2022 yt-for-me"); // Construct the view
+
+    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict.view.dlSummaryLabel(), "</summary>\n                    <p>").concat(dict.view.dlSummaryPara(), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            Audio: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <option value=\"none\">Sin audio</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            Video: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <option value=\"none\">Sin video</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            Salida: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <optgroup label=\"Audio\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"Video (y tambi\xE9n audio)\">\n                                    <option value=\"mp4\">mp4</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                </optgroup>\n                                <optgroup label=\"Ambos\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <label>\n                            <button class=\"yt-btn\" disabled>Convertir</button>\n                        </label>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        title=\"").concat(dict.view.iframeA11yLabel(info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Get the formats. Filter out the ones that are live or have both encodings.
+
     var filteredFormats = info.formats.filter(function (f) {
       // Get formats that aren't live, and are either all audio or all video
       return !f.live & (!!f.resolution ^ !!f.audioEncoding);
@@ -88,8 +91,9 @@
       }
 
       return !a.audioEncoding ? 1 : -1;
-    });
-    view.querySelector('details').appendChild(createTable(filteredFormats)); // Add the options in the dropdowns
+    }); // Generate a table with the filtered formats
+
+    view.querySelector('details').appendChild(createTable(filteredFormats)); // Add the format options in the dropdowns
 
     filteredFormats.forEach(function (format) {
       var select = [view.querySelector('#label-audio select'), view.querySelector('#label-video select')][format.audioEncoding ? 0 : 1];
@@ -101,7 +105,8 @@
 
     view.querySelectorAll('.yt-dl__mini-form select, .yt-dl__mini-form button').forEach(function (el) {
       el.removeAttribute('disabled');
-    });
+    }) // Add the video meta information
+    ;
 
     (function () {
       var meta = view.querySelector('.yt-meta');
@@ -109,21 +114,21 @@
       info.published && meta.appendChild(createMetaTag(dict.view.metaPublished(info.published)));
       vid.author && meta.appendChild(createMetaTag(vid.album ? dict.view.metaAlbumAuthor(vid.album, vid.author) : dict.view.metaAuthor(vid.author)));
       vid.license && meta.appendChild(createMetaTag(dict.view.metaLicense(vid.license)));
-    })();
+    })(); // If the video falls under a certain category (i.e. "Music")
+    // add a class to add neat little icon next to the video title
 
-    var category = guard(info.player_response, function (pr) {
+
+    guard(info.player_response, function (pr) {
       return guard(pr.microformat, function (mf) {
         return guard(mf.playerMicroformatRenderer, function (pmr) {
-          return pmr.category;
+          return guard(pmr.category, function (category) {
+            return view.querySelector('.yt-meta').dataset.category = category;
+          });
         });
       });
-    }) || false;
+    }); // Add the related video cards
 
-    if (category) {
-      view.querySelector('.yt-meta').dataset.category = category;
-    }
-
-    var rel = view.querySelector('.yt-related') // Append end search card
+    var rel = view.querySelector('.yt-related') // Add the "Return to search" card first
     ;
 
     (function (card) {
@@ -138,7 +143,8 @@
       };
 
       rel.appendChild(card);
-    })(document.createElement('a'));
+    })(document.createElement('a')) // Add the other related video cards
+    ;
 
     info.related_videos.forEach(function (vid, i) {
       if (vid.list) return;
@@ -153,12 +159,7 @@
         bootstrapView(id);
       };
 
-      card.classList.add('yt-card'); // card.style.backgroundImage = `url(${vid.iurlhq})`
-      // card.style.backgroundImage = `
-      //     linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)),
-      //     url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)
-      // `
-
+      card.classList.add('yt-card');
       card.style.setProperty('--card-bg-image', "url(https://img.youtube.com/vi/".concat(vid.id, "/mqdefault.jpg)"));
       card.innerHTML = "\n                <div class=\"yt-card--info\">\n                    <strong>".concat(vid.title, "</strong>\n                    <span>").concat(dict.view.cardAuthor(vid.author), "</span>\n                    <span>").concat(dict.view.cardViews(vid.short_view_count_text), "</span>\n                </div>\n            ");
       rel.appendChild(card);
@@ -169,7 +170,7 @@
   function cherryPickProperties(info) {
     var vid = {};
     var ps = info.player_response || {}; // Check media title (song title),
-    // then check the microformat title (translated???)
+    // then check the microformat title (translated?)
     // then default the basic property
 
     vid.title = info.media && info.media[dict.propertyLookup.song] || guard(ps.microformat, function (mf) {
@@ -183,6 +184,13 @@
     vid.album = info.media && info.media[dict.propertyLookup.album];
     vid.license = info.media && info.media[dict.propertyLookup.license];
     vid.isExplicit = !!(info.media && info.media[dict.propertyLookup.explicit]);
+    vid.description = guard(ps.microformat, function (mf) {
+      return guard(mf.playerMicroformatRenderer, function (pmr) {
+        return guard(pmr.description, function (desc) {
+          return desc.simpleText;
+        });
+      });
+    }) || info.description;
     vid.views = +ps.videoDetails.viewCount;
     return vid;
   }

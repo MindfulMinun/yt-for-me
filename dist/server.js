@@ -16,12 +16,14 @@ var _mustacheExpress = _interopRequireDefault(require("mustache-express"));
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+// Make the Express server
 var app = (0, _express["default"])();
 
-var root = _path["default"].resolve(__dirname + '/../');
+var root = _path["default"].resolve(__dirname + '/../'); // Load POST requests as JSON
 
-app.use(require('cookie-parser')());
-app.use(_express["default"].json());
+
+app.use(_express["default"].json()); // Use Mustache
+
 app.engine('mst', (0, _mustacheExpress["default"])(__dirname + '/public', '.mst'));
 app.set('view engine', 'mustache');
 app.get('/', function (req, res) {
@@ -93,7 +95,7 @@ app.get('/:id', function (req, res) {
     d: require("./langs/".concat(lang, ".js")),
     query: q
   });
-}); // Keep track of video progresses lol
+}); // Keep track of video progresses
 
 var progresses = {};
 /**
@@ -172,8 +174,10 @@ app.get('/api/search', function (req, res) {
  * 
  * 200 OK:
  *     JSON, the vids property returns results provided by ytSearch.
+ * 400 Bad request
+ *     error: The error property describes the error
  * 500 Internal Server Error
- *     The error property describes the error
+ *     error: The error property describes the error
  */
 
 app.post('/api/download', function (req, res) {
@@ -227,41 +231,21 @@ app.post('/api/download', function (req, res) {
     });
     command.on('error', function (e) {
       console.log(e);
-      res.status(400);
+      res.status(500);
       res.json({
         error: e.toString() || "An unexpected error occurred"
       });
     });
 
     if (video) {
-      command.input(results[0].value.output); //    .videoCodec(results[0].value.codec)
+      command.input(results[0].value.output).videoCodec(results[0].value.codec);
     }
 
     if (audio) {
-      command.input(results[1].value.output); //    .audioCodec(results[1].value.codec)
+      command.input(results[1].value.output).audioCodec(results[1].value.codec);
     }
 
-    command.format(outFormat).inputOptions('-strict experimental').save(both); // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
-    // ffmpeg()
-    //     .input(results[0].value)
-    //     .videoCodec('copy')
-    //     .input(results[1].value)
-    //     .audioCodec('aac')
-    //     .format('mp4')
-    //     .inputOptions('-strict experimental')
-    //     .save(both)
-    //     .on('end', function () {
-    //         console.log('Merge finished!')
-    //         res.json({
-    //             url: `/yt-downloads/${outFileName}`
-    //         })
-    //     })
-    //     .on('error', function (e) {
-    //         res.status(400)
-    //         res.json({
-    //             error: e.toString() || "An unexpected error occurred"
-    //         })
-    //     })
+    command.format(outFormat).inputOptions('-strict experimental').save(both);
   });
 });
 app.listen(process.env.PORT || 8080, function () {
@@ -333,7 +317,7 @@ function ytdlSave(id, itag) {
       })[0], function (f) {
         return f.audioEncoding || f.encoding;
       }); // Before writing to the output stream, we gotta get the container lol
-      // So we call ytdl before we know the container, then pipe it to the output
+      // So we call ytdl before we know the container to get it, then pipe it to the output
 
       output += guard(e.formats.filter(function (a) {
         return a.itag === itag;
@@ -344,7 +328,7 @@ function ytdlSave(id, itag) {
       stream.pipe(writeStream);
     }).on('finish', function () {
       progresses[id] || (progresses[id] = {});
-      progresses[id][itag].isFinished = true; // Resolve with the output, not the WritableStream
+      progresses[id][itag].isFinished = true; // Resolve with the output and the codec, not the WritableStream
 
       resolve({
         output: output,

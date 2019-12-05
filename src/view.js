@@ -14,10 +14,13 @@
     // Bootstrap view handles view loading
     window.addEventListener('popstate', function (e) {
         console.log(e)
+        // Anim the card out
         guard(
             document.querySelector('.view'),
             view => cont.classList.add('anim--fuck-this-shit-im-out')
         )
+        // If there's a state, load it.
+        // Otherwise, the user was probably trying to go back.
         if (e.state && (e.state !== (window.vid && window.vid.video_id))) {
             bootstrapView(e.state)
         } else {
@@ -32,7 +35,9 @@
         ) || ''
     )
 
+    // Get video information required for loading the view
     function bootstrapView(id) {
+        // Assert that the id is a YouTube id
         if (!yt.REGEX_CAPTURE_ID.test(id)) {
             cont.innerHTML = dict.errors.idAssertionFailed(id)
             throw Error("ID didn't match regex, something's wrong.")
@@ -51,6 +56,7 @@
             .then(json => json.error ? Promise.reject(json) : json)
             .then(function (info) {
                 // Set the document title to the video title
+                // (may be overwritten later)
                 document.title = `${info.title} • yt-for-me`
 
                 // Prepare the content div for population
@@ -61,27 +67,31 @@
                 cont.appendChild(genView(info))
                 cont.appendChild(makeFooter())
 
-                // Expose the vid data cuz why not
+                // Expose the vid data into the global cuz why not
                 window.vid = info
                 console.log('Video info (window.vid):', info)
             })
             .catch(function (err) {
                 console.log(err)
+                // If an error occurred, tell the user about it.
                 cont.innerHTML = dict.errors.error400(err.error)
             })
     }
 
+    // Once we've recieved the vid data, generate the view
     function genView(info) {
+        // Wrapper div yay
         const view = document.createElement('div')
-        const ps = info.player_response || {}
         view.classList.add('view')
         view.classList.add('mobile-edge-flush')
 
         // Cherry pick the properties we want from info and mod them here.
         const vid = cherryPickProperties(info)
 
+        // Overwrite the video title (neccesary if the vid's a music vid)
         document.title = `${vid.title} • yt-for-me`
     
+        // Construct the view
         view.innerHTML = `
             <div class="yt">
                 <details class="yt-dl">
@@ -135,17 +145,11 @@
                 <div class="yt-meta">
                     <span class="yt-meta__title">${vid.title}</span>
                 </div>
-                <div class="yt-desc">${
-                    guard(ps.microformat, mf => guard(
-                        mf.playerMicroformatRenderer,
-                        pmr => guard(
-                            pmr.description, desc => desc.simpleText
-                        )
-                    )) || info.description
-                }</div>
+                <div class="yt-desc">${vid.description}</div>
             </div>
         `
 
+        // Get the formats. Filter out the ones that are live or have both encodings.
         const filteredFormats = info.formats.filter(f => {
             // Get formats that aren't live, and are either all audio or all video
             return !f.live & ((!!f.resolution) ^ (!!f.audioEncoding))
@@ -156,9 +160,10 @@
             return !a.audioEncoding ? 1 : -1
         })
 
+        // Generate a table with the filtered formats
         view.querySelector('details').appendChild(createTable(filteredFormats))
             
-        // Add the options in the dropdowns
+        // Add the format options in the dropdowns
         filteredFormats.forEach(format => {
             const select = [
                 view.querySelector('#label-audio select'),
@@ -184,13 +189,13 @@
             el.removeAttribute('disabled')
         })
         
+        // Add the video meta information
         ;(() => {
             const meta = view.querySelector('.yt-meta')
 
             vid.views && meta.appendChild(createMetaTag(
                 dict.view.metaViews(vid.views)
             ))
-            
             info.published && meta.appendChild(createMetaTag(
                 dict.view.metaPublished(info.published)
             ))
@@ -202,27 +207,28 @@
             vid.license && meta.appendChild(createMetaTag(
                 dict.view.metaLicense(vid.license)
             ))
-
         })();
 
-        const category = guard(
+        // If the video falls under a certain category (i.e. "Music")
+        // add a class to add neat little icon next to the video title
+        guard(
             info.player_response,
             pr => guard(
                 pr.microformat,
                 mf => guard(
                     mf.playerMicroformatRenderer,
-                    pmr => pmr.category
+                    pmr => guard(
+                        pmr.category,
+                        category => view.querySelector('.yt-meta').dataset.category = category
+                    )
                 )
             )
-        ) || false
-
-        if (category) {
-            view.querySelector('.yt-meta').dataset.category = category
-        }
+        )
     
+        // Add the related video cards
         const rel = view.querySelector('.yt-related')
 
-        // Append end search card
+        // Add the "Return to search" card first
         ;((card) => {
             card.href = '/search' + location.search
             card.classList.add('yt-card')
@@ -238,7 +244,8 @@
 
             rel.appendChild(card)
         })(document.createElement('a'))
-    
+            
+        // Add the other related video cards
         ;info.related_videos.forEach(function (vid, i) {
             if (vid.list) return
             let card = document.createElement('a')
@@ -251,11 +258,6 @@
                 bootstrapView(id)
             }
             card.classList.add('yt-card')
-            // card.style.backgroundImage = `url(${vid.iurlhq})`
-            // card.style.backgroundImage = `
-            //     linear-gradient(rgba(0,0,0,.2), rgba(0,0,0,.2)),
-            //     url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)
-            // `
             card.style.setProperty('--card-bg-image', `url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)`)
             card.innerHTML = `
                 <div class="yt-card--info">
@@ -275,7 +277,7 @@
         const ps = info.player_response || {}
 
         // Check media title (song title),
-        // then check the microformat title (translated???)
+        // then check the microformat title (translated?)
         // then default the basic property
         vid.title = (info.media && info.media[
             dict.propertyLookup.song
@@ -299,6 +301,13 @@
         vid.isExplicit = !!(info.media && info.media[
             dict.propertyLookup.explicit
         ])
+
+        vid.description = guard(ps.microformat, mf => guard(
+            mf.playerMicroformatRenderer,
+            pmr => guard(
+                pmr.description, desc => desc.simpleText
+            )
+        )) || info.description
 
         vid.views = +ps.videoDetails.viewCount
 

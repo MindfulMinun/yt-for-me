@@ -5,11 +5,14 @@ import ytdl from 'ytdl-core'
 import ytSearch from 'yt-search'
 import ffmpeg from 'fluent-ffmpeg'
 import mustacheExpress from 'mustache-express'
+
+// Make the Express server
 const app = express()
 const root = path.resolve(__dirname + '/../')
 
-app.use(require('cookie-parser')())
+// Load POST requests as JSON
 app.use(express.json())
+// Use Mustache
 app.engine('mst', mustacheExpress(__dirname + '/public', '.mst'))
 app.set('view engine', 'mustache')
 
@@ -88,7 +91,7 @@ app.get('/:id', function (req, res) {
     })
 })
 
-// Keep track of video progresses lol
+// Keep track of video progresses
 const progresses = {}
 
 /**
@@ -166,8 +169,10 @@ app.get('/api/search', function (req, res) {
  * 
  * 200 OK:
  *     JSON, the vids property returns results provided by ytSearch.
+ * 400 Bad request
+ *     error: The error property describes the error
  * 500 Internal Server Error
- *     The error property describes the error
+ *     error: The error property describes the error
  */
 app.post('/api/download', function (req, res) {
     const acceptedFormats = [
@@ -223,7 +228,7 @@ app.post('/api/download', function (req, res) {
         })
         command.on('error', function (e) {
             console.log(e)
-            res.status(400)
+            res.status(500)
             res.json({
                 error: e.toString() || "An unexpected error occurred"
             })
@@ -231,38 +236,16 @@ app.post('/api/download', function (req, res) {
 
         if (video) {
             command.input(results[0].value.output)
-                //    .videoCodec(results[0].value.codec)
+                   .videoCodec(results[0].value.codec)
         }
         if (audio) {
             command.input(results[1].value.output)
-                //    .audioCodec(results[1].value.codec)
+                   .audioCodec(results[1].value.codec)
         }
 
         command.format(outFormat)
             .inputOptions('-strict experimental')
             .save(both)
-
-        // ffmpeg -i id-video.webm -i id-audio.webm -c:v copy -c:a aac -strict experimental id-both.mp4
-        // ffmpeg()
-        //     .input(results[0].value)
-        //     .videoCodec('copy')
-        //     .input(results[1].value)
-        //     .audioCodec('aac')
-        //     .format('mp4')
-        //     .inputOptions('-strict experimental')
-        //     .save(both)
-        //     .on('end', function () {
-        //         console.log('Merge finished!')
-        //         res.json({
-        //             url: `/yt-downloads/${outFileName}`
-        //         })
-        //     })
-        //     .on('error', function (e) {
-        //         res.status(400)
-        //         res.json({
-        //             error: e.toString() || "An unexpected error occurred"
-        //         })
-        //     })
     })
 
 })
@@ -332,7 +315,7 @@ function ytdlSave(id, itag) {
             )
 
             // Before writing to the output stream, we gotta get the container lol
-            // So we call ytdl before we know the container, then pipe it to the output
+            // So we call ytdl before we know the container to get it, then pipe it to the output
             output += guard(
                 e.formats.filter(a => a.itag === itag)[0],
                 f => f.container
@@ -344,7 +327,7 @@ function ytdlSave(id, itag) {
         }).on('finish', function () {
             progresses[id] || (progresses[id] = {})
             progresses[id][itag].isFinished = true
-            // Resolve with the output, not the WritableStream
+            // Resolve with the output and the codec, not the WritableStream
             resolve({output, codec})
         }).on('progress', function (a, b, c) {
             // Save the progression on the progresses object
