@@ -5,10 +5,22 @@ import ytdl from 'ytdl-core'
 import ytSearch from 'yt-search'
 import ffmpeg from 'fluent-ffmpeg'
 import mustacheExpress from 'mustache-express'
+import uuid from 'uuid/v4'
 
 // Make the Express server
 const app = express()
 const root = path.resolve(__dirname + '/../')
+
+// Constants
+const acceptedFormats = [
+    'mp3',
+    'acc',
+    'ogg',
+    'mp4',
+    'mov',
+    'mpeg',
+    'webm'
+]
 
 // Load POST requests as JSON
 app.use(express.json())
@@ -158,6 +170,14 @@ app.get('/api/search', function (req, res) {
     })
 })
 
+app.get('/api/progress/:id', function (req, res) {
+    res.json(
+        progresses[req.params.id] || {
+            error: 'Progress not found. Probably bootstrapping?'
+        }
+    )
+})
+
 /**
  * POST /download
  * Makes the server download a video (pog)
@@ -175,16 +195,6 @@ app.get('/api/search', function (req, res) {
  *     error: The error property describes the error
  */
 app.post('/api/download', function (req, res) {
-    const acceptedFormats = [
-        'mp3',
-        'acc',
-        'ogg',
-        'mp4',
-        'mpeg',
-        'webm'
-    ]
-
-    console.log(req.body)
     const id = req.body.id || ''
     if (!ytdl.validateID(id)) {
         res.status(400)
@@ -203,28 +213,45 @@ app.post('/api/download', function (req, res) {
         })
         return
     }
+    
+    // Use this uuid to identify downloads.
+    const dlid = uuid()
 
-    const video = videoItag === 'none' ? null : ytdlSave(id, videoItag)
-    const audio = audioItag === 'none' ? null : ytdlSave(id, audioItag)
+    const video = videoItag === 'none' ? null : ytdlSave(id, dlid, videoItag)
+    const audio = audioItag === 'none' ? null : ytdlSave(id, dlid, audioItag)
 
     if (!(video || audio)) {
         res.status(400)
         res.json({
             error: "No input files to work with"
         })
+        return
     }
+
+    progresses[dlid] = {
+        started: true
+    }
+
+    res.json({
+        poll: `/api/progress/${dlid}`
+    })
 
     Promise.allSettled([video, audio]).then(function (results) {
         console.log('Download finished, joining with ffmpeg')
-        const outFileName = `${id}.${req.body.outFormat}`
+        const outFileName = `${dlid}.${req.body.outFormat}`
         const both = path.resolve(`${root}/yt-downloads/${outFileName}`)
         const command = ffmpeg()
 
+        command.on('progress', function (progress) {
+            progresses[dlid].merge = (progresses[dlid].merge || {})
+            progresses[dlid].merge = {
+                finished: false,
+                progress: progress.percent / 100
+            }
+        })
         command.on('end', function () {
             console.log('Merge finished!')
-            res.json({
-                url: `/yt-downloads/${outFileName}`
-            })
+            progresses[dlid].url = `/yt-downloads/${outFileName}`
         })
         command.on('error', function (e) {
             console.log(e)
@@ -236,11 +263,11 @@ app.post('/api/download', function (req, res) {
 
         if (video) {
             command.input(results[0].value.output)
-                   .videoCodec(results[0].value.codec)
+                //    .videoCodec(results[0].value.codec)
         }
         if (audio) {
             command.input(results[1].value.output)
-                   .audioCodec(results[1].value.codec)
+                //    .audioCodec(results[1].value.codec)
         }
 
         command.format(outFormat)
@@ -297,18 +324,21 @@ function guard(what, mod) {
     return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0
 }
 
-function ytdlSave(id, itag) {
+function ytdlSave(id, dlid, itag) {
     return new Promise(function (resolve, reject) {
-        let output = `${root}/yt-downloads/${id}-${itag}.`
+        let output = `${root}/yt-downloads/${dlid}-${itag}.`
+        // fs.access(output, fs.constants.F_OK, function (err) {
+            
+        // })
+
         let writeStream
         let codec
         const stream = ytdl(id, {
             quality: itag
         }).on('info', function (e) {
-            progresses[id] || (progresses[id] = {})
-            progresses[id][itag] || (progresses[id][itag] = {})
-            progresses[id][itag].isFinished = false
-            progresses[id][itag].progress = 0
+            progresses[dlid][itag] || (progresses[dlid][itag] = {})
+            progresses[dlid][itag].finished = false
+            progresses[dlid][itag].progress = 0
             codec = guard(
                 e.formats.filter(a => a.itag === itag)[0],
                 f => f.audioEncoding || f.encoding
@@ -325,15 +355,15 @@ function ytdlSave(id, itag) {
             stream.pipe(writeStream)
             
         }).on('finish', function () {
-            progresses[id] || (progresses[id] = {})
-            progresses[id][itag].isFinished = true
+            progresses[dlid] || (progresses[dlid] = {})
+            progresses[dlid][itag].finished = true
             // Resolve with the output and the codec, not the WritableStream
             resolve({output, codec})
         }).on('progress', function (a, b, c) {
             // Save the progression on the progresses object
-            progresses[id][itag] || (progresses[id][itag] = {})
-            progresses[id][itag].progress = b / c
-            console.log(progresses[id])
+            progresses[dlid][itag] || (progresses[dlid][itag] = {})
+            progresses[dlid][itag].progress = b / c
+            // console.log(progresses[dlid])
         }).on('error', reject)
     })
 }

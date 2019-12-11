@@ -100,19 +100,19 @@
                     <div class="yt-dl__mini-form">
                         <label id="label-audio">
                             Audio: 
-                            <select class="yt-select yt-select--compact" disabled>
+                            <select class="yt-select yt-select--compact" name="audioItag" disabled>
                                 <option value="none">Sin audio</option>
                             </select>
                         </label>
                         <label id="label-video">
                             Video: 
-                            <select class="yt-select yt-select--compact" disabled>
+                            <select class="yt-select yt-select--compact" name="videoItag" disabled>
                                 <option value="none">Sin video</option>
                             </select>
                         </label>
                         <label id="label-out">
                             Salida: 
-                            <select class="yt-select yt-select--compact" disabled>
+                            <select class="yt-select yt-select--compact" name="outFormat" disabled>
                                 <optgroup label="Audio">
                                     <option value="mp3">mp3</option>
                                     <option value="acc">acc</option>
@@ -120,6 +120,7 @@
                                 </optgroup>
                                 <optgroup label="Video (y también audio)">
                                     <option value="mp4">mp4</option>
+                                    <option value="mov">mov</option>
                                     <option value="mpeg">mpeg</option>
                                 </optgroup>
                                 <optgroup label="Ambos">
@@ -184,6 +185,42 @@
             select.appendChild(option)
         })
             
+
+        // Add the event listener to the dl button
+        view.querySelector('.yt-dl__mini-form button')
+            .addEventListener('click', function (e) {
+                const selects = Array.from(view.querySelectorAll('.yt-dl__mini-form select'))
+                const out = {
+                    id: info.video_id
+                }
+                selects.map(el => [el.name, el.value]).forEach(el => {
+                    out[el[0]] = el[1]
+                })
+                console.log(out)
+
+                fetch('api/download', {
+                    method: 'POST',
+                    headers: {
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(out)
+                }).then(r => r.json()).then(json => {
+                    if (json.error) { return }
+                    console.log(json)
+                    pollUrl(json.poll)
+                })
+            })
+        
+        function pollUrl(url) {
+            return fetch(url)
+                .then(r => r.json())
+                .then(j => console.log(JSON.stringify(j, null, 2)))
+                .then(() => {
+                    setTimeout(() => pollUrl(url), 700)
+                })
+        }
+
         // Enable the dropdowns and the dl button
         view.querySelectorAll('.yt-dl__mini-form select, .yt-dl__mini-form button').forEach(el => {
             el.removeAttribute('disabled')

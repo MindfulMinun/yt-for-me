@@ -80,7 +80,7 @@
 
     document.title = "".concat(vid.title, " \u2022 yt-for-me"); // Construct the view
 
-    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict.view.dlSummaryLabel(), "</summary>\n                    <p>").concat(dict.view.dlSummaryPara(), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            Audio: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <option value=\"none\">Sin audio</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            Video: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <option value=\"none\">Sin video</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            Salida: \n                            <select class=\"yt-select yt-select--compact\" disabled>\n                                <optgroup label=\"Audio\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"Video (y tambi\xE9n audio)\">\n                                    <option value=\"mp4\">mp4</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                </optgroup>\n                                <optgroup label=\"Ambos\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <label>\n                            <button class=\"yt-btn\" disabled>Convertir</button>\n                        </label>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        title=\"").concat(dict.view.iframeA11yLabel(info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Get the formats. Filter out the ones that are live or have both encodings.
+    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict.view.dlSummaryLabel(), "</summary>\n                    <p>").concat(dict.view.dlSummaryPara(), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            Audio: \n                            <select class=\"yt-select yt-select--compact\" name=\"audioItag\" disabled>\n                                <option value=\"none\">Sin audio</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            Video: \n                            <select class=\"yt-select yt-select--compact\" name=\"videoItag\" disabled>\n                                <option value=\"none\">Sin video</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            Salida: \n                            <select class=\"yt-select yt-select--compact\" name=\"outFormat\" disabled>\n                                <optgroup label=\"Audio\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"Video (y tambi\xE9n audio)\">\n                                    <option value=\"mp4\">mp4</option>\n                                    <option value=\"mov\">mov</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                </optgroup>\n                                <optgroup label=\"Ambos\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <label>\n                            <button class=\"yt-btn\" disabled>Convertir</button>\n                        </label>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        title=\"").concat(dict.view.iframeA11yLabel(info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Get the formats. Filter out the ones that are live or have both encodings.
 
     var filteredFormats = info.formats.filter(function (f) {
       // Get formats that aren't live, and are either all audio or all video
@@ -101,7 +101,50 @@
       option.innerText = "".concat(format.itag, ": ").concat(format.audioEncoding || format.encoding, " (").concat(format.container, ")").concat(format.audio_sample_rate ? ' @ ' + Math.round(+format.audio_sample_rate / 100) / 10 + 'kHz' : ' @ ' + format.resolution);
       option.value = format.itag;
       select.appendChild(option);
-    }); // Enable the dropdowns and the dl button
+    }); // Add the event listener to the dl button
+
+    view.querySelector('.yt-dl__mini-form button').addEventListener('click', function (e) {
+      var selects = Array.from(view.querySelectorAll('.yt-dl__mini-form select'));
+      var out = {
+        id: info.video_id
+      };
+      selects.map(function (el) {
+        return [el.name, el.value];
+      }).forEach(function (el) {
+        out[el[0]] = el[1];
+      });
+      console.log(out);
+      fetch('api/download', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(out)
+      }).then(function (r) {
+        return r.json();
+      }).then(function (json) {
+        if (json.error) {
+          return;
+        }
+
+        console.log(json);
+        pollUrl(json.poll);
+      });
+    });
+
+    function pollUrl(url) {
+      return fetch(url).then(function (r) {
+        return r.json();
+      }).then(function (j) {
+        return console.log(JSON.stringify(j, null, 2));
+      }).then(function () {
+        setTimeout(function () {
+          return pollUrl(url);
+        }, 700);
+      });
+    } // Enable the dropdowns and the dl button
+
 
     view.querySelectorAll('.yt-dl__mini-form select, .yt-dl__mini-form button').forEach(function (el) {
       el.removeAttribute('disabled');
