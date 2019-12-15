@@ -129,9 +129,9 @@
                                 </optgroup>
                             </select>
                         </label>
-                        <label>
+                        <div>
                             <button class="yt-btn" disabled>Convertir</button>
-                        </label>
+                        </div>
                     </div>
                 </details>
                 <div class="yt-embed">

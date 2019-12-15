@@ -69,3 +69,10 @@ function guard(what, mod) {
 function choose(arr) {
     return arr[Math.floor(Math.random() * arr.length)]
 }
+
+// Promise.never returns a promise that never resolves
+if (!Promise.never) {
+    Promise.never = function () {
+        return new Promise(() => {})
+    }
+}

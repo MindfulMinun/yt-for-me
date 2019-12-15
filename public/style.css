@@ -38,8 +38,17 @@ details > summary:focus {
     outline-offset: -2px;
 }
 
+i.material-icons {
+    display: block;
+}
+
+/* 
+ * [type="search"] looks weird on safari
+ */
+input[type="search"] { -webkit-appearance: textfield; }
+input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
+
 .loading {
-    position: absolute;
     opacity: 1;
     margin: 0;
 }
@@ -96,7 +105,8 @@ samp {
 }
 
 .flex { display: flex; }
-.flex-stretch, .flex-stretch { flex: 1; margin: auto; }
+.flex > * { margin: auto; }
+.flex-stretch, .flex-stretch { flex: 1; }
 
 /* .yt-btn-group {
     display: grid;

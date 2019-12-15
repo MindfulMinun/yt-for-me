@@ -30,6 +30,7 @@
             }
         </style>
         <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="/yt-sheet.css">
         <script>window.yt = {
             lang: "{{ lang }}",
         };</script>
@@ -52,7 +53,26 @@
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
             </div>
         </main>
+        <section class="yt-sheet">
+            <button class="yt-sheet__modal"></button>
+            <div class="yt-sheet__sheet">
+                <div class="yt-sheet__peek flex">
+                    <div class="flex-stretch">Hi mom!</div>
+                    <div>
+                        <i class="material-icons">keyboard_arrow_up</i>
+                    </div>
+                </div>
+                <div class="yt-sheet__content">
+                    <p>La escalera del sótano es empinada, mis tíos me tenían prohibido el descenso, pero alguien dijo que había un mundo en el sótano.</p>
+                </div>
+            </div>
+        </section>
     </body>
-    <script>document.documentElement.classList.remove("no-js")</script>
+    <script>
+        document.documentElement.classList.remove("no-js");
+        requestAnimationFrame(function(){
+            document.querySelector('.yt-sheet').classList.add('yt-sheet--peek');
+        });
+    </script>
     <script src="view.js"></script>
 </html>
