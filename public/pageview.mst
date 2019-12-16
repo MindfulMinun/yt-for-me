@@ -53,23 +53,46 @@
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
             </div>
         </main>
-        <section class="yt-sheet">
-            <button class="yt-sheet__modal"></button>
+        <section class="yt-sheet" id="yt-sheet">
             <div class="yt-sheet__sheet">
-                <div class="yt-sheet__peek flex">
-                    <div class="flex-stretch">Hi mom!</div>
+                <button class="yt-sheet__peek flex" onclick="
+                    this.dispatchEvent(new Event('yt-sheet--peek-click', {bubbles: true}))
+                ">
+                    <div class="flex-stretch">Descargas</div>
                     <div>
                         <i class="material-icons">keyboard_arrow_up</i>
                     </div>
-                </div>
+                </button>
                 <div class="yt-sheet__content">
-                    <p>La escalera del sótano es empinada, mis tíos me tenían prohibido el descenso, pero alguien dijo que había un mundo en el sótano.</p>
+                    {{! <p>La escalera del sótano es empinada, mis tíos me tenían prohibido el descenso, pero alguien dijo que había un mundo en el sótano. }}
+                    <p>Vaciló y con esa voz llana, impersonal, a que solemos recurrir para confiar algo muy íntimo, dijo que para terminar el poema le era indispensable la casa, pues en un ángulo del sótano había un Aleph. Aclaró que un Aleph es uno de los puntos del espacio que contienen todos los puntos.
+                    
+                   <p> —Está en el sótano del comedor— explicó, aligerada su dicción por la angustia—. Es mío, es mío; yo lo descubrí en la niñez, antes de la edad escolar. La escalera del sótano es empinada, mis tíos me tenían prohibido el descenso, pero alguien dijo que había un mundo en el sótano. Se refería, lo supe después, a un baúl, pero yo entendí que había un mundo. Bajé secretamente, rodé por la escalera vedada, caí. Al abrir los ojos, vi el Aleph.
+                    
+                   <p> —¡El Aleph!—repetí.
                 </div>
             </div>
+            <button class="yt-sheet__modal" onclick="this.dispatchEvent(new Event('yt-sheet--modal-click', {bubbles: true}))"></button>
         </section>
     </body>
     <script>
         document.documentElement.classList.remove("no-js");
+        var sheet = document.getElementById('yt-sheet')
+
+        sheet.addEventListener('yt-sheet--modal-click', function (e) {
+            sheet.classList.remove('yt-sheet--active')
+        });
+        sheet.addEventListener('yt-sheet--peek-click', function (e) {
+            sheet.classList.toggle('yt-sheet--active')
+
+            if (sheet.classList.contains('yt-sheet--active')) {
+                document.documentElement.style.overflow = 'hidden'
+            } else {
+                document.documentElement.style.overflow = ''
+            }
+        });
+
+
         requestAnimationFrame(function(){
             document.querySelector('.yt-sheet').classList.add('yt-sheet--peek');
         });

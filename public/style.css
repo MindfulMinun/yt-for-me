@@ -104,9 +104,9 @@ samp {
     color: inherit;
 }
 
-.flex { display: flex; }
+.flex { display: flex !important; }
 .flex > * { margin: auto; }
-.flex-stretch, .flex-stretch { flex: 1; }
+.flex-stretch, .flex-stretch { flex: 1 !important; }
 
 /* .yt-btn-group {
     display: grid;
