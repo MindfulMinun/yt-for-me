@@ -37,11 +37,20 @@ app.get('/', function (req, res) {
     d: require("./langs/".concat(lang, ".js"))
   });
 });
-app.get(/\.js$/, function (req, res) {
-  res.sendFile(root + '/dist' + req.path);
+app.get('/node_modules/:path([\\s\\S]*)', function (req, res) {
+  var p = _path["default"].resolve(root + '/node_modules/' + req.params.path);
+
+  res.sendFile(p);
 });
-app.get(/\.css$/, function (req, res) {
-  res.sendFile(root + '/public' + req.path);
+app.get('/js/:path([\\s\\S]*)', function (req, res) {
+  var p = _path["default"].resolve(root + '/dist/' + req.params.path);
+
+  res.sendFile(p);
+});
+app.get('/css/:path([\\s\\S]*)', function (req, res) {
+  var p = _path["default"].resolve(root + '/public/' + req.params.path);
+
+  res.sendFile(p);
 });
 app.get('/search', function (req, res) {
   var q = req.query.q || '';
@@ -99,6 +108,10 @@ app.get('/:id', function (req, res) {
     d: require("./langs/".concat(lang, ".js")),
     query: q
   });
+});
+app.get(function (req, res) {
+  console.log('default');
+  res.sendFile(root + '/../' + req.path);
 }); // Keep track of video progresses
 
 var progresses = {};
@@ -230,6 +243,7 @@ app.post('/api/download', function (req, res) {
     started: true
   };
   res.json({
+    dlid: dlid,
     poll: "/api/progress/".concat(dlid)
   });
   Promise.allSettled([video, audio]).then(function (results) {
@@ -278,11 +292,11 @@ app.listen(process.env.PORT || 8080, function () {
  * @returns {string} A supported language
  * @author MindfulMinun
  * @since Oct 19, 2019
- * @version 1.0.0
+ * @version 0.1.0
  */
 
 function getLang(req) {
-  var supported = ['en-US', 'es-US'];
+  var supported = ['en-US', 'es-US', 'x-dummy'];
   var qLang = req.query.lang || '';
   var browser = req.acceptsLanguages(supported);
 
@@ -299,7 +313,7 @@ function getLang(req) {
  * @returns {*} An element from the array
  * @author MindfulMinun
  * @since Oct 11, 2019
- * @version 1.0.0
+ * @version 0.1.0
  */
 
 
@@ -313,7 +327,7 @@ function choose(arr) {
  * @returns {*} The return value of your function or undefined if nullish
  * @author MindfulMinun
  * @since Oct 11, 2019
- * @version 1.0.0
+ * @version 0.1.0
  */
 
 

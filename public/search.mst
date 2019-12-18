@@ -29,12 +29,14 @@
                 display: none;
             }
         </style>
-        <link rel="stylesheet" href="/style.css">
+        <link rel="stylesheet" href="/css/style.css">
         <script>window.yt = {
             lang: "{{ lang }}",
         };</script>
-        <script src="./langs/{{ lang }}.js"></script>
-        <script src="./common.js"></script>
+        <script src="/js/langs/{{ lang }}.js"></script>
+        <script src="/js/common.js"></script>
+        <script src="/node_modules/xyz-elements/sheet/index.js" onload="XyzSheet.register()"></script>
+        <script src="/node_modules/xyz-elements/progress/index.js" onload="XyzProgress.register()"></script>
     </head>
     <body>
         <!--[if lte IE 9]>

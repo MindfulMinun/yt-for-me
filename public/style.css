@@ -1,5 +1,6 @@
 :root {
-    --accent: #448aff;
+    /* --accent: #448aff; */
+    --accent: #E46A98;
     --color-err: #ff5144;
     --color-white: rgba(255,255,255, .52);
     --color-gray: rgba(255,255,255, .24);
@@ -99,6 +100,7 @@ samp {
 
 .with-love {
     color: var(--color-white);
+    margin: 1em 0;
 }
 .with-love a {
     color: inherit;

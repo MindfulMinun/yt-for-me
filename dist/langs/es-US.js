@@ -51,7 +51,7 @@
     welcome: {
       hi: "Hola. Desde aquí puedes robarte videos de YouTube.",
       love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
-      nojs: "\n                <p>Desafortunadamente, esta p\xE1gina muy padre requiere de <em>JavaScript</em>.\n                Sin esta, se te ser\xE1 casi imposible navegar las redes sin que te exigen que la prendas.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favorzote y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
+      nojs: "\n                <p>Desafortunadamente, esta p\xE1gina muy padre requiere de <em>JavaScript</em>.\n                Sin ella, se te ser\xE1 casi imposible navegar las redes sin que te exigen que la prendas.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favor y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
       searchPre: "O busca lo que tu quieras:",
       searchPlaceholder: "Buscar",
@@ -103,23 +103,8 @@
       }
     },
     view: {
-      dlSummaryLabel: function dlSummaryLabel() {
-        return "Descargar";
-      },
-      dlSummaryPara: function dlSummaryPara() {
-        return "\n                Los enlaces est\xE1n en orden de mayor a peor calidad. Para obtener la mejor calidad, recomiendo descargar el video de mejor calidad, el audio de mejor calidad, y usar una herramienta como <code>ffmpeg</code> para unirlos.\n            ";
-      },
-      dlListBoth: function dlListBoth() {
-        return "Video y audio";
-      },
-      dlListAudio: function dlListAudio() {
-        return "Solo audio";
-      },
-      dlListVideo: function dlListVideo() {
-        return "Solo video";
-      },
       iframeA11yLabel: function iframeA11yLabel(title) {
-        return "".concat(title, " - Reproductor YouTube");
+        return "".concat(title, " - Reproductor de YouTube");
       },
       metaViews: function metaViews(views) {
         switch (views) {
@@ -176,7 +161,35 @@
       license: "con_licencia_para_youtube_de",
       explicit: "advertencia_para_padres"
     },
-    // render(text).replace(/(\d+),(\d+)/gi, '$1.$2')
+    dlForm: {
+      label: "Descargar",
+      howto: "\n                Elige un formato de audio, un formato de video, y manda a que el servidor\n                te los convierte en cualquier formato que deseas para luego descargarlo.\n                La tabla a continuaci\xF3n te ayudar\xE1 a escoger los formatos ideales.\n            ",
+      audioLabel: "Audio",
+      videoLabel: "Video",
+      outLabel: "Salida",
+      dlLabel: "Convertir",
+      kind: {
+        audio: "Audio",
+        video: "Video",
+        noAudio: "Sin audio",
+        noVideo: "Sin video",
+        onlyAudio: "Solo audio",
+        onlyVideo: "Solo video",
+        vidOrBoth: "Solo video o ambos"
+      },
+      tableHeaders: {
+        kind: 'Tipo',
+        itag: 'Valor itag',
+        encoding: 'Codificación',
+        container: 'Contenedor',
+        resolution: 'Resolución',
+        sampR8: 'Freq. de muestreo'
+      }
+    },
+    dlSheet: {
+      labelDefault: "Descargas",
+      idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
+    },
     loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Ejecutando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
   };
 });

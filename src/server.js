@@ -36,12 +36,19 @@ app.get('/', function (req, res) {
     })
 })
 
-app.get(/\.js$/, function (req, res) {
-    res.sendFile(root + '/dist' + req.path)
+app.get('/node_modules/:path([\\s\\S]*)', function (req, res) {
+    const p = path.resolve(root + '/node_modules/' + req.params.path)
+    res.sendFile(p)
 })
 
-app.get(/\.css$/, function (req, res) {
-    res.sendFile(root + '/public' + req.path)
+app.get('/js/:path([\\s\\S]*)', function (req, res) {
+    const p = path.resolve(root + '/dist/' + req.params.path)
+    res.sendFile(p)
+})
+
+app.get('/css/:path([\\s\\S]*)', function (req, res) {
+    const p = path.resolve(root + '/public/' + req.params.path)
+    res.sendFile(p)
 })
 
 app.get('/search', function (req, res) {
@@ -101,6 +108,11 @@ app.get('/:id', function (req, res) {
         d: require(`./langs/${lang}.js`),
         query: q
     })
+})
+
+app.get(function (req, res) {
+    console.log('default')
+    res.sendFile(root + '/../' + req.path)
 })
 
 // Keep track of video progresses
@@ -233,6 +245,7 @@ app.post('/api/download', function (req, res) {
     }
 
     res.json({
+        dlid: dlid,
         poll: `/api/progress/${dlid}`
     })
 
@@ -287,10 +300,10 @@ app.listen(process.env.PORT || 8080, function () {
  * @returns {string} A supported language
  * @author MindfulMinun
  * @since Oct 19, 2019
- * @version 1.0.0
+ * @version 0.1.0
  */
 function getLang(req) {
-    const supported = ['en-US', 'es-US']
+    const supported = ['en-US', 'es-US', 'x-dummy']
     const qLang = (req.query.lang || '')
     const browser = req.acceptsLanguages(supported)
 
@@ -305,7 +318,7 @@ function getLang(req) {
  * @returns {*} An element from the array
  * @author MindfulMinun
  * @since Oct 11, 2019
- * @version 1.0.0
+ * @version 0.1.0
  */
 function choose(arr) {
     return arr[Math.floor(Math.random() * arr.length)]
@@ -318,7 +331,7 @@ function choose(arr) {
  * @returns {*} The return value of your function or undefined if nullish
  * @author MindfulMinun
  * @since Oct 11, 2019
- * @version 1.0.0
+ * @version 0.1.0
  */
 function guard(what, mod) {
     return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0

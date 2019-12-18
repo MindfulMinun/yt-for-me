@@ -52,10 +52,10 @@
             love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
             nojs: `
                 <p>Desafortunadamente, esta página muy padre requiere de <em>JavaScript</em>.
-                Sin esta, se te será casi imposible navegar las redes sin que te exigen que la prendas.
+                Sin ella, se te será casi imposible navegar las redes sin que te exigen que la prendas.
                 Además, no podrás ver videos de YouTube ni aquí ni allá.</p>
 
-                <p>Hazte un favorzote y <a href="https://www.enable-javascript.com/es/">habilítalo</a>.</p>
+                <p>Hazte un favor y <a href="https://www.enable-javascript.com/es/">habilítalo</a>.</p>
             `,
             vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
             searchPre: "O busca lo que tu quieras:",
@@ -111,14 +111,7 @@
             }
         },
         view: {
-            dlSummaryLabel: () => "Descargar",
-            dlSummaryPara: () => `
-                Los enlaces están en orden de mayor a peor calidad. Para obtener la mejor calidad, recomiendo descargar el video de mejor calidad, el audio de mejor calidad, y usar una herramienta como <code>ffmpeg</code> para unirlos.
-            `,
-            dlListBoth: () => "Video y audio",
-            dlListAudio: () => "Solo audio",
-            dlListVideo: () => "Solo video",
-            iframeA11yLabel: title => `${title} - Reproductor YouTube`,
+            iframeA11yLabel: title => `${title} - Reproductor de YouTube`,
             metaViews: views => {
                 switch (views) {
                     case 0:
@@ -157,7 +150,39 @@
             license: "con_licencia_para_youtube_de",
             explicit: "advertencia_para_padres"
         },
-        // render(text).replace(/(\d+),(\d+)/gi, '$1.$2')
+        dlForm: {
+            label: "Descargar",
+            howto: `
+                Elige un formato de audio, un formato de video, y manda a que el servidor
+                te los convierte en cualquier formato que deseas para luego descargarlo.
+                La tabla a continuación te ayudará a escoger los formatos ideales.
+            `,
+            audioLabel: "Audio",
+            videoLabel: "Video",
+            outLabel: "Salida",
+            dlLabel: "Convertir",
+            kind: {
+                audio: "Audio",
+                video: "Video",
+                noAudio: "Sin audio",
+                noVideo: "Sin video",
+                onlyAudio: "Solo audio",
+                onlyVideo: "Solo video",
+                vidOrBoth: "Solo video o ambos"
+            },
+            tableHeaders: {
+                kind: 'Tipo',
+                itag: 'Valor itag',
+                encoding: 'Codificación',
+                container: 'Contenedor',
+                resolution: 'Resolución',
+                sampR8: 'Freq. de muestreo'
+            }
+        },
+        dlSheet: {
+            labelDefault: "Descargas",
+            idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
+        },
         loadingBlobs: [
             "Cargando...",
             "Descargando los virus...",
