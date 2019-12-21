@@ -36,8 +36,10 @@
   function bootstrapView(id) {
     // Assert that the id is a YouTube id
     if (!yt.REGEX_CAPTURE_ID.test(id)) {
+      // ID didn't match regex, something's wrong.
       cont.innerHTML = dict('errors/idAssertionFailed', id);
-      throw Error("ID didn't match regex, something's wrong.");
+      cont.appendChild(makeFooter());
+      return Promise.reject();
     }
 
     history.pushState(id, id, '/' + id + location.search); // Display a loading blob (blob = message before UI loads)
@@ -47,7 +49,7 @@
     loading.innerHTML = choose(yt.dict.loadingBlobs);
     cont.prepend(loading); // Get video data
 
-    fetch("/api/info?id=".concat(id, "&lang=").concat(yt.dict.lang)).then(function (res) {
+    return fetch("/api/info?id=".concat(id, "&lang=").concat(yt.dict.lang)).then(function (res) {
       return res.json();
     }).then(function (json) {
       return json.error ? Promise.reject(json) : json;
@@ -60,11 +62,12 @@
       cont.classList.remove('anim--fuck-this-shit-im-out'); // Populate the div
 
       cont.appendChild(genView(info));
-      cont.appendChild(makeFooter());
     })["catch"](function (err) {
       console.log(err); // If an error occurred, tell the user about it.
 
       cont.innerHTML = dict('errors/error400', err.error);
+    })["finally"](function () {
+      cont.appendChild(makeFooter());
     });
   } // Once we've recieved the vid data, generate the view
 

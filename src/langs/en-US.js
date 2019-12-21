@@ -54,7 +54,7 @@
                     And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?
                 </p>
                 <p>
-                    Mantén la frente en alto, siempre podrás <a href="/">intentarlo de nuevo</a>.
+                    But cheer up, you can always <a href="/">try it again</a>.
                 </p>
             `
         },

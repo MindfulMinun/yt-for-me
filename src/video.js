@@ -41,8 +41,10 @@
     function bootstrapView(id) {
         // Assert that the id is a YouTube id
         if (!yt.REGEX_CAPTURE_ID.test(id)) {
+            // ID didn't match regex, something's wrong.
             cont.innerHTML = dict('errors/idAssertionFailed', id)
-            throw Error("ID didn't match regex, something's wrong.")
+            cont.appendChild(makeFooter())
+            return Promise.reject()
         }
         history.pushState(id, id, '/' + id + location.search)
 
@@ -51,29 +53,30 @@
         loading.classList.add('loading')
         loading.innerHTML = choose(yt.dict.loadingBlobs)
         cont.prepend(loading)
-        
+
         // Get video data
-        fetch(`/api/info?id=${id}&lang=${yt.dict.lang}`)
-            .then(res => res.json())
-            .then(json => json.error ? Promise.reject(json) : json)
-            .then(function (info) {
-                // Set the document title to the video title
-                // (may be overwritten later)
-                document.title = `${info.title} • yt-for-me`
+        return fetch(`/api/info?id=${id}&lang=${yt.dict.lang}`)
+        .then(res => res.json())
+        .then(json => json.error ? Promise.reject(json) : json)
+        .then(function (info) {
+            // Set the document title to the video title
+            // (may be overwritten later)
+            document.title = `${info.title} • yt-for-me`
 
-                // Prepare the content div for population
-                cont.innerHTML = ''
-                cont.classList.remove('anim--fuck-this-shit-im-out')
+            // Prepare the content div for population
+            cont.innerHTML = ''
+            cont.classList.remove('anim--fuck-this-shit-im-out')
 
-                // Populate the div
-                cont.appendChild(genView(info))
-                cont.appendChild(makeFooter())
-            })
-            .catch(function (err) {
-                console.log(err)
-                // If an error occurred, tell the user about it.
-                cont.innerHTML = dict('errors/error400', err.error)
-            })
+            // Populate the div
+            cont.appendChild(genView(info))
+        })
+        .catch(function (err) {
+            console.log(err)
+            // If an error occurred, tell the user about it.
+            cont.innerHTML = dict('errors/error400', err.error)
+        }).finally(function () {
+            cont.appendChild(makeFooter())
+        })
     }
 
     // Once we've recieved the vid data, generate the view

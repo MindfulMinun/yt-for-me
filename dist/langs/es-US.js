@@ -59,10 +59,10 @@
     },
     errors: {
       error400: function error400(err) {
-        return "\n                <h1>Ay car\xE1mba, \xA1\xA1un error nivel 400!!</h1>\n                <p>El servidor se enoj\xF3 y me dijo: <samp>".concat(err, "</samp> (habla ingl\xE9s)</p>\n                <p>\n                    Parece que te equivocaste, ese video probablemente\n                    no existe.\n                </p>\n                <p>\n                    Si crees que me equivoqu\xE9 <em>yo</em>, entonces\n                    <a href=\"https://benjic.xyz/#contact\" target=\"_blank\">h\xE1zmelo saber</a>\n                    (hablo espa\xF1ol)\n                </p>\n                <p>\n                    De lo contrario, <a href=\"/\">int\xE9ntalo de nuevo</a>\n                </p>\n            ");
+        return "\n                <h1>Ay caray, \xA1\xA1un error nivel 400!!</h1>\n                <p>El servidor se enoj\xF3 y me dijo: <samp>".concat(err, "</samp> (habla ingl\xE9s)</p>\n                <p>\n                    Parece que el video ya no existe o no est\xE1 disponible por alguna raz\xF3n.\n                    Esto suele pasar de vez en cuando.\n                </p>\n                <p>\n                    Si crees que me equivoqu\xE9 <em>yo</em>, entonces\n                    <a href=\"https://benjic.xyz/#contact\" target=\"_blank\">h\xE1zmelo saber</a>\n                    (hablo espa\xF1ol)\n                </p>\n                <p>\n                    De lo contrario, <a href=\"/\">int\xE9ntalo de nuevo</a>\n                </p>\n            ");
       },
       idAssertionFailed: function idAssertionFailed(id) {
-        return "\n                <h1>".concat(id || 'Esto', " no parece ser un video.</h1>\n                <p>\n                    Se supone que esta aplicaci\xF3n habla con YouTube.\n                    Para eso, se supone que las letritas despu\xE9s de la barra en la direcci\xF3n corresponden a un video de YouTube. \xBFQuiz\xE1 te equivocaste al copiar el ID?\n                </p>\n                <p>\n                    Mant\xE9n la frente en alto, siempre podr\xE1s <a href=\"/\">intentarlo de nuevo</a>.\n                </p>\n            ");
+        return "\n                <h1>".concat(id || 'Esto', " no parece ser un video.</h1>\n                <p>\n                    Esta aplicaci\xF3n habla con YouTube para darte informaci\xF3n sobre ella,\n                    incluyendo c\xF3mo descargarla. Para eso, se necesita algunas letritas\n                    raras que identifican al video (el ID del video). Si est\xE1s en esta p\xE1gina, es que\n                    las letras est\xE1n mal. \xBFQuiz\xE1 te equivocaste al copiar el ID?\n                </p>\n                <p>\n                    Pero no te desanimes, puedes <a href=\"/\">intentarlo de nuevo</a>.\n                </p>\n            ");
       }
     },
     search: {
@@ -163,7 +163,7 @@
     },
     dlForm: {
       label: "Descargar",
-      howto: "\n                Elige un formato de audio, un formato de video, y manda a que el servidor\n                te los convierte en cualquier formato que deseas para luego descargarlo.\n                La tabla a continuaci\xF3n te ayudar\xE1 a escoger los formatos ideales.\n            ",
+      howTo: "\n                Elige un formato de audio, un formato de video, y manda al servidor que\n                te los convierte en cualquier formato que deseas para luego descargarlo.\n                La tabla a continuaci\xF3n te ayudar\xE1 a escoger los formatos ideales.\n                <br>\n                (Y si no sabes cuales escoger, pues elige la primera selecci\xF3n de ambas.)\n            ",
       audioLabel: "Audio",
       videoLabel: "Video",
       outLabel: "Salida",

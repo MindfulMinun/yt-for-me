@@ -100,18 +100,36 @@ app.get('/search', function (req, res) {
 app.get('/yt-downloads/:vid', function (req, res) {
   res.sendFile(_path["default"].resolve("".concat(root, "/yt-downloads/").concat(req.params.vid)));
 });
-app.get('/:id', function (req, res) {
+app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
   var lang = getLang(req);
   var q = req.query.q || '';
-  res.render(root + "/public/pageview.mst", {
+  res.render(root + "/public/video.mst", {
     lang: lang,
     d: require("./langs/".concat(lang, ".js")),
     query: q
   });
 });
-app.get(function (req, res) {
-  console.log('default');
-  res.sendFile(root + '/../' + req.path);
+app.get(function () {
+  // Default
+  res.status(404); // respond with html page
+
+  if (req.accepts('html')) {
+    res.render('404', {
+      url: req.url
+    });
+    return;
+  } // respond with json
+
+
+  if (req.accepts('json')) {
+    res.send({
+      error: 'Not found'
+    });
+    return;
+  } // Plain text default
+
+
+  res.type('txt').send('Not found');
 }); // Keep track of video progresses
 
 var progresses = {};

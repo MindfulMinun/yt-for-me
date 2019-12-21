@@ -64,11 +64,11 @@
         },
         errors: {
             error400: err => `
-                <h1>Ay carámba, ¡¡un error nivel 400!!</h1>
+                <h1>Ay caray, ¡¡un error nivel 400!!</h1>
                 <p>El servidor se enojó y me dijo: <samp>${err}</samp> (habla inglés)</p>
                 <p>
-                    Parece que te equivocaste, ese video probablemente
-                    no existe.
+                    Parece que el video ya no existe o no está disponible por alguna razón.
+                    Esto suele pasar de vez en cuando.
                 </p>
                 <p>
                     Si crees que me equivoqué <em>yo</em>, entonces
@@ -82,11 +82,13 @@
             idAssertionFailed: id => `
                 <h1>${id || 'Esto'} no parece ser un video.</h1>
                 <p>
-                    Se supone que esta aplicación habla con YouTube.
-                    Para eso, se supone que las letritas después de la barra en la dirección corresponden a un video de YouTube. ¿Quizá te equivocaste al copiar el ID?
+                    Esta aplicación habla con YouTube para darte información sobre ella,
+                    incluyendo cómo descargarla. Para eso, se necesita algunas letritas
+                    raras que identifican al video (el ID del video). Si estás en esta página, es que
+                    las letras están mal. ¿Quizá te equivocaste al copiar el ID?
                 </p>
                 <p>
-                    Mantén la frente en alto, siempre podrás <a href="/">intentarlo de nuevo</a>.
+                    Pero no te desanimes, puedes <a href="/">intentarlo de nuevo</a>.
                 </p>
             `
         },
@@ -152,10 +154,12 @@
         },
         dlForm: {
             label: "Descargar",
-            howto: `
-                Elige un formato de audio, un formato de video, y manda a que el servidor
+            howTo: `
+                Elige un formato de audio, un formato de video, y manda al servidor que
                 te los convierte en cualquier formato que deseas para luego descargarlo.
                 La tabla a continuación te ayudará a escoger los formatos ideales.
+                <br>
+                (Y si no sabes cuales escoger, pues elige la primera selección de ambas.)
             `,
             audioLabel: "Audio",
             videoLabel: "Video",

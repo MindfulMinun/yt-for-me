@@ -32,12 +32,6 @@
             by: () => () => `search/by`,
             views: () => () => `search/views`,
             relTime: () => () => `search/relTime`
-            // resultsFor: () => (text, render) => `search/resultsFor “${render(text)}”`,
-            // emptySearch: () => `search/emptySearch`,
-            // count: () => (text, render) => `search/count ${render(text)}`,
-            // by: () => (text, render) => `search/by ${render(text)}`,
-            // views: () => (text, render) => `search/views ${render(text)}`,
-            // relTime: () => (text, render) => `search/relTime ${render(text)}`
         },
         propertyLookup: {
             // These can't be left out. They're used to 

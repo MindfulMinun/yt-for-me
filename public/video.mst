@@ -58,5 +58,5 @@
     <script>
         document.documentElement.classList.remove("no-js");
     </script>
-    <script src="/js/view.js"></script>
+    <script src="/js/video.js"></script>
 </html>

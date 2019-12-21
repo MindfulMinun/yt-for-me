@@ -33,7 +33,7 @@
         return "\n                <h1>Oh dang, a level 400 error!!1!!!</h1>\n                <p>The server says: <samp>".concat(err, "</samp></p>\n                <p>\n                    It looks like you did something wrong,\n                    that video probably doesn\u2019t exist.\n                </p>\n                <p>\n                    If you think <em>i</em> fucked up, then\n                    <a href=\"https://benjic.xyz/#contact\" target=\"_blank\">let me know</a>\n                </p>\n                <p>\n                    Otherwise, <a href=\"/\">start over</a>\n                </p>\n            ");
       },
       idAssertionFailed: function idAssertionFailed(id) {
-        return "\n                <h1>".concat(id || 'This', " doesn't seem to be a video.</h1>\n                <p>\n                    Look, this app supposedly talks to YouTube.\n                    And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?\n                </p>\n                <p>\n                    Mant\xE9n la frente en alto, siempre podr\xE1s <a href=\"/\">intentarlo de nuevo</a>.\n                </p>\n            ");
+        return "\n                <h1>".concat(id || 'This', " doesn't seem to be a video.</h1>\n                <p>\n                    Look, this app supposedly talks to YouTube.\n                    And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?\n                </p>\n                <p>\n                    But cheer up, you can always <a href=\"/\">try it again</a>.\n                </p>\n            ");
       }
     },
     search: {
