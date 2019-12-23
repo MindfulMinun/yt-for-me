@@ -12,9 +12,14 @@
     --anim-rest-to-peak: cubic-bezier(0.4, 0.0, 1, 1);
     --anim-ez-overshoot: cubic-bezier(0.4, 0.0, 0.2, 1.4);
     --anim-hard-overshoot: cubic-bezier(0.4, 0.0, 0.2, 1.6);
+    margin: 0;
+    font-family: "IBM Plex Sans", sans-serif;
     font-size: 16px;
     line-height: 1.5;
+    background-color: #1e1e1e;
+    color: #fafafa;
 }
+body { margin: 0; }
 :focus {
     outline: 0;
 }
@@ -73,10 +78,15 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
     height: 100%;
 }
 
-a, [href] {
+[href] {
     color: var(--accent);
+    text-decoration: none;
 }
-a:focus {
+[href]:hover, [href]:focus {
+    text-decoration: underline;
+    text-decoration-skip-ink: auto;
+}
+[href]:focus {
     outline: 2px solid var(--accent);
     outline-offset: 4px;
 }
@@ -185,6 +195,9 @@ ol.a11y-list {
     font-weight: 400;
     font-size: 14px;
 }
+.search-card:hover, .search-card:focus {
+    text-decoration: none;
+}
 .search-card:focus {
     outline-offset: 0px;
 }
@@ -271,6 +284,9 @@ ol.a11y-list {
     transition: background .2s var(--anim-std);
     /* The var is populated by JavaScript lol */
     background-image: var(--card-bg-image);
+}
+.yt-card:hover, .yt-card:focus {
+    text-decoration: none;
 }
 .yt-card:last-child {
     margin-right: 0;

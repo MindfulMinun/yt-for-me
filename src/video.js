@@ -142,6 +142,7 @@
                 </details>
                 <div class="yt-embed">
                     <iframe
+                        id="yt-iframe"
                         title="${dict('view/iframeA11yLabel', info.title)}" frameborder="0"
                         src="https://www.youtube.com/embed/${info.video_id}?autoplay=1&hl=${yt.dict.lang}"
                         allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
@@ -168,6 +169,7 @@
             
         // Add the format options in the dropdowns
         filteredFormats.forEach(format => {
+            return
             const select = [
                 view.querySelector('#label-audio select'),
                 view.querySelector('#label-video select')
@@ -297,6 +299,30 @@
             rel.appendChild(card)
         })
 
+        view.querySelectorAll('[data-timestamp]').forEach(el => {
+            el.onclick = function (e) {
+                const iframe = document.getElementById('yt-iframe')
+                if (!iframe) return
+                e.preventDefault()
+                const url = new URL(iframe.src)
+                
+                // For every more significant group, multiply by powers of 60
+                const timestamp = el.dataset.timestamp
+                    .split(':')
+                    .reverse()
+                    .map((a, i) => +a * (60 ** i))
+                    .reduce((acc, v) => acc + v)
+                
+                // Set the timestamp and replace the src
+                url.searchParams.set('start', timestamp)
+                iframe.src = url
+
+                // Scroll to the iframe so the user sees it
+                scrollTo(0, 0)
+            }
+        })
+
+
         return view
     }
 
@@ -313,6 +339,8 @@
             mf.playerMicroformatRenderer,
             r => guard(r.title, t => t.simpleText)
         )) || info.title
+
+        vid.id = info.video_id
 
         vid.author = (info.media && info.media[
             yt.dict.propertyLookup.artist
@@ -336,6 +364,25 @@
                 pmr.description, desc => desc.simpleText
             )
         )) || info.description
+
+        vid.description =
+            vid.description
+            .replace(yt.REGEX_URL, match => {
+                let out = `<a href="${match}" target="_blank">`
+                let url = new URL(match)
+                out += url.hostname.replace(/^www\./, '')
+                out += (url.pathname !== '/' && url.pathname) || ''
+                out += '</a>'
+                return out
+            })
+            .replace(yt.REGEX_HASHTAG, match => {
+                const q = new URLSearchParams(location.search)
+                q.set('q', match)
+                return `<a href="/search?${q}">${match}</a>`
+            })
+            .replace(yt.REGEX_TIMESTAMP, match => {
+                return `<a href="/${vid.id}" data-timestamp="${match}">${match}</a>`
+            })
 
         vid.views = +ps.videoDetails.viewCount
 

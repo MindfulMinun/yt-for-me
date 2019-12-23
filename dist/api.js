@@ -95,8 +95,11 @@ api.get('/search', function (req, res) {
     res.json({
       query: q,
       page: page,
-      vids: results.videos.map(function (v, i) {
+      vids: results.videos.filter(function (e) {
+        return e.videoId !== 'L&ai';
+      }).map(function (v, i) {
         v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
+        v.ago = v.ago.replace('Streamed ', '');
         delete v.url;
         return v;
       })

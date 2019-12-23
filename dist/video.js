@@ -91,7 +91,7 @@
 
     document.title = "".concat(vid.title, " \u2022 yt-for-me"); // Construct the view
 
-    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict('dlForm/label'), "</summary>\n                    <p>").concat(dict('dlForm/howTo'), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            ").concat(dict('dlForm/audioLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"audioItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noAudio'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            ").concat(dict('dlForm/videoLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"videoItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noVideo'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            ").concat(dict('dlForm/outLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"outFormat\" disabled>\n                                <optgroup label=\"").concat(dict('dlForm/kind/onlyAudio'), "\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"").concat(dict('dlForm/kind/vidOrBoth'), "\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                    <option value=\"mov\">mov</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <div>\n                            <button class=\"yt-btn\" disabled>").concat(dict('dlForm/dlLabel'), "</button>\n                        </div>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        title=\"").concat(dict('view/iframeA11yLabel', info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(yt.dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Get the formats. Filter out the ones that are live or have both encodings.
+    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict('dlForm/label'), "</summary>\n                    <p>").concat(dict('dlForm/howTo'), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            ").concat(dict('dlForm/audioLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"audioItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noAudio'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            ").concat(dict('dlForm/videoLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"videoItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noVideo'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            ").concat(dict('dlForm/outLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"outFormat\" disabled>\n                                <optgroup label=\"").concat(dict('dlForm/kind/onlyAudio'), "\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"").concat(dict('dlForm/kind/vidOrBoth'), "\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                    <option value=\"mov\">mov</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <div>\n                            <button class=\"yt-btn\" disabled>").concat(dict('dlForm/dlLabel'), "</button>\n                        </div>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        id=\"yt-iframe\"\n                        title=\"").concat(dict('view/iframeA11yLabel', info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(yt.dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Get the formats. Filter out the ones that are live or have both encodings.
     // Get formats that aren't live, and are either all audio or all video
 
     var filteredFormats = info.formats.filter(function (f) {
@@ -103,6 +103,7 @@
     view.querySelector('details').appendChild(createTable(filteredFormats)); // Add the format options in the dropdowns
 
     filteredFormats.forEach(function (format) {
+      return;
       var select = [view.querySelector('#label-audio select'), view.querySelector('#label-video select')][format.audioEncoding ? 0 : 1];
       var option = document.createElement('option');
       var out = '';
@@ -191,6 +192,25 @@
       card.innerHTML = "\n                <div class=\"yt-card--info\">\n                    <strong>".concat(vid.title, "</strong>\n                    <span>").concat(dict('view/cardAuthor', vid.author), "</span>\n                    <span>").concat(dict('view/cardViews', vid.short_view_count_text), "</span>\n                </div>\n            ");
       rel.appendChild(card);
     });
+    view.querySelectorAll('[data-timestamp]').forEach(function (el) {
+      el.onclick = function (e) {
+        var iframe = document.getElementById('yt-iframe');
+        if (!iframe) return;
+        e.preventDefault();
+        var url = new URL(iframe.src); // For every more significant group, multiply by powers of 60
+
+        var timestamp = el.dataset.timestamp.split(':').reverse().map(function (a, i) {
+          return +a * Math.pow(60, i);
+        }).reduce(function (acc, v) {
+          return acc + v;
+        }); // Set the timestamp and replace the src
+
+        url.searchParams.set('start', timestamp);
+        iframe.src = url; // Scroll to the iframe so the user sees it
+
+        scrollTo(0, 0);
+      };
+    });
     return view;
   }
 
@@ -207,6 +227,7 @@
         });
       });
     }) || info.title;
+    vid.id = info.video_id;
     vid.author = info.media && info.media[yt.dict.propertyLookup.artist] || info.author.name;
     vid.album = info.media && info.media[yt.dict.propertyLookup.album];
     vid.license = info.media && info.media[yt.dict.propertyLookup.license];
@@ -218,6 +239,20 @@
         });
       });
     }) || info.description;
+    vid.description = vid.description.replace(yt.REGEX_URL, function (match) {
+      var out = "<a href=\"".concat(match, "\" target=\"_blank\">");
+      var url = new URL(match);
+      out += url.hostname.replace(/^www\./, '');
+      out += url.pathname !== '/' && url.pathname || '';
+      out += '</a>';
+      return out;
+    }).replace(yt.REGEX_HASHTAG, function (match) {
+      var q = new URLSearchParams(location.search);
+      q.set('q', match);
+      return "<a href=\"/search?".concat(q, "\">").concat(match, "</a>");
+    }).replace(yt.REGEX_TIMESTAMP, function (match) {
+      return "<a href=\"/".concat(vid.id, "\" data-timestamp=\"").concat(match, "\">").concat(match, "</a>");
+    });
     vid.views = +ps.videoDetails.viewCount;
     return vid;
   }

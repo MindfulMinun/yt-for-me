@@ -82,9 +82,10 @@ app.get('/search', function (req, res) {
         }
         
         res.render(root + '/public/search.mst', Object.assign(render, {
-            vids: results.videos.filter(e => e.id !== 'L&ai').map((v, i) => {
+            vids: results.videos.filter(e => e.videoId !== 'L&ai').map((v, i) => {
                 v.index = i // for mustashe lol
                 v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
+                v.ago = v.ago.replace('Streamed ', '')
                 delete v.url
                 return v
             })

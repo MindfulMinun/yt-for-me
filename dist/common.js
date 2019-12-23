@@ -15,7 +15,13 @@ yt.langs = [{
   full: "es-US"
 }]; // Matches a YouTube video id
 
-yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/;
+yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/; // Matches a url?
+
+yt.REGEX_URL = /(http(s)?:\/\/.)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g; // Matches a hashtag?
+
+yt.REGEX_HASHTAG = /\B(#[a-zA-Z-_.]+)\b(?!#)/g; // Matches a timestamp?
+
+yt.REGEX_TIMESTAMP = /\b(\d+(?::\d{2})(?::\d{2})?)\b/g;
 ready(function () {
   // If the sheet already exists, do not create a duplicate sheet.
   if (document.querySelector('xyz-sheet')) {

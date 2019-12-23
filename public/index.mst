@@ -11,17 +11,9 @@
         <meta name="viewport" content="width=device-width">
         <meta name="theme-color" content="#448aff">
 
-        <!-- Import styles -->
-        <!-- Import Material Icons, Roboto & Roboto Mono -->
-        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|Roboto:100,100i,200,200i,300,300i,400,400i,500,500i|Roboto+Mono:300">
+        <!-- Import fonts & styles -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|IBM+Plex+Sans:400,400i&display=swap">
         <style media="screen">
-            :root, html, body {
-                font-family: "Roboto", Helvetica, Arial, sans-serif;
-                margin: 0;
-                line-height: 1.5;
-                background-color: #1e1e1e;
-                color: #fafafa;
-            }
             *, *::before, *::after {
                 box-sizing: border-box;
             }
