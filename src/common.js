@@ -83,6 +83,10 @@ function createDownloadListItem(object) {
         `
         return createDownloadListItem(object)
     }
+    const li = document.createElement('li')
+    li.classList.add('dl-list-element')
+    li.innerHTML = 'hi'
+    ul.appendChild(li)
 
     pollUrl(object)
 }
@@ -141,7 +145,7 @@ function dict(what, ...params) {
     // If the property is undefined~ish, log a warning
     if (null == dict) {
         console.warn(`Error: Dictionary property at "${what}" was null or undefined. Returned the path instead.`)
-        return what
+        return [what, ...params].join(' ')
     }
 
     // If it's a string, return it
@@ -155,7 +159,6 @@ function dict(what, ...params) {
     }
 
     // If it's not a string or a function, there's some other kind of error
-    // Return the 
     console.warn(`Expected the entry at ${what} to resolve to a string.`)
     return what
 }
@@ -191,5 +194,21 @@ function choose(arr) {
 if (!Promise.never) {
     Promise.never = function () {
         return new Promise(() => {})
+    }
+}
+
+// Array::partition divides an array in two
+if (!Array.prototype.partition) {
+    Array.prototype.partition = function (f) {
+        let matched = [],
+            unmatched = [],
+            i = 0,
+            j = this.length
+
+        for (; i < j; i++){
+            (f.call(this, this[i], i) ? matched : unmatched).push(this[i]);
+        }
+
+        return [matched, unmatched]
     }
 }

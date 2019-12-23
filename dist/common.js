@@ -76,6 +76,10 @@ function createDownloadListItem(object) {
     return createDownloadListItem(object);
   }
 
+  var li = document.createElement('li');
+  li.classList.add('dl-list-element');
+  li.innerHTML = 'hi';
+  ul.appendChild(li);
   pollUrl(object);
 }
 
@@ -136,9 +140,13 @@ function dict(what) {
   } // If the property is undefined~ish, log a warning
 
 
+  for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
+    params[_key - 1] = arguments[_key];
+  }
+
   if (null == dict) {
     console.warn("Error: Dictionary property at \"".concat(what, "\" was null or undefined. Returned the path instead."));
-    return what;
+    return [what].concat(params).join(' ');
   } // If it's a string, return it
 
 
@@ -148,13 +156,8 @@ function dict(what) {
 
 
   if ("function" === typeof dict) {
-    for (var _len = arguments.length, params = new Array(_len > 1 ? _len - 1 : 0), _key = 1; _key < _len; _key++) {
-      params[_key - 1] = arguments[_key];
-    }
-
     return dict.apply(void 0, params);
   } // If it's not a string or a function, there's some other kind of error
-  // Return the 
 
 
   console.warn("Expected the entry at ".concat(what, " to resolve to a string."));
@@ -194,5 +197,21 @@ function choose(arr) {
 if (!Promise.never) {
   Promise.never = function () {
     return new Promise(function () {});
+  };
+} // Array::partition divides an array in two
+
+
+if (!Array.prototype.partition) {
+  Array.prototype.partition = function (f) {
+    var matched = [],
+        unmatched = [],
+        i = 0,
+        j = this.length;
+
+    for (; i < j; i++) {
+      (f.call(this, this[i], i) ? matched : unmatched).push(this[i]);
+    }
+
+    return [matched, unmatched];
   };
 }

@@ -55,8 +55,11 @@
         cont.prepend(loading)
 
         // Get video data
-        return fetch(`/api/info?id=${id}&lang=${yt.dict.lang}`)
-        .then(res => res.json())
+        return fetch(`/api/info?id=${id}&lang=${yt.dict.lang}`, {
+            headers: {
+                'Accept': 'application/json'
+            }
+        }).then(res => res.json())
         .then(json => json.error ? Promise.reject(json) : json)
         .then(function (info) {
             // Set the document title to the video title
@@ -154,15 +157,11 @@
         `
 
         // Get the formats. Filter out the ones that are live or have both encodings.
-        const filteredFormats = info.formats.filter(f => {
-            // Get formats that aren't live, and are either all audio or all video
-            return !f.live & ((!!f.resolution) ^ (!!f.audioEncoding))
-        }).sort((a, b) => {
-            if (!!a.audioEncoding === !!b.audioEncoding) {
-                return 0
-            }
-            return !a.audioEncoding ? 1 : -1
-        })
+        // Get formats that aren't live, and are either all audio or all video
+        const filteredFormats = info.formats
+            .filter(f => !f.live)
+            .partition(f => f.audioBitrate)
+            .flat(1)
 
         // Generate a table with the filtered formats
         view.querySelector('details').appendChild(createTable(filteredFormats))
@@ -175,14 +174,23 @@
             ][format.audioEncoding ? 0 : 1]
 
             const option = document.createElement('option')
+            let out = ''
+
+            out += format.itag
+            out += `: `
+            out += format.audioEncoding || format.encoding
+            out += ` (${format.container})`
+
             option.innerText = `${format.itag}: ${
                 format.audioEncoding || format.encoding
             } (${format.container})${
-                format.audio_sample_rate ?
-                    ' @ ' + Math.round(+format.audio_sample_rate / 100) / 10 + 'kHz' :
-                    ' @ ' + format.resolution
+                format.audioSampleRate ?
+                    ' @ ' + Math.round(+format.audioSampleRate / 100) / 10 + 'kHz' :
+                    ' @ ' + format.qualityLabel
             }`
 
+
+            option.innerText = out
             option.value = format.itag
 
             select.appendChild(option)
@@ -371,8 +379,8 @@
                 <th>${f.itag}</th>
                 <th>${f.audioEncoding || f.encoding}</th>
                 <th>${f.container}</th>
-                <th>${f.resolution || ''}</th>
-                <th>${f.audio_sample_rate ? Math.round(+f.audio_sample_rate / 100) / 10 + 'kHz' : ''}</th>
+                <th>${f.qualityLabel || ''}</th>
+                <th>${f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : ''}</th>
             `
             tbody.appendChild(tr)
         });
