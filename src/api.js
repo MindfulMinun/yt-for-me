@@ -15,16 +15,17 @@ const allowCorsOn = [
     'https://yt-for-me.herokuapp.com'
 ]
 
-if (!process.env.NODE_ENV) {
+if (process.env.NODE_ENV !== 'production') {
     allowCorsOn.push('http://localhost:8080')
 }
 
 // Used to keep track of video download/conversion progress
 const progresses = {}
 
+// Only let certain domains access the API
 api.use(function (req, res, next) {
     const origin = allowCorsOn.find(
-        host => host === `${req.protocol}://${req.get('host')}` 
+        host => (host === req.get('origin')) || (req.get('referer') || '').startsWith(host) 
     )
 
     res.set({
@@ -68,7 +69,7 @@ api.get('/info', function (req, res) {
  */
 api.get('/search', function (req, res) {
     const q = req.query.q || ''
-    const page = req.query.page || 0
+    const page = Math.max(1, req.query.page || 1)
 
     ytSearch({
         query: q,
@@ -86,12 +87,15 @@ api.get('/search', function (req, res) {
         res.json({
             query: q,
             page: page,
-            vids: results.videos.filter(e => e.videoId !== 'L&ai').map((v, i) => {
-                v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
-                v.ago = v.ago.replace('Streamed ', '')
-                delete v.url
-                return v
-            })
+            vids: results.videos
+                .filter(e => e.videoId !== 'L&ai')
+                .map(v => {
+                    v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
+                    v.ago = v.ago.replace('Streamed ', '')
+                    delete v.url
+                    return v
+                }
+            )
         })
     })
 })

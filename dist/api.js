@@ -25,15 +25,16 @@ var api = new _express["default"].Router();
 var allowCorsOn = [// Requests from localhost to localhost are exempt from CORS
 'https://yt.benjic.xyz', 'https://yt-for-me.herokuapp.com'];
 
-if (!process.env.NODE_ENV) {
+if (process.env.NODE_ENV !== 'production') {
   allowCorsOn.push('http://localhost:8080');
 } // Used to keep track of video download/conversion progress
 
 
-var progresses = {};
+var progresses = {}; // Only let certain domains access the API
+
 api.use(function (req, res, next) {
   var origin = allowCorsOn.find(function (host) {
-    return host === "".concat(req.protocol, "://").concat(req.get('host'));
+    return host === req.get('origin') || (req.get('referer') || '').startsWith(host);
   });
   res.set({
     'Access-Control-Allow-Origin': origin || allowCorsOn[0]
@@ -78,7 +79,7 @@ api.get('/info', function (req, res) {
 
 api.get('/search', function (req, res) {
   var q = req.query.q || '';
-  var page = req.query.page || 0;
+  var page = Math.max(1, req.query.page || 1);
   (0, _ytSearch["default"])({
     query: q,
     pageStart: page,
@@ -97,7 +98,7 @@ api.get('/search', function (req, res) {
       page: page,
       vids: results.videos.filter(function (e) {
         return e.videoId !== 'L&ai';
-      }).map(function (v, i) {
+      }).map(function (v) {
         v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
         v.ago = v.ago.replace('Streamed ', '');
         delete v.url;

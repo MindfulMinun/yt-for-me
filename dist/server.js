@@ -47,7 +47,7 @@ app.get('/css/:path([\\s\\S]*)', function (req, res) {
 });
 app.get('/search', function (req, res) {
   var q = req.query.q || '';
-  var page = req.query.page || 1;
+  var page = Math.max(1, req.query.page || 1);
   var lang = (0, _serverHelpers.getLang)(req);
   var render = {
     lang: lang,

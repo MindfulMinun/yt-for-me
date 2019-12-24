@@ -50,7 +50,7 @@ app.get('/css/:path([\\s\\S]*)', function (req, res) {
 
 app.get('/search', function (req, res) {
     const q = req.query.q || ''
-    const page = req.query.page || 1
+    const page = Math.max(1, req.query.page || 1)
     const lang = getLang(req)
     const render = {
         lang: lang,

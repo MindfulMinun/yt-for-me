@@ -240,8 +240,18 @@
       });
     }) || info.description;
     vid.description = vid.description.replace(yt.REGEX_URL, function (match) {
+      var url;
+
+      try {
+        url = new URL(match);
+      } catch (e) {
+        // If the regex matched but it couldn't be parsed by URL,
+        // give up parsing
+        console.log("Warning: Matched \u201C".concat(match, "\u201D but marked as invalid by URL constructor"));
+        return match;
+      }
+
       var out = "<a href=\"".concat(match, "\" target=\"_blank\">");
-      var url = new URL(match);
       out += url.hostname.replace(/^www\./, '');
       out += url.pathname !== '/' && url.pathname || '';
       out += '</a>';

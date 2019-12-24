@@ -368,8 +368,16 @@
         vid.description =
             vid.description
             .replace(yt.REGEX_URL, match => {
+                let url
+                try {
+                    url = new URL(match)
+                } catch (e) {
+                    // If the regex matched but it couldn't be parsed by URL,
+                    // give up parsing
+                    console.log(`Warning: Matched “${match}” but marked as invalid by URL constructor`)
+                    return match
+                }
                 let out = `<a href="${match}" target="_blank">`
-                let url = new URL(match)
                 out += url.hostname.replace(/^www\./, '')
                 out += (url.pathname !== '/' && url.pathname) || ''
                 out += '</a>'
