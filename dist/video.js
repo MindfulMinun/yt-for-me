@@ -1,5 +1,13 @@
 "use strict";
 
+function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _nonIterableRest(); }
+
+function _nonIterableRest() { throw new TypeError("Invalid attempt to destructure non-iterable instance"); }
+
+function _iterableToArrayLimit(arr, i) { if (!(Symbol.iterator in Object(arr) || Object.prototype.toString.call(arr) === "[object Arguments]")) { return; } var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"] != null) _i["return"](); } finally { if (_d) throw _e; } } return _arr; }
+
+function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
+
 (function () {
   'use strict'; // Assert the global yt is defined
 
@@ -91,27 +99,48 @@
 
     document.title = "".concat(vid.title, " \u2022 yt-for-me"); // Construct the view
 
-    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict('dlForm/label'), "</summary>\n                    <p>").concat(dict('dlForm/howTo'), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            ").concat(dict('dlForm/audioLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"audioItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noAudio'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            ").concat(dict('dlForm/videoLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"videoItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noVideo'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            ").concat(dict('dlForm/outLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"outFormat\" disabled>\n                                <optgroup label=\"").concat(dict('dlForm/kind/onlyAudio'), "\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"").concat(dict('dlForm/kind/vidOrBoth'), "\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                    <option value=\"mov\">mov</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <div>\n                            <button class=\"yt-btn\" disabled>").concat(dict('dlForm/dlLabel'), "</button>\n                        </div>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        id=\"yt-iframe\"\n                        title=\"").concat(dict('view/iframeA11yLabel', info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(yt.dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Get the formats. Filter out the ones that are live or have both encodings.
-    // Get formats that aren't live, and are either all audio or all video
+    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict('dlForm/label'), "</summary>\n                    <p>").concat(dict('dlForm/howTo'), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\">\n                            ").concat(dict('dlForm/audioLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"audioItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noAudio'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\">\n                            ").concat(dict('dlForm/videoLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"videoItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noVideo'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\">\n                            ").concat(dict('dlForm/outLabel'), ": \n                            <select class=\"yt-select yt-select--compact\" name=\"outFormat\" disabled>\n                                <optgroup label=\"").concat(dict('dlForm/kind/onlyAudio'), "\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"").concat(dict('dlForm/kind/vidOrBoth'), "\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                    <option value=\"mov\">mov</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <div>\n                            <button class=\"yt-btn\" disabled>").concat(dict('dlForm/dlLabel'), "</button>\n                        </div>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        id=\"yt-iframe\"\n                        title=\"").concat(dict('view/iframeA11yLabel', info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(yt.dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Split the formats into video and audio
 
-    var filteredFormats = info.formats.filter(function (f) {
+    var filteredFormats = info.formats // Exclude live formats
+    .filter(function (f) {
       return !f.live;
-    }).partition(function (f) {
-      return f.audioBitrate;
-    }).flat(1); // Generate a table with the filtered formats
+    }) // Exclude mixed formats
+    // We want only audio formats or only video formats
+    .filter(function (f) {
+      return !!f.audioQuality ^ !!f.qualityLabel;
+    }).sort(function (l, r) {
+      return l.audioQuality ? -1 : r.audioQuality ? 1 : 0;
+    }); // Split them into video and audio arrays
+
+    var _filteredFormats$part = filteredFormats.partition(function (f) {
+      return !f.audioQuality;
+    }),
+        _filteredFormats$part2 = _slicedToArray(_filteredFormats$part, 2),
+        vids = _filteredFormats$part2[0],
+        auds = _filteredFormats$part2[1]; // Generate a table with the filtered formats
+
 
     view.querySelector('details').appendChild(createTable(filteredFormats)); // Add the format options in the dropdowns
 
-    filteredFormats.forEach(function (format) {
-      return;
-      var select = [view.querySelector('#label-audio select'), view.querySelector('#label-video select')][format.audioEncoding ? 0 : 1];
+    auds.forEach(function (format) {
+      var select = view.querySelector('#label-audio select');
       var option = document.createElement('option');
       var out = '';
-      out += format.itag;
-      out += ": ";
-      out += format.audioEncoding || format.encoding;
-      out += " (".concat(format.container, ")");
-      option.innerText = "".concat(format.itag, ": ").concat(format.audioEncoding || format.encoding, " (").concat(format.container, ")").concat(format.audioSampleRate ? ' @ ' + Math.round(+format.audioSampleRate / 100) / 10 + 'kHz' : ' @ ' + format.qualityLabel);
+      out += "".concat(format.itag, ": ");
+      out += dict('generic/qualityHelper', format.audioQuality, format.audioBitrate);
+      out += " ".concat(format.container, " @ ").concat(Math.round(+format.audioSampleRate / 100) / 10);
+      out += 'kHz';
+      option.innerText = out;
+      option.value = format.itag;
+      select.appendChild(option);
+    });
+    vids.forEach(function (format) {
+      var select = view.querySelector('#label-video select');
+      var option = document.createElement('option');
+      var out = '';
+      out += "".concat(format.itag, ": ");
+      out += dict('generic/qualityHelper', format.quality, format.qualityLabel);
+      out += " ".concat(format.container, " (").concat(format.codecs, ")");
       option.innerText = out;
       option.value = format.itag;
       select.appendChild(option);
@@ -278,11 +307,11 @@
     var div = document.createElement('div');
     var table = document.createElement('table');
     div.classList.add('yt-table');
-    table.innerHTML = "\n            <thead>\n                <tr>\n                    <th>".concat(dict('dlForm/tableHeaders/kind'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/itag'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/encoding'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/container'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/resolution'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/sampR8'), "</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        ");
+    table.innerHTML = "\n            <thead>\n                <tr>\n                    <th>".concat(dict('dlForm/tableHeaders/kind'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/itag'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/container'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/codecs'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/quality'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/sampR8'), "</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        ");
     var tbody = table.querySelector('tbody');
     filteredFormats.forEach(function (f) {
       var tr = document.createElement('tr');
-      tr.innerHTML = "\n                <th>".concat(dict("dlForm/kind/".concat(f.audioEncoding ? 'audio' : 'video')), "</th>\n                <th>").concat(f.itag, "</th>\n                <th>").concat(f.audioEncoding || f.encoding, "</th>\n                <th>").concat(f.container, "</th>\n                <th>").concat(f.qualityLabel || '', "</th>\n                <th>").concat(f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : '', "</th>\n            ");
+      tr.innerHTML = "\n                <th>".concat(dict("dlForm/kind/".concat(f.audioQuality ? 'audio' : 'video')), "</th>\n                <th>").concat(f.itag, "</th>\n                <th>").concat(f.container, "</th>\n                <th>").concat(f.codecs, "</th>\n                <th>").concat(f.audioQuality ? dict('generic/qualityHelper', f.audioQuality, f.audioBitrate) : dict('generic/qualityHelper', f.quality, f.qualityLabel), "</th>\n                <th>").concat(f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : '', "</th>\n            ");
       tbody.appendChild(tr);
     });
     div.appendChild(table);

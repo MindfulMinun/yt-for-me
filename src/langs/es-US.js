@@ -145,13 +145,6 @@
             },
             searchLabel: () => "Regresar a la búsqueda"
         },
-        propertyLookup: {
-            song: "canción",
-            album: "álbum",
-            artist: "artista",
-            license: "con_licencia_para_youtube_de",
-            explicit: "advertencia_para_padres"
-        },
         dlForm: {
             label: "Descargar",
             howTo: `
@@ -175,17 +168,44 @@
                 vidOrBoth: "Solo video o ambos"
             },
             tableHeaders: {
-                kind: 'Tipo',
-                itag: 'Valor itag',
-                encoding: 'Codificación',
-                container: 'Contenedor',
-                resolution: 'Resolución',
-                sampR8: 'Freq. de muestreo'
+                kind: "Tipo",
+                itag: "ID",
+                encoding: "Codificación",
+                codecs: "Códecs",
+                container: "Contenedor",
+                resolution: "Resolución",
+                quality: "Calidad",
+                sampR8: "Freq. de muestreo"
             }
         },
         dlSheet: {
             labelDefault: "Descargas",
             idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
+        },
+        generic: {
+            qualityHelper: (quality, label) => {
+                return {
+                    AUDIO_QUALITY_HIGH: `Alta (${label}kbps)`,
+                    AUDIO_QUALITY_MEDIUM: `Regular (${label}kbps)`,
+                    AUDIO_QUALITY_LOW: `Baja (${label}kbps)`,
+                    hd2160: `Altísima (${label} 4K)`,
+                    hd1440: `Muy alta (${label} HD)`,
+                    hd1080: `Alta (${label} HD)`,
+                    hd720: `Regular (${label} HD)`,
+                    large: `Baja (${label})`,
+                    medium: `Baja (${label})`,
+                    small: `Baja (${label})`,
+                    tiny: `Baja (${label})`
+                }[quality] || quality
+            },
+            piracyNotice: `Descargar contenido sin el debido permiso de YouTube y del titular de derechos de autor es ilegal. Descargar contenido de YouTube va en contra de los <a href="https://www.youtube.com/t/terms#ad6952fd3c">términos de servicio de YouTube.</a>`,
+        },
+        propertyLookup: {
+            song: "canción",
+            album: "álbum",
+            artist: "artista",
+            license: "con_licencia_para_youtube_de",
+            explicit: "advertencia_para_padres"
         },
         loadingBlobs: [
             "Cargando...",

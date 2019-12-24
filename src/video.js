@@ -156,41 +156,45 @@
                 <div class="yt-desc">${vid.description}</div>
             </div>
         `
-
-        // Get the formats. Filter out the ones that are live or have both encodings.
-        // Get formats that aren't live, and are either all audio or all video
+        // Split the formats into video and audio
         const filteredFormats = info.formats
+            // Exclude live formats
             .filter(f => !f.live)
-            .partition(f => f.audioBitrate)
-            .flat(1)
+            // Exclude mixed formats
+            // We want only audio formats or only video formats
+            .filter(f => !!f.audioQuality ^ !!f.qualityLabel)
+            .sort((l, r) => {
+                return l.audioQuality ? -1 : r.audioQuality ? 1 : 0
+            })
+        
+        // Split them into video and audio arrays
+        const [vids, auds] = filteredFormats.partition(f => !f.audioQuality)
 
         // Generate a table with the filtered formats
         view.querySelector('details').appendChild(createTable(filteredFormats))
             
         // Add the format options in the dropdowns
-        filteredFormats.forEach(format => {
-            return
-            const select = [
-                view.querySelector('#label-audio select'),
-                view.querySelector('#label-video select')
-            ][format.audioEncoding ? 0 : 1]
-
+        auds.forEach(format => {
+            const select = view.querySelector('#label-audio select')
             const option = document.createElement('option')
             let out = ''
+            out += `${format.itag}: `
+            out += dict('generic/qualityHelper', format.audioQuality, format.audioBitrate)
+            out += ` ${format.container} @ ${Math.round(+format.audioSampleRate / 100) / 10}`
+            out += 'kHz'
 
-            out += format.itag
-            out += `: `
-            out += format.audioEncoding || format.encoding
-            out += ` (${format.container})`
+            option.innerText = out
+            option.value = format.itag
 
-            option.innerText = `${format.itag}: ${
-                format.audioEncoding || format.encoding
-            } (${format.container})${
-                format.audioSampleRate ?
-                    ' @ ' + Math.round(+format.audioSampleRate / 100) / 10 + 'kHz' :
-                    ' @ ' + format.qualityLabel
-            }`
-
+            select.appendChild(option)
+        })
+        vids.forEach(format => {
+            const select = view.querySelector('#label-video select')
+            const option = document.createElement('option')
+            let out = ''
+            out += `${format.itag}: `
+            out += dict('generic/qualityHelper', format.quality, format.qualityLabel)
+            out += ` ${format.container} (${format.codecs})`
 
             option.innerText = out
             option.value = format.itag
@@ -413,9 +417,9 @@
                 <tr>
                     <th>${dict('dlForm/tableHeaders/kind')}</th>
                     <th>${dict('dlForm/tableHeaders/itag')}</th>
-                    <th>${dict('dlForm/tableHeaders/encoding')}</th>
                     <th>${dict('dlForm/tableHeaders/container')}</th>
-                    <th>${dict('dlForm/tableHeaders/resolution')}</th>
+                    <th>${dict('dlForm/tableHeaders/codecs')}</th>
+                    <th>${dict('dlForm/tableHeaders/quality')}</th>
                     <th>${dict('dlForm/tableHeaders/sampR8')}</th>
                 </tr>
             </thead>
@@ -429,12 +433,16 @@
         
             tr.innerHTML = `
                 <th>${
-                    dict(`dlForm/kind/${f.audioEncoding ? 'audio' : 'video'}`) 
+                    dict(`dlForm/kind/${f.audioQuality ? 'audio' : 'video'}`) 
                 }</th>
                 <th>${f.itag}</th>
-                <th>${f.audioEncoding || f.encoding}</th>
                 <th>${f.container}</th>
-                <th>${f.qualityLabel || ''}</th>
+                <th>${f.codecs}</th>
+                <th>${
+                f.audioQuality ?
+                    dict('generic/qualityHelper', f.audioQuality, f.audioBitrate) :
+                    dict('generic/qualityHelper', f.quality, f.qualityLabel)
+                }</th>
                 <th>${f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : ''}</th>
             `
             tbody.appendChild(tr)

@@ -104,17 +104,13 @@ app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
     query: q
   });
 });
-app.get(function () {
-  // Default
-  res.status(404); // respond with html page
+app.use('/api', require('./api')["default"]); // Handle 404s
 
-  if (req.accepts('html')) {
-    res.render('404', {
-      url: req.url
-    });
-    return;
-  } // respond with json
-
+app.use(function (req, res, next) {
+  res.status(404); // if (req.accepts('html')) {
+  //     res.render('404', { url: req.url })
+  //     return
+  // }
 
   if (req.accepts('json')) {
     res.send({
@@ -126,8 +122,15 @@ app.get(function () {
 
 
   res.type('txt').send('Not found');
+}); // Handle 500s
+
+app.use(function (err, req, res, next) {
+  console.error(err.stack);
+  res.status(500).send({
+    error: 'Server error',
+    errCode: 0x0051
+  });
 });
-app.use('/api', require('./api')["default"]);
 app.listen(process.env.PORT || 8080, function () {
   console.log("Server is live");
 });

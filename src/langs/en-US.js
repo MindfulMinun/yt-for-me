@@ -104,6 +104,61 @@
             cardViews: views => `${views} views`,
             searchLabel: () => "Back to search"
         },
+        dlForm: {
+            label: "Download",
+            howTo: `
+                Choose an audio format, a video format, and request the server to 
+                convert them into whatever format you want.
+                The table below will help you choose the best formats.
+                <br>
+                (And if you don't know which formats to choose, choose the first from both dropdowns.)
+            `,
+            audioLabel: "Audio",
+            videoLabel: "Video",
+            outLabel: "Output",
+            dlLabel: "Convert",
+            kind: {
+                audio: "Audio",
+                video: "Video",
+                noAudio: "No audio",
+                noVideo: "No video",
+                onlyAudio: "Only audio",
+                onlyVideo: "Only video",
+                vidOrBoth: "Only video or both"
+            },
+            tableHeaders: {
+                kind: "Kind",
+                itag: "ID",
+                encoding: "Encoding",
+                codecs: "Codecs",
+                container: "Container",
+                resolution: "Resolution",
+                quality: "Quality",
+                sampR8: "Sampling rate"
+            }
+        },
+        dlSheet: {
+            labelDefault: "Downloads",
+            idle: "There’s nothing being downloaded at the moment. Go ahead, download a video!"
+        },
+        generic: {
+            qualityHelper: (quality, label) => {
+                return {
+                    AUDIO_QUALITY_HIGH: `High (${label}kbps)`,
+                    AUDIO_QUALITY_MEDIUM: `Medium (${label}kbps)`,
+                    AUDIO_QUALITY_LOW: `Low (${label}kbps)`,
+                    hd2160: `Very high (${label} 4K)`,
+                    hd1440: `Very high (${label} HD)`,
+                    hd1080: `High (${label} HD)`,
+                    hd720: `Medium (${label} HD)`,
+                    large: `Low (${label})`,
+                    medium: `Low (${label})`,
+                    small: `Low (${label})`,
+                    tiny: `Low (${label})`
+                }[quality] || quality
+            },
+            piracyNotice: `Downloading content without the written consent of both YouTube and the content’s copyright owner is illegal. Downloading content off of YouTube goes against the <a href="https://www.youtube.com/t/terms#ad6952fd3c">YouTube Terms of Service.</a>`
+        },
         propertyLookup: {
             song: "song",
             album: "album",
@@ -115,6 +170,9 @@
             "Loading...",
             "Stealing your YT credentials...",
             "ちょっと待って下さい",
+            "stop piracy",
+            "making SwuM type beats",
+            "<a href=\"https://ytmp3.cc/\" target=\"_blank\">ytmp3.cc</a>",
             "beep boop boop loading...",
             "i'm not sentient, i promise!!!",
             "An exception has occurred. Please wait five seconds.",

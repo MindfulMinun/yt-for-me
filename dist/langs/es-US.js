@@ -154,13 +154,6 @@
         return "Regresar a la búsqueda";
       }
     },
-    propertyLookup: {
-      song: "canción",
-      album: "álbum",
-      artist: "artista",
-      license: "con_licencia_para_youtube_de",
-      explicit: "advertencia_para_padres"
-    },
     dlForm: {
       label: "Descargar",
       howTo: "\n                Elige un formato de audio, un formato de video, y manda al servidor que\n                te los convierte en cualquier formato que deseas para luego descargarlo.\n                La tabla a continuaci\xF3n te ayudar\xE1 a escoger los formatos ideales.\n                <br>\n                (Y si no sabes cuales escoger, pues elige la primera selecci\xF3n de ambas.)\n            ",
@@ -178,17 +171,44 @@
         vidOrBoth: "Solo video o ambos"
       },
       tableHeaders: {
-        kind: 'Tipo',
-        itag: 'Valor itag',
-        encoding: 'Codificación',
-        container: 'Contenedor',
-        resolution: 'Resolución',
-        sampR8: 'Freq. de muestreo'
+        kind: "Tipo",
+        itag: "ID",
+        encoding: "Codificación",
+        codecs: "Códecs",
+        container: "Contenedor",
+        resolution: "Resolución",
+        quality: "Calidad",
+        sampR8: "Freq. de muestreo"
       }
     },
     dlSheet: {
       labelDefault: "Descargas",
       idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
+    },
+    generic: {
+      qualityHelper: function qualityHelper(quality, label) {
+        return {
+          AUDIO_QUALITY_HIGH: "Alta (".concat(label, "kbps)"),
+          AUDIO_QUALITY_MEDIUM: "Regular (".concat(label, "kbps)"),
+          AUDIO_QUALITY_LOW: "Baja (".concat(label, "kbps)"),
+          hd2160: "Alt\xEDsima (".concat(label, " 4K)"),
+          hd1440: "Muy alta (".concat(label, " HD)"),
+          hd1080: "Alta (".concat(label, " HD)"),
+          hd720: "Regular (".concat(label, " HD)"),
+          large: "Baja (".concat(label, ")"),
+          medium: "Baja (".concat(label, ")"),
+          small: "Baja (".concat(label, ")"),
+          tiny: "Baja (".concat(label, ")")
+        }[quality] || quality;
+      },
+      piracyNotice: "Descargar contenido sin el debido permiso de YouTube y del titular de derechos de autor es ilegal. Descargar contenido de YouTube va en contra de los <a href=\"https://www.youtube.com/t/terms#ad6952fd3c\">t\xE9rminos de servicio de YouTube.</a>"
+    },
+    propertyLookup: {
+      song: "canción",
+      album: "álbum",
+      artist: "artista",
+      license: "con_licencia_para_youtube_de",
+      explicit: "advertencia_para_padres"
     },
     loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Ejecutando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
   };

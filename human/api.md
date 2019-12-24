@@ -89,7 +89,8 @@ Errors are in hexadecimal. The generic responses always have a zero as their lea
     - `0x0047`: Conversion error
     - `0x0048`: Format download error
 - `0x0050`: Server error
-    - `0x0051`: Temporary outage (HTTP 503)
+    - `0x0051`: Unexpected server error
+    - `0x0052`: Temporary outage (HTTP 503)
     - `0xba11ad`: Service discontinued
 - For future use?
     - `0x0961`: L is real
