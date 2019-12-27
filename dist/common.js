@@ -28,8 +28,8 @@ ready(function () {
     return;
   }
 
-  var sheet = document.createElement('xyz-sheet');
-  sheet.setAttribute('peek', true);
+  var sheet = document.createElement('xyz-sheet'); // sheet.setAttribute('peek', true)
+
   sheet.innerHTML = "\n        <div slot=\"peek\" class=\"flex\">\n            <span class=\"flex-stretch\">".concat(dict('dlSheet/labelDefault'), "</span>\n            <i class=\"material-icons\">menu</i>\n        </div>\n        <div id=\"slot-content\" data-empty=\"true\">\n            <p>").concat(dict('dlSheet/idle'), "</p>\n        </div>\n    ");
   document.body.appendChild(sheet);
 });
@@ -37,6 +37,7 @@ ready(function () {
 function addToDownloadQueue(object) {
   // Peek the sheet if not already visible
   document.querySelector('xyz-sheet').setAttribute('peek', true);
+  document.querySelector('xyz-sheet').open();
   fetch('/api/download', {
     method: 'POST',
     headers: {
@@ -52,7 +53,6 @@ function addToDownloadQueue(object) {
     var s = JSON.parse(localStorage.getItem('yt-dl-queue') || '[]');
     s.unshift(object);
     localStorage.setItem('yt-dl-queue', JSON.stringify(s));
-    console.log(s);
     createDownloadListItem(object);
 
     if (json.error) {
@@ -61,15 +61,32 @@ function addToDownloadQueue(object) {
   });
 }
 
-function pollUrl(url) {
-  return fetch(url).then(function (r) {
+function pollUrl(object, callback) {
+  if (!object.poll) {
+    callback(object);
+    return;
+  }
+
+  var guardFinished = false;
+  return fetch(object.poll).then(function (r) {
     return r.json();
-  }).then(function (j) {
-    return console.log(JSON.stringify(j, null, 2));
+  }).then(function (progress) {
+    if (progress.error || progress.errCode) {
+      callback(progress);
+      return Promise.reject(progress);
+    } else {
+      callback(null, progress);
+      guardFinished = progress.finished;
+      return progress;
+    }
   }).then(function () {
-    setTimeout(function () {
-      return pollUrl(url);
-    }, 700);
+    if (!guardFinished) {
+      setTimeout(function () {
+        return pollUrl(object, callback);
+      }, 1000);
+    }
+  })["catch"](function (json) {
+    return callback(json);
   });
 }
 
@@ -83,10 +100,54 @@ function createDownloadListItem(object) {
   }
 
   var li = document.createElement('li');
+  var txt = document.createElement('span');
+  var xyzProg = document.createElement('xyz-progress');
   li.classList.add('dl-list-element');
-  li.innerHTML = 'hi';
+  txt.textContent = "".concat(object.id, ": ").concat(dict('dlSheet/states/starting'));
+  li.appendChild(txt);
+  li.appendChild(xyzProg);
   ul.appendChild(li);
-  pollUrl(object);
+  pollUrl(object, function (err, json) {
+    if (err) {
+      console.error(err);
+      return;
+    }
+
+    console.log(json);
+
+    if (json.finished) {
+      txt.textContent = "\n                ".concat(object.id, ": ").concat(dict('dlSheet/states/done'), "\n            ");
+      var a = document.createElement('a');
+      a.setAttribute('target', 'blank');
+      a.href = json.url;
+      a.innerText = dict('dlSheet/dlLabel');
+      txt.appendChild(a);
+      xyzProg.setAttribute('value', 1);
+      return;
+    }
+
+    if (json.merge) {
+      xyzProg.setAttribute('value', json.merge.progress);
+      txt.textContent = "\n                ".concat(object.id, ": ").concat(dict('dlSheet/states/converting'), "\n                ").concat(dict('dlSheet/percentage', json.merge.progress), "\n            ");
+      return;
+    }
+
+    var progresses = [json[object.audioItag], json[object.videoItag]].filter(function (x) {
+      return !!x;
+    }).map(function (p) {
+      return p.progress;
+    });
+
+    if (!progresses.length) {
+      return;
+    }
+
+    var progression = progresses.reduce(function (acc, v) {
+      return acc + v;
+    }) / progresses.length;
+    txt.textContent = "\n            ".concat(object.id, ": ").concat(dict('dlSheet/states/downloading'), " ").concat(dict('dlSheet/percentage', progression), "\n        ");
+    xyzProg.setAttribute('value', progression);
+  });
 }
 
 function makeFooter() {
@@ -102,7 +163,7 @@ function makeFooter() {
   yt.langs.forEach(function (lang) {
     var o = document.createElement('option');
     o.value = lang.full;
-    o.innerText = lang.name;
+    o.textContent = lang.name;
 
     if (lang.full === yt.lang) {
       o.selected = true;
@@ -151,7 +212,7 @@ function dict(what) {
   }
 
   if (null == dict) {
-    console.warn("Error: Dictionary property at \"".concat(what, "\" was null or undefined. Returned the path instead."));
+    console.warn("Error: Entrada del diccionario en \"".concat(what, "\" es nulo or no definido. En cambio se devolvi\xF3 la ruta."));
     return [what].concat(params).join(' ');
   } // If it's a string, return it
 

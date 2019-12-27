@@ -31,7 +31,7 @@ ready(function () {
     if (document.querySelector('xyz-sheet')) { return }
 
     const sheet = document.createElement('xyz-sheet')
-    sheet.setAttribute('peek', true)
+    // sheet.setAttribute('peek', true)
 
     sheet.innerHTML = `
         <div slot="peek" class="flex">
@@ -49,6 +49,7 @@ ready(function () {
 function addToDownloadQueue(object) {
     // Peek the sheet if not already visible
     document.querySelector('xyz-sheet').setAttribute('peek', true)
+    document.querySelector('xyz-sheet').open()
 
     fetch('/api/download', {
         method: 'POST',
@@ -65,7 +66,6 @@ function addToDownloadQueue(object) {
         const s = JSON.parse(localStorage.getItem('yt-dl-queue') || '[]')
         s.unshift(object)
         localStorage.setItem('yt-dl-queue', JSON.stringify(s))
-        console.log(s)
 
         createDownloadListItem(object)
         
@@ -74,13 +74,30 @@ function addToDownloadQueue(object) {
 
 }
 
-function pollUrl(url) {
-    return fetch(url)
+function pollUrl(object, callback) {
+    if (!object.poll) {
+        callback(object)
+        return
+    }
+    let guardFinished = false
+    return fetch(object.poll)
         .then(r => r.json())
-        .then(j => console.log(JSON.stringify(j, null, 2)))
-        .then(() => {
-            setTimeout(() => pollUrl(url), 700)
+        .then(progress => {
+            if (progress.error || progress.errCode) {
+                callback(progress)
+                return Promise.reject(progress)
+            } else {
+                callback(null, progress)
+                guardFinished = progress.finished
+                return progress
+            }
         })
+        .then(() => {
+            if (!guardFinished) {
+                setTimeout(() => pollUrl(object, callback), 1000)
+            }
+        })
+        .catch(json => callback(json))
 }
 
 function createDownloadListItem(object) {
@@ -93,11 +110,60 @@ function createDownloadListItem(object) {
         return createDownloadListItem(object)
     }
     const li = document.createElement('li')
+    const txt = document.createElement('span')
+    const xyzProg = document.createElement('xyz-progress')
     li.classList.add('dl-list-element')
-    li.innerHTML = 'hi'
+    txt.textContent = `${object.id}: ${dict('dlSheet/states/starting')}`
+    li.appendChild(txt)
+    li.appendChild(xyzProg)
     ul.appendChild(li)
 
-    pollUrl(object)
+
+    pollUrl(object, function (err, json) {
+        if (err) {
+            console.error(err)
+            return
+        }
+        console.log(json)
+
+        if (json.finished) {
+            txt.textContent = `
+                ${object.id}: ${dict('dlSheet/states/done')}
+            `
+            const a = document.createElement('a')
+            a.setAttribute('target', 'blank')
+            a.href = json.url
+            a.innerText = dict('dlSheet/dlLabel')
+            txt.appendChild(a)
+            xyzProg.setAttribute('value', 1)
+            return
+        }
+
+
+        if (json.merge) {
+            xyzProg.setAttribute('value', json.merge.progress)
+
+            txt.textContent = `
+                ${object.id}: ${dict('dlSheet/states/converting')}
+                ${dict('dlSheet/percentage', json.merge.progress)}
+            `
+            return
+        }
+
+        const progresses = [
+            json[object.audioItag],
+            json[object.videoItag]
+        ].filter(x => !!x).map(p => p.progress)
+        if (!progresses.length) { return }
+
+        const progression = progresses.reduce((acc, v) => acc + v) / progresses.length
+
+        txt.textContent = `
+            ${object.id}: ${dict('dlSheet/states/downloading')} ${dict('dlSheet/percentage', progression)}
+        `
+
+        xyzProg.setAttribute('value', progression)
+    })
 }
 
 function makeFooter() {
@@ -114,7 +180,7 @@ function makeFooter() {
     yt.langs.forEach(lang => {
         const o = document.createElement('option')
         o.value = lang.full
-        o.innerText = lang.name
+        o.textContent = lang.name
         if (lang.full === yt.lang) {
             o.selected = true
         }
@@ -153,7 +219,7 @@ function dict(what, ...params) {
     
     // If the property is undefined~ish, log a warning
     if (null == dict) {
-        console.warn(`Error: Dictionary property at "${what}" was null or undefined. Returned the path instead.`)
+        console.warn(`Error: Entrada del diccionario en "${what}" es nulo or no definido. En cambio se devolvió la ruta.`)
         return [what, ...params].join(' ')
     }
 

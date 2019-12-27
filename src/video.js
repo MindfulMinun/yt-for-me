@@ -107,21 +107,21 @@
                     <summary>${dict('dlForm/label')}</summary>
                     <p>${dict('dlForm/howTo')}</p>
                     <div class="yt-dl__mini-form">
-                        <label id="label-audio">
-                            ${dict('dlForm/audioLabel')}: 
-                            <select class="yt-select yt-select--compact" name="audioItag" disabled>
+                        <label id="label-audio" class="flex">
+                            <span class="yt-dl__txt-label">${dict('dlForm/audioLabel')}:</span>
+                            <select class="yt-select yt-select--compact flex-stretch" name="audioItag" disabled>
                                 <option value="none">${dict('dlForm/kind/noAudio')}</option>
                             </select>
                         </label>
-                        <label id="label-video">
-                            ${dict('dlForm/videoLabel')}: 
-                            <select class="yt-select yt-select--compact" name="videoItag" disabled>
+                        <label id="label-video" class="flex">
+                            <span class="yt-dl__txt-label">${dict('dlForm/videoLabel')}:</span>
+                            <select class="yt-select yt-select--compact flex-stretch" name="videoItag" disabled>
                                 <option value="none">${dict('dlForm/kind/noVideo')}</option>
                             </select>
                         </label>
-                        <label id="label-out">
-                            ${dict('dlForm/outLabel')}: 
-                            <select class="yt-select yt-select--compact" name="outFormat" disabled>
+                        <label id="label-out" class="flex">
+                            <span class="yt-dl__txt-label">${dict('dlForm/outLabel')}:</span>
+                            <select class="yt-select yt-select--compact flex-stretch" name="outFormat" disabled>
                                 <optgroup label="${dict('dlForm/kind/onlyAudio')}">
                                     <option value="mp3">mp3</option>
                                     <option value="acc">acc</option>
@@ -163,9 +163,7 @@
             // Exclude mixed formats
             // We want only audio formats or only video formats
             .filter(f => !!f.audioQuality ^ !!f.qualityLabel)
-            .sort((l, r) => {
-                return l.audioQuality ? -1 : r.audioQuality ? 1 : 0
-            })
+            .sort((l, r) => r.audioBitrate - l.audioBitrate)
         
         // Split them into video and audio arrays
         const [vids, auds] = filteredFormats.partition(f => !f.audioQuality)
@@ -179,7 +177,7 @@
             const option = document.createElement('option')
             let out = ''
             out += `${format.itag}: `
-            out += dict('generic/qualityHelper', format.audioQuality, format.audioBitrate)
+            out += dict('dlForm/qualityHelper', format.audioQuality, format.audioBitrate)
             out += ` ${format.container} @ ${Math.round(+format.audioSampleRate / 100) / 10}`
             out += 'kHz'
 
@@ -193,7 +191,7 @@
             const option = document.createElement('option')
             let out = ''
             out += `${format.itag}: `
-            out += dict('generic/qualityHelper', format.quality, format.qualityLabel)
+            out += dict('dlForm/qualityHelper', format.quality, format.qualityLabel)
             out += ` ${format.container} (${format.codecs})`
 
             option.innerText = out
@@ -214,6 +212,8 @@
                 selects.map(el => [el.name, el.value]).forEach(el => {
                     out[el[0]] = el[1]
                 })
+
+                document.querySelector('xyz-sheet').open()
 
                 addToDownloadQueue(out)
             })
@@ -440,8 +440,8 @@
                 <th>${f.codecs}</th>
                 <th>${
                 f.audioQuality ?
-                    dict('generic/qualityHelper', f.audioQuality, f.audioBitrate) :
-                    dict('generic/qualityHelper', f.quality, f.qualityLabel)
+                    dict('dlForm/qualityHelper', f.audioQuality, f.audioBitrate) :
+                    dict('dlForm/qualityHelper', f.quality, f.qualityLabel)
                 }</th>
                 <th>${f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : ''}</th>
             `

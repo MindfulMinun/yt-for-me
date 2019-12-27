@@ -14,10 +14,8 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "d
 
 var app = (0, _express["default"])();
 
-var root = _path["default"].resolve(__dirname + '/../'); // Constants
+var rootPath = _path["default"].resolve(__dirname + '/../'); // Load POST requests as JSON
 
-
-var acceptedFormats = ['mp3', 'acc', 'ogg', 'mp4', 'mov', 'mpeg', 'webm']; // Load POST requests as JSON
 
 app.use(_express["default"].json()); // Use Mustache
 
@@ -25,23 +23,23 @@ app.engine('mst', (0, _mustacheExpress["default"])(__dirname + '/public', '.mst'
 app.set('view engine', 'mustache');
 app.get('/', function (req, res) {
   var lang = (0, _serverHelpers.getLang)(req);
-  res.render("".concat(root, "/public/index.mst"), {
+  res.render("".concat(rootPath, "/public/index.mst"), {
     lang: lang,
     d: require("./langs/".concat(lang, ".js"))
   });
 });
 app.get('/node_modules/:path([\\s\\S]*)', function (req, res) {
-  var p = _path["default"].resolve(root + '/node_modules/' + req.params.path);
+  var p = _path["default"].resolve(rootPath + '/node_modules/' + req.params.path);
 
   res.sendFile(p);
 });
 app.get('/js/:path([\\s\\S]*)', function (req, res) {
-  var p = _path["default"].resolve(root + '/dist/' + req.params.path);
+  var p = _path["default"].resolve(rootPath + '/dist/' + req.params.path);
 
   res.sendFile(p);
 });
 app.get('/css/:path([\\s\\S]*)', function (req, res) {
-  var p = _path["default"].resolve(root + '/public/' + req.params.path);
+  var p = _path["default"].resolve(rootPath + '/public/' + req.params.path);
 
   res.sendFile(p);
 });
@@ -57,7 +55,7 @@ app.get('/search', function (req, res) {
   };
 
   if (q.trim().length === 0) {
-    res.render(root + '/public/search.mst', Object.assign(render, {
+    res.render(rootPath + '/public/search.mst', Object.assign(render, {
       vids: []
     }));
     return;
@@ -70,7 +68,7 @@ app.get('/search', function (req, res) {
   }, function (err, results) {
     if (err) {
       res.status(400);
-      res.render(root + '/public/search.mst', Object.assign(render, {
+      res.render(rootPath + '/public/search.mst', Object.assign(render, {
         error: err.toString().replace(/^Error(?::\s*)/, ''),
         errCode: 0x0042,
         vids: []
@@ -78,7 +76,7 @@ app.get('/search', function (req, res) {
       return;
     }
 
-    res.render(root + '/public/search.mst', Object.assign(render, {
+    res.render(rootPath + '/public/search.mst', Object.assign(render, {
       vids: results.videos.filter(function (e) {
         return e.videoId !== 'L&ai';
       }).map(function (v, i) {
@@ -92,13 +90,10 @@ app.get('/search', function (req, res) {
     }));
   });
 });
-app.get('/yt-downloads/:vid', function (req, res) {
-  res.sendFile(_path["default"].resolve("".concat(root, "/yt-downloads/").concat(req.params.vid)));
-});
 app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
   var lang = (0, _serverHelpers.getLang)(req);
   var q = req.query.q || '';
-  res.render(root + "/public/video.mst", {
+  res.render(rootPath + "/public/video.mst", {
     lang: lang,
     d: require("./langs/".concat(lang, ".js")),
     query: q

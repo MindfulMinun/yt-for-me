@@ -1,10 +1,23 @@
 import express from 'express'
 import fs from 'fs'
+import path from 'path'
 import ytdl from 'ytdl-core'
 import ffmpeg from 'fluent-ffmpeg'
 import ytSearch from 'yt-search'
 import uuid from 'uuid/v4'
 import { getLang, guard } from './serverHelpers'
+
+const rootPath = path.resolve(__dirname + '/../')
+
+const acceptedFormats = [
+    'mp3',
+    'acc',
+    'ogg',
+    'mp4',
+    'mov',
+    'mpeg',
+    'webm'
+]
 
 /** @type express.Router */
 const api = new express.Router()
@@ -100,7 +113,7 @@ api.get('/search', function (req, res) {
     })
 })
 
-api.get('/api/progress/:id', function (req, res) {
+api.get('/progress/:id', function (req, res) {
     res.json(
         progresses[req.params.id] || {
             error: 'Progress ID invalid',
@@ -109,7 +122,7 @@ api.get('/api/progress/:id', function (req, res) {
     )
 })
 
-api.post('/api/download', function (req, res) {
+api.post('/download', function (req, res) {
     const id = req.body.id || ''
     if (!ytdl.validateID(id)) {
         res.status(400)
@@ -146,9 +159,7 @@ api.post('/api/download', function (req, res) {
         return
     }
 
-    progresses[dlid] = {
-        started: true
-    }
+    progresses[dlid] = { started: true }
 
     res.json({
         dlid: dlid,
@@ -166,19 +177,20 @@ api.post('/api/download', function (req, res) {
 
         console.log('Download finished successfully, joining with ffmpeg')
         const outFileName = `${dlid}.${req.body.outFormat}`
-        const both = path.resolve(`${root}/yt-downloads/${outFileName}`)
+        const both = path.resolve(`${rootPath}/yt-downloads/${outFileName}`)
         const command = ffmpeg()
 
         command.on('progress', function (progress) {
             progresses[dlid].merge = (progresses[dlid].merge || {})
             progresses[dlid].merge = {
-                finished: false,
-                progress: progress.percent / 100
+                progress: Math.min(1, progress.percent / 100)
             }
         })
         command.on('end', function () {
             console.log('Merge finished!')
-            progresses[dlid].url = `/yt-downloads/${outFileName}`
+            progresses[dlid].finished = true
+            progresses[dlid].merge.finished = true
+            progresses[dlid].url = `/api/yt-downloads/${outFileName}`
         })
         command.on('error', function (e) {
             console.log(e)
@@ -197,9 +209,15 @@ api.post('/api/download', function (req, res) {
 
 })
 
+api.get('/yt-downloads/:vid', function (req, res) {
+    res.download(
+        path.resolve(`${rootPath}/yt-downloads/${req.params.vid}`)
+    )
+})
+
 function ytdlSave(id, dlid, itag) {
     return new Promise(function (resolve, reject) {
-        let output = `${root}/yt-downloads/${dlid}-${itag}.`
+        let output = `${rootPath}/yt-downloads/${dlid}-${itag}.`
         let writeStream
         let codec
         const stream = ytdl(id, {
@@ -208,15 +226,12 @@ function ytdlSave(id, dlid, itag) {
             progresses[dlid][itag] || (progresses[dlid][itag] = {})
             progresses[dlid][itag].finished = false
             progresses[dlid][itag].progress = 0
-            codec = guard(
-                e.formats.filter(a => a.itag === itag)[0],
-                f => f.audioEncoding || f.encoding
-            )
+            // codecs = e.codecs
 
             // Before writing to the output stream, we gotta get the container lol
             // So we call ytdl before we know the container to get it, then pipe it to the output
             output += guard(
-                e.formats.filter(a => a.itag === itag)[0],
+                e.formats.find(a => a.itag == itag),
                 f => f.container
             )
 

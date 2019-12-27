@@ -17,7 +17,7 @@
     return {
         lang: 'en-US',
         welcome: {
-            hi: "Hi there. This app steals videos from YouTube. Give it a try.",
+            hi: "Hi there. This app lets you download videos from YouTube in any format you want. Give it a try.",
             love: "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Source</a>",
             nojs: `
                 <p>Unfortunately, this really cool website needs you to enable <em>JavaScript</em>.
@@ -91,7 +91,7 @@
                     case 0:
                         return "No views :("
                     case 1:
-                        return "One singular view :O"
+                        return "One single view :O"
                     default:
                         return `${numFormatter.format(views)} views`
                 }
@@ -110,8 +110,6 @@
                 Choose an audio format, a video format, and request the server to 
                 convert them into whatever format you want.
                 The table below will help you choose the best formats.
-                <br>
-                (And if you don't know which formats to choose, choose the first from both dropdowns.)
             `,
             audioLabel: "Audio",
             videoLabel: "Video",
@@ -126,22 +124,6 @@
                 onlyVideo: "Only video",
                 vidOrBoth: "Only video or both"
             },
-            tableHeaders: {
-                kind: "Kind",
-                itag: "ID",
-                encoding: "Encoding",
-                codecs: "Codecs",
-                container: "Container",
-                resolution: "Resolution",
-                quality: "Quality",
-                sampR8: "Sampling rate"
-            }
-        },
-        dlSheet: {
-            labelDefault: "Downloads",
-            idle: "There’s nothing being downloaded at the moment. Go ahead, download a video!"
-        },
-        generic: {
             qualityHelper: (quality, label) => {
                 return {
                     AUDIO_QUALITY_HIGH: `High (${label}kbps)`,
@@ -157,7 +139,32 @@
                     tiny: `Low (${label})`
                 }[quality] || quality
             },
-            piracyNotice: `Downloading content without the written consent of both YouTube and the content’s copyright owner is illegal. Downloading content off of YouTube goes against the <a href="https://www.youtube.com/t/terms#ad6952fd3c">YouTube Terms of Service.</a>`
+            tableHeaders: {
+                kind: "Kind",
+                itag: "ID",
+                encoding: "Encoding",
+                codecs: "Codecs",
+                container: "Container",
+                resolution: "Resolution",
+                quality: "Quality",
+                sampR8: "Sampling rate"
+            }
+        },
+        dlSheet: {
+            labelDefault: "Downloads",
+            dlLabel: "Download",
+            states: {
+                starting: "Starting...",
+                downloading: "Downloading...",
+                converting: "Converting...",
+                done: "Conversion successful!"
+            },
+            percentage: (p) => `${Math.round(p * 100)}%`,
+            idle: "There’s nothing being downloaded at the moment. Go ahead, download a video!"
+        },
+        generic: {
+            piracyNotice: `Downloading content without the written consent of both YouTube and the content’s copyright owner is illegal. Downloading content off of YouTube goes against the <a href="https://www.youtube.com/t/terms#ad6952fd3c">YouTube Terms of Service.</a>`,
+            reportErrLabel: 'Report an error'
         },
         propertyLookup: {
             song: "song",

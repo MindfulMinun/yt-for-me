@@ -49,9 +49,9 @@
   return {
     lang: 'es-US',
     welcome: {
-      hi: "Hola. Desde aquí puedes robarte videos de YouTube.",
+      hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
       love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
-      nojs: "\n                <p>Desafortunadamente, esta p\xE1gina muy padre requiere de <em>JavaScript</em>.\n                Sin ella, se te ser\xE1 casi imposible navegar las redes sin que te exigen que la prendas.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favor y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
+      nojs: "\n                <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.\n                Sin este, se te ser\xE1 casi imposible navegar el internet.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favor y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
       searchPre: "O busca lo que tu quieras:",
       searchPlaceholder: "Buscar",
@@ -156,7 +156,7 @@
     },
     dlForm: {
       label: "Descargar",
-      howTo: "\n                Elige un formato de audio, un formato de video, y manda al servidor que\n                te los convierte en cualquier formato que deseas para luego descargarlo.\n                La tabla a continuaci\xF3n te ayudar\xE1 a escoger los formatos ideales.\n                <br>\n                (Y si no sabes cuales escoger, pues elige la primera selecci\xF3n de ambas.)\n            ",
+      howTo: "\n                Elige un formato de audio, un formato de video, y manda al servidor que\n                te los convierte en cualquier formato que deseas para luego descargarlo.\n                La tabla a continuaci\xF3n te ayudar\xE1 a escoger los formatos ideales.\n            ",
       audioLabel: "Audio",
       videoLabel: "Video",
       outLabel: "Salida",
@@ -170,22 +170,6 @@
         onlyVideo: "Solo video",
         vidOrBoth: "Solo video o ambos"
       },
-      tableHeaders: {
-        kind: "Tipo",
-        itag: "ID",
-        encoding: "Codificación",
-        codecs: "Códecs",
-        container: "Contenedor",
-        resolution: "Resolución",
-        quality: "Calidad",
-        sampR8: "Freq. de muestreo"
-      }
-    },
-    dlSheet: {
-      labelDefault: "Descargas",
-      idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
-    },
-    generic: {
       qualityHelper: function qualityHelper(quality, label) {
         return {
           AUDIO_QUALITY_HIGH: "Alta (".concat(label, "kbps)"),
@@ -201,7 +185,34 @@
           tiny: "Baja (".concat(label, ")")
         }[quality] || quality;
       },
-      piracyNotice: "Descargar contenido sin el debido permiso de YouTube y del titular de derechos de autor es ilegal. Descargar contenido de YouTube va en contra de los <a href=\"https://www.youtube.com/t/terms#ad6952fd3c\">t\xE9rminos de servicio de YouTube.</a>"
+      tableHeaders: {
+        kind: "Tipo",
+        itag: "ID",
+        encoding: "Codificación",
+        codecs: "Códecs",
+        container: "Contenedor",
+        resolution: "Resolución",
+        quality: "Calidad",
+        sampR8: "Freq. de muestreo"
+      }
+    },
+    dlSheet: {
+      labelDefault: "Descargas y conversión",
+      dlLabel: "Descargar",
+      states: {
+        starting: "Iniciando...",
+        downloading: "Descargando...",
+        converting: "Convertiendo al formato deseado...",
+        done: "Se completó la descarga con éxito."
+      },
+      percentage: function percentage(p) {
+        return "".concat(Math.round(p * 100), "\u202F%");
+      },
+      idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
+    },
+    generic: {
+      piracyNotice: "Descargar contenido sin el debido permiso de YouTube y del titular de derechos de autor es ilegal. Descargar contenido de YouTube va en contra de los <a href=\"https://www.youtube.com/t/terms#ad6952fd3c\">t\xE9rminos de servicio de YouTube.</a>",
+      reportErrLabel: "Informar de un error"
     },
     propertyLookup: {
       song: "canción",

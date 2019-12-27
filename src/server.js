@@ -6,18 +6,7 @@ import { getLang } from './serverHelpers'
 
 // Make the Express server
 const app = express()
-const root = path.resolve(__dirname + '/../')
-
-// Constants
-const acceptedFormats = [
-    'mp3',
-    'acc',
-    'ogg',
-    'mp4',
-    'mov',
-    'mpeg',
-    'webm'
-]
+const rootPath = path.resolve(__dirname + '/../')
 
 // Load POST requests as JSON
 app.use(express.json())
@@ -27,24 +16,24 @@ app.set('view engine', 'mustache')
 
 app.get('/', function (req, res) {
     const lang = getLang(req)
-    res.render(`${root}/public/index.mst`, {
+    res.render(`${rootPath}/public/index.mst`, {
         lang: lang,
         d: require(`./langs/${lang}.js`)
     })
 })
 
 app.get('/node_modules/:path([\\s\\S]*)', function (req, res) {
-    const p = path.resolve(root + '/node_modules/' + req.params.path)
+    const p = path.resolve(rootPath + '/node_modules/' + req.params.path)
     res.sendFile(p)
 })
 
 app.get('/js/:path([\\s\\S]*)', function (req, res) {
-    const p = path.resolve(root + '/dist/' + req.params.path)
+    const p = path.resolve(rootPath + '/dist/' + req.params.path)
     res.sendFile(p)
 })
 
 app.get('/css/:path([\\s\\S]*)', function (req, res) {
-    const p = path.resolve(root + '/public/' + req.params.path)
+    const p = path.resolve(rootPath + '/public/' + req.params.path)
     res.sendFile(p)
 })
 
@@ -60,7 +49,7 @@ app.get('/search', function (req, res) {
     }
 
     if (q.trim().length === 0) {
-        res.render(root + '/public/search.mst', Object.assign(render, {
+        res.render(rootPath + '/public/search.mst', Object.assign(render, {
             vids: []
         }))
         return
@@ -73,7 +62,7 @@ app.get('/search', function (req, res) {
     }, function (err, results) {
         if (err) {
             res.status(400)
-            res.render(root + '/public/search.mst', Object.assign(render, {
+            res.render(rootPath + '/public/search.mst', Object.assign(render, {
                 error: err.toString().replace(/^Error(?::\s*)/, ''),
                 errCode: 0x0042,
                 vids: []
@@ -81,7 +70,7 @@ app.get('/search', function (req, res) {
             return
         }
         
-        res.render(root + '/public/search.mst', Object.assign(render, {
+        res.render(rootPath + '/public/search.mst', Object.assign(render, {
             vids: results.videos.filter(e => e.videoId !== 'L&ai').map((v, i) => {
                 v.index = i // for mustashe lol
                 v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
@@ -93,16 +82,10 @@ app.get('/search', function (req, res) {
     })
 })
 
-app.get('/yt-downloads/:vid', function (req, res) {
-    res.sendFile(
-        path.resolve(`${root}/yt-downloads/${req.params.vid}`)
-    )
-})
-
 app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
     const lang = getLang(req)
     const q = req.query.q || ''
-    res.render(root + `/public/video.mst`, {
+    res.render(rootPath + `/public/video.mst`, {
         lang: lang,
         d: require(`./langs/${lang}.js`),
         query: q

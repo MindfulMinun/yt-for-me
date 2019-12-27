@@ -9,6 +9,8 @@ var _express = _interopRequireDefault(require("express"));
 
 var _fs = _interopRequireDefault(require("fs"));
 
+var _path = _interopRequireDefault(require("path"));
+
 var _ytdlCore = _interopRequireDefault(require("ytdl-core"));
 
 var _fluentFfmpeg = _interopRequireDefault(require("fluent-ffmpeg"));
@@ -20,6 +22,11 @@ var _v = _interopRequireDefault(require("uuid/v4"));
 var _serverHelpers = require("./serverHelpers");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+var rootPath = _path["default"].resolve(__dirname + '/../');
+
+var acceptedFormats = ['mp3', 'acc', 'ogg', 'mp4', 'mov', 'mpeg', 'webm'];
+/** @type express.Router */
 
 var api = new _express["default"].Router();
 var allowCorsOn = [// Requests from localhost to localhost are exempt from CORS
@@ -107,13 +114,13 @@ api.get('/search', function (req, res) {
     });
   });
 });
-api.get('/api/progress/:id', function (req, res) {
+api.get('/progress/:id', function (req, res) {
   res.json(progresses[req.params.id] || {
     error: 'Progress ID invalid',
     errCode: 0x1a
   });
 });
-api.post('/api/download', function (req, res) {
+api.post('/download', function (req, res) {
   var id = req.body.id || '';
 
   if (!_ytdlCore["default"].validateID(id)) {
@@ -173,18 +180,21 @@ api.post('/api/download', function (req, res) {
 
     console.log('Download finished successfully, joining with ffmpeg');
     var outFileName = "".concat(dlid, ".").concat(req.body.outFormat);
-    var both = path.resolve("".concat(root, "/yt-downloads/").concat(outFileName));
+
+    var both = _path["default"].resolve("".concat(rootPath, "/yt-downloads/").concat(outFileName));
+
     var command = (0, _fluentFfmpeg["default"])();
     command.on('progress', function (progress) {
       progresses[dlid].merge = progresses[dlid].merge || {};
       progresses[dlid].merge = {
-        finished: false,
-        progress: progress.percent / 100
+        progress: Math.min(1, progress.percent / 100)
       };
     });
     command.on('end', function () {
       console.log('Merge finished!');
-      progresses[dlid].url = "/yt-downloads/".concat(outFileName);
+      progresses[dlid].finished = true;
+      progresses[dlid].merge.finished = true;
+      progresses[dlid].url = "/api/yt-downloads/".concat(outFileName);
     });
     command.on('error', function (e) {
       console.log(e);
@@ -196,10 +206,13 @@ api.post('/api/download', function (req, res) {
     command.format(outFormat).inputOptions('-strict experimental').save(both);
   });
 });
+api.get('/yt-downloads/:vid', function (req, res) {
+  res.download(_path["default"].resolve("".concat(rootPath, "/yt-downloads/").concat(req.params.vid)));
+});
 
 function ytdlSave(id, dlid, itag) {
   return new Promise(function (resolve, reject) {
-    var output = "".concat(root, "/yt-downloads/").concat(dlid, "-").concat(itag, ".");
+    var output = "".concat(rootPath, "/yt-downloads/").concat(dlid, "-").concat(itag, ".");
     var writeStream;
     var codec;
     var stream = (0, _ytdlCore["default"])(id, {
@@ -207,20 +220,16 @@ function ytdlSave(id, dlid, itag) {
     }).on('info', function (e) {
       progresses[dlid][itag] || (progresses[dlid][itag] = {});
       progresses[dlid][itag].finished = false;
-      progresses[dlid][itag].progress = 0;
-      codec = (0, _serverHelpers.guard)(e.formats.filter(function (a) {
-        return a.itag === itag;
-      })[0], function (f) {
-        return f.audioEncoding || f.encoding;
-      }); // Before writing to the output stream, we gotta get the container lol
+      progresses[dlid][itag].progress = 0; // codecs = e.codecs
+      // Before writing to the output stream, we gotta get the container lol
       // So we call ytdl before we know the container to get it, then pipe it to the output
 
-      output += (0, _serverHelpers.guard)(e.formats.filter(function (a) {
-        return a.itag === itag;
-      })[0], function (f) {
+      output += (0, _serverHelpers.guard)(e.formats.find(function (a) {
+        return a.itag == itag;
+      }), function (f) {
         return f.container;
       });
-      writeStream = _fs["default"].createWriteStream(path.resolve(output));
+      writeStream = _fs["default"].createWriteStream(_path["default"].resolve(output));
       stream.pipe(writeStream);
     }).on('finish', function () {
       progresses[dlid] || (progresses[dlid] = {});

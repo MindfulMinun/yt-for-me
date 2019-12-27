@@ -48,11 +48,11 @@
     return {
         lang: 'es-US',
         welcome: {
-            hi: "Hola. Desde aquí puedes robarte videos de YouTube.",
+            hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
             love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
             nojs: `
-                <p>Desafortunadamente, esta página muy padre requiere de <em>JavaScript</em>.
-                Sin ella, se te será casi imposible navegar las redes sin que te exigen que la prendas.
+                <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.
+                Sin este, se te será casi imposible navegar el internet.
                 Además, no podrás ver videos de YouTube ni aquí ni allá.</p>
 
                 <p>Hazte un favor y <a href="https://www.enable-javascript.com/es/">habilítalo</a>.</p>
@@ -151,8 +151,6 @@
                 Elige un formato de audio, un formato de video, y manda al servidor que
                 te los convierte en cualquier formato que deseas para luego descargarlo.
                 La tabla a continuación te ayudará a escoger los formatos ideales.
-                <br>
-                (Y si no sabes cuales escoger, pues elige la primera selección de ambas.)
             `,
             audioLabel: "Audio",
             videoLabel: "Video",
@@ -167,22 +165,6 @@
                 onlyVideo: "Solo video",
                 vidOrBoth: "Solo video o ambos"
             },
-            tableHeaders: {
-                kind: "Tipo",
-                itag: "ID",
-                encoding: "Codificación",
-                codecs: "Códecs",
-                container: "Contenedor",
-                resolution: "Resolución",
-                quality: "Calidad",
-                sampR8: "Freq. de muestreo"
-            }
-        },
-        dlSheet: {
-            labelDefault: "Descargas",
-            idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
-        },
-        generic: {
             qualityHelper: (quality, label) => {
                 return {
                     AUDIO_QUALITY_HIGH: `Alta (${label}kbps)`,
@@ -198,7 +180,32 @@
                     tiny: `Baja (${label})`
                 }[quality] || quality
             },
+            tableHeaders: {
+                kind: "Tipo",
+                itag: "ID",
+                encoding: "Codificación",
+                codecs: "Códecs",
+                container: "Contenedor",
+                resolution: "Resolución",
+                quality: "Calidad",
+                sampR8: "Freq. de muestreo"
+            }
+        },
+        dlSheet: {
+            labelDefault: "Descargas y conversión",
+            dlLabel: "Descargar",
+            states: {
+                starting: "Iniciando...",
+                downloading: "Descargando...",
+                converting: "Convertiendo al formato deseado...",
+                done: "Se completó la descarga con éxito."
+            },
+            percentage: (p) => `${Math.round(p * 100)}\u202F%`,
+            idle: "Hasta ahora, no hay nada descargándose. Anda, ¡descarga un video!"
+        },
+        generic: {
             piracyNotice: `Descargar contenido sin el debido permiso de YouTube y del titular de derechos de autor es ilegal. Descargar contenido de YouTube va en contra de los <a href="https://www.youtube.com/t/terms#ad6952fd3c">términos de servicio de YouTube.</a>`,
+            reportErrLabel: "Informar de un error"
         },
         propertyLookup: {
             song: "canción",

@@ -20,7 +20,7 @@
   return {
     lang: 'en-US',
     welcome: {
-      hi: "Hi there. This app steals videos from YouTube. Give it a try.",
+      hi: "Hi there. This app lets you download videos from YouTube in any format you want. Give it a try.",
       love: "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Source</a>",
       nojs: "\n                <p>Unfortunately, this really cool website needs you to enable <em>JavaScript</em>.\n                The internet won't stop asking you to enable it if you don't.\n                But most importantly, you won't be able to watch YouTube videos. :(</p>\n                \n                <p>Do yourself a favor and <a href=\"https://www.enable-javascript.com/\">enable it</a>.</p>\n                ",
       vid: "Might I suggest <a href=\"/VgUR1pna5cY\" data-random>a video</a>?",
@@ -103,7 +103,7 @@
             return "No views :(";
 
           case 1:
-            return "One singular view :O";
+            return "One single view :O";
 
           default:
             return "".concat(numFormatter.format(views), " views");
@@ -133,7 +133,7 @@
     },
     dlForm: {
       label: "Download",
-      howTo: "\n                Choose an audio format, a video format, and request the server to \n                convert them into whatever format you want.\n                The table below will help you choose the best formats.\n                <br>\n                (And if you don't know which formats to choose, choose the first from both dropdowns.)\n            ",
+      howTo: "\n                Choose an audio format, a video format, and request the server to \n                convert them into whatever format you want.\n                The table below will help you choose the best formats.\n            ",
       audioLabel: "Audio",
       videoLabel: "Video",
       outLabel: "Output",
@@ -147,22 +147,6 @@
         onlyVideo: "Only video",
         vidOrBoth: "Only video or both"
       },
-      tableHeaders: {
-        kind: "Kind",
-        itag: "ID",
-        encoding: "Encoding",
-        codecs: "Codecs",
-        container: "Container",
-        resolution: "Resolution",
-        quality: "Quality",
-        sampR8: "Sampling rate"
-      }
-    },
-    dlSheet: {
-      labelDefault: "Downloads",
-      idle: "There’s nothing being downloaded at the moment. Go ahead, download a video!"
-    },
-    generic: {
       qualityHelper: function qualityHelper(quality, label) {
         return {
           AUDIO_QUALITY_HIGH: "High (".concat(label, "kbps)"),
@@ -178,7 +162,34 @@
           tiny: "Low (".concat(label, ")")
         }[quality] || quality;
       },
-      piracyNotice: "Downloading content without the written consent of both YouTube and the content\u2019s copyright owner is illegal. Downloading content off of YouTube goes against the <a href=\"https://www.youtube.com/t/terms#ad6952fd3c\">YouTube Terms of Service.</a>"
+      tableHeaders: {
+        kind: "Kind",
+        itag: "ID",
+        encoding: "Encoding",
+        codecs: "Codecs",
+        container: "Container",
+        resolution: "Resolution",
+        quality: "Quality",
+        sampR8: "Sampling rate"
+      }
+    },
+    dlSheet: {
+      labelDefault: "Downloads",
+      dlLabel: "Download",
+      states: {
+        starting: "Starting...",
+        downloading: "Downloading...",
+        converting: "Converting...",
+        done: "Conversion successful!"
+      },
+      percentage: function percentage(p) {
+        return "".concat(Math.round(p * 100), "%");
+      },
+      idle: "There’s nothing being downloaded at the moment. Go ahead, download a video!"
+    },
+    generic: {
+      piracyNotice: "Downloading content without the written consent of both YouTube and the content\u2019s copyright owner is illegal. Downloading content off of YouTube goes against the <a href=\"https://www.youtube.com/t/terms#ad6952fd3c\">YouTube Terms of Service.</a>",
+      reportErrLabel: 'Report an error'
     },
     propertyLookup: {
       song: "song",
