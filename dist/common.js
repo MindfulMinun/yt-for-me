@@ -38,7 +38,7 @@ function addToDownloadQueue(object) {
   // Peek the sheet if not already visible
   document.querySelector('xyz-sheet').setAttribute('peek', true);
   document.querySelector('xyz-sheet').open();
-  createDownloadListItem(object);
+  var pollCallback = createDownloadListItem(object);
   fetch('/api/download', {
     method: 'POST',
     headers: {
@@ -49,7 +49,8 @@ function addToDownloadQueue(object) {
   }).then(function (r) {
     return r.json();
   }).then(function (json) {
-    Object.assign(object, json); // Add the dl object to localStorage
+    Object.assign(object, json);
+    pollCallback(object); // Add the dl object to localStorage
 
     var s = JSON.parse(localStorage.getItem('yt-dl-queue') || '[]');
     s.unshift(object);
@@ -62,7 +63,7 @@ function addToDownloadQueue(object) {
 }
 
 function pollUrl(object, callback) {
-  if (!object.poll) {
+  if (object.started && !object.poll) {
     setTimeout(function () {
       return pollUrl(object, callback);
     }, 1000);
@@ -109,47 +110,49 @@ function createDownloadListItem(object) {
   li.append(txt);
   li.append(xyzProg);
   ul.prepend(li);
-  pollUrl(object, function (err, json) {
-    if (err) {
-      console.error(err);
-      return;
-    }
+  return function () {
+    return pollUrl(object, function (err, json) {
+      if (err) {
+        console.error(err);
+        return;
+      }
 
-    console.log(json);
+      console.log(json);
 
-    if (json.finished) {
-      txt.textContent = "\n                ".concat(object.id, ": ").concat(dict('dlSheet/states/done'), "\n            ");
-      var a = document.createElement('a');
-      a.setAttribute('target', 'blank');
-      a.href = json.url;
-      a.innerText = dict('dlSheet/dlLabel');
-      txt.append(a);
-      xyzProg.setAttribute('value', 1);
-      return;
-    }
+      if (json.finished) {
+        txt.textContent = "\n                ".concat(object.id, ": ").concat(dict('dlSheet/states/done'), "\n            ");
+        var a = document.createElement('a');
+        a.setAttribute('target', 'blank');
+        a.href = json.url;
+        a.innerText = dict('dlSheet/dlLabel');
+        txt.append(a);
+        xyzProg.setAttribute('value', 1);
+        return;
+      }
 
-    if (json.merge) {
-      xyzProg.setAttribute('value', json.merge.progress);
-      txt.textContent = "\n                ".concat(object.id, ": ").concat(dict('dlSheet/states/converting'), "\n                ").concat(dict('dlSheet/percentage', json.merge.progress), "\n            ");
-      return;
-    }
+      if (json.merge) {
+        xyzProg.setAttribute('value', json.merge.progress);
+        txt.textContent = "\n                ".concat(object.id, ": ").concat(dict('dlSheet/states/converting'), "\n                ").concat(dict('dlSheet/percentage', json.merge.progress), "\n            ");
+        return;
+      }
 
-    var progresses = [json[object.audioItag], json[object.videoItag]].filter(function (x) {
-      return !!x;
-    }).map(function (p) {
-      return p.progress;
+      var progresses = [json[object.audioItag], json[object.videoItag]].filter(function (x) {
+        return !!x;
+      }).map(function (p) {
+        return p.progress;
+      });
+
+      if (!progresses.length) {
+        return;
+      }
+
+      var progression = progresses.reduce(function (acc, v) {
+        return acc + v;
+      }) / progresses.length;
+      txt.textContent = "\n            ".concat(object.id, ": ").concat(dict('dlSheet/states/downloading'), " ").concat(dict('dlSheet/percentage', progression), "\n        ");
+      xyzProg.setAttribute('value', progression);
     });
-
-    if (!progresses.length) {
-      return;
-    }
-
-    var progression = progresses.reduce(function (acc, v) {
-      return acc + v;
-    }) / progresses.length;
-    txt.textContent = "\n            ".concat(object.id, ": ").concat(dict('dlSheet/states/downloading'), " ").concat(dict('dlSheet/percentage', progression), "\n        ");
-    xyzProg.setAttribute('value', progression);
-  });
+  };
 }
 
 function makeFooter() {

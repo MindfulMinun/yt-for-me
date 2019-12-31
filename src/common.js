@@ -51,7 +51,7 @@ function addToDownloadQueue(object) {
     document.querySelector('xyz-sheet').setAttribute('peek', true)
     document.querySelector('xyz-sheet').open()
 
-    createDownloadListItem(object)
+    const pollCallback = createDownloadListItem(object)
 
     fetch('/api/download', {
         method: 'POST',
@@ -64,6 +64,8 @@ function addToDownloadQueue(object) {
 
         Object.assign(object, json)
 
+        pollCallback(object)
+
         // Add the dl object to localStorage
         const s = JSON.parse(localStorage.getItem('yt-dl-queue') || '[]')
         s.unshift(object)
@@ -75,7 +77,7 @@ function addToDownloadQueue(object) {
 }
 
 function pollUrl(object, callback) {
-    if (!object.poll) {
+    if (object.started && !object.poll) {
         setTimeout(() => pollUrl(object, callback), 1000)
         return
     }
@@ -118,8 +120,7 @@ function createDownloadListItem(object) {
     li.append(xyzProg)
     ul.prepend(li)
 
-
-    pollUrl(object, function (err, json) {
+    return () => pollUrl(object, function (err, json) {
         if (err) {
             console.error(err)
             return
