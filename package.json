@@ -1,6 +1,6 @@
 {
   "name": "yt-for-me",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Steals videos from YouTube, how fun!",
   "main": "dist/server.js",
   "author": "MindfulMinun <importantmails4bc@gmail.com> (https://benjic.xyz)",
