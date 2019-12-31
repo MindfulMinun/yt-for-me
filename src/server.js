@@ -1,34 +1,35 @@
 import express from 'express'
-import { resolve } from 'path'
-import { getInfo } from 'ytdl-core'
+import path from 'path'
 import ytSearch from 'yt-search'
 import mustacheExpress from 'mustache-express'
-const app = express()
-const root = resolve(__dirname + '/../')
+import { getLang } from './serverHelpers'
 
-app.use(require('cookie-parser')())
-app.engine('mst', mustacheExpress(__dirname + '/public', '.mst'))
+// Make the Express server
+const app = express()
+const rootPath = path.resolve(__dirname + '/../')
+
+// Load POST requests as JSON
+app.use(express.json())
+// Use Mustache
+app.engine('mst', mustacheExpress(rootPath + '/public', '.mst'))
 app.set('view engine', 'mustache')
 
 app.get('/', function (req, res) {
     const lang = getLang(req)
-    res.render(`${root}/public/index.mst`, {
+    res.render(`${rootPath}/public/index.mst`, {
         lang: lang,
         d: require(`./langs/${lang}.js`)
     })
 })
 
-app.get(/\.js$/, function (req, res) {
-    res.sendFile(root + '/dist' + req.path)
-})
-
-app.get(/\.css$/, function (req, res) {
-    res.sendFile(root + '/public' + req.path)
-})
+app.use(express.static(rootPath + '/public'))
+app.use('/node_modules', express.static(rootPath + '/node_modules'))
+app.use('/js', express.static(rootPath + '/dist'))
+app.use('/css', express.static(rootPath + '/public'))
 
 app.get('/search', function (req, res) {
     const q = req.query.q || ''
-    const page = req.query.page || 1
+    const page = Math.max(1, req.query.page || 1)
     const lang = getLang(req)
     const render = {
         lang: lang,
@@ -38,7 +39,7 @@ app.get('/search', function (req, res) {
     }
 
     if (q.trim().length === 0) {
-        res.render(root + '/public/search.mst', Object.assign(render, {
+        res.render(rootPath + '/public/search.mst', Object.assign(render, {
             vids: []
         }))
         return
@@ -51,17 +52,19 @@ app.get('/search', function (req, res) {
     }, function (err, results) {
         if (err) {
             res.status(400)
-            res.render(root + '/public/search.mst', Object.assign(render, {
+            res.render(rootPath + '/public/search.mst', Object.assign(render, {
                 error: err.toString().replace(/^Error(?::\s*)/, ''),
+                errCode: 0x0042,
                 vids: []
             }))
             return
         }
         
-        res.render(root + '/public/search.mst', Object.assign(render, {
-            vids: results.videos.map((v, i) => {
+        res.render(rootPath + '/public/search.mst', Object.assign(render, {
+            vids: results.videos.filter(e => e.videoId !== 'L&ai').map((v, i) => {
                 v.index = i // for mustashe lol
                 v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
+                v.ago = v.ago.replace('Streamed ', '')
                 delete v.url
                 return v
             })
@@ -69,89 +72,45 @@ app.get('/search', function (req, res) {
     })
 })
 
-app.get('/:id', function (req, res) {
+app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
     const lang = getLang(req)
     const q = req.query.q || ''
-    res.render(root + `/public/pageview.mst`, {
+    res.render(rootPath + `/public/video.mst`, {
         lang: lang,
         d: require(`./langs/${lang}.js`),
         query: q
     })
 })
 
-app.get('/api/info', function (req, res) {
-    const id = req.query.id
+app.use('/api', require('./api').default)
 
-    getInfo(id).then(function (info) {
-        res.json(info)
-    }).catch(function (err) {
-        res.status(400)
-        res.json({
-            error: err.toString().replace(/^Error(?::\s*)/, '')
-        })
-    })
-})
+// Handle 500s
+app.use(function (err, req, res, next) {
+    if (/no such file or directory/i.test(err)) {
+        res.status(404)
 
-app.get('/api/search', function (req, res) {
-    const q = req.query.q || ''
-    const page = req.query.page || 1
-
-    ytSearch({
-        query: q,
-        pageStart: page,
-        pageEnd: page + 1
-    }, function (err, results) {
-        if (err) {
-            res.status(400)
-            res.json({
-                error: err.toString().replace(/^Error(?::\s*)/, '')
+        // if (req.accepts('html')) {
+        //     res.render('404', { url: req.url })
+        //     return
+        // }
+        if (req.accepts('json')) {
+            res.send({
+                error: 'Not found',
+                errCode: 0x0012
             })
             return
         }
-        
-        res.json({
-            query: q,
-            page: page,
-            vids: results.videos.map((v, i) => {
-                v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
-                delete v.url
-                return v
-            })
-        })
+        // Plain text default
+        res.type('txt').send('Not found')
+        return
+    }
+
+    res.status(500).send({
+        error: 'Server error',
+        errCode: 0x0051
     })
 })
 
 app.listen(process.env.PORT || 8080, function () {
-    console.log('Server is live')
+    console.log(`Server is live`)
 })
-
-
-/**
- * Returns a supported language
- * @param {Request} req - The request lol
- * @returns {string} A supported language
- * @author MindfulMinun
- * @since Oct 19, 2019
- * @version 1.0.0
- */
-function getLang(req) {
-    const supported = ['en', 'es']
-    const qLang = (req.query.lang || '').slice(0, 2)
-    const browser = req.acceptsLanguages(supported)
-
-    if (supported.includes(qLang)) { return qLang }
-    if (browser) return browser
-    return 'en'
-}
-
-/**
- * Selects a random element from an array
- * @param {Array} arr - The array to choose from
- * @returns {*} An element from the array
- * @author MindfulMinun
- * @since Oct 11, 2019
- * @version 1.0.0
- */
-function choose(arr) {
-    return arr[Math.floor(Math.random() * arr.length)]
-}

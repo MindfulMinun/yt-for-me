@@ -2,7 +2,7 @@
 
 // index.js
 var rand = document.querySelectorAll('[data-random]');
-var cont = document.querySelector('.container');
+var form = document.querySelector('form');
 var vids = ['ckRSn2zWt_o', // Shyness Boy
 'VgUR1pna5cY', // Natural
 '1iKZhsc8WGs', // Moe Shop - Charm
@@ -12,4 +12,4 @@ var vids = ['ckRSn2zWt_o', // Shyness Boy
 rand.forEach(function (el) {
   return el.href = choose(vids);
 });
-cont.appendChild(makeFooter());
+form.appendChild(makeFooter());

@@ -2,38 +2,40 @@
 
 var _express = _interopRequireDefault(require("express"));
 
-var _path = require("path");
-
-var _ytdlCore = require("ytdl-core");
+var _path = _interopRequireDefault(require("path"));
 
 var _ytSearch = _interopRequireDefault(require("yt-search"));
 
 var _mustacheExpress = _interopRequireDefault(require("mustache-express"));
 
+var _serverHelpers = require("./serverHelpers");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
 var app = (0, _express["default"])();
-var root = (0, _path.resolve)(__dirname + '/../');
-app.use(require('cookie-parser')());
-app.engine('mst', (0, _mustacheExpress["default"])(__dirname + '/public', '.mst'));
+
+var rootPath = _path["default"].resolve(__dirname + '/../'); // Load POST requests as JSON
+
+
+app.use(_express["default"].json()); // Use Mustache
+
+app.engine('mst', (0, _mustacheExpress["default"])(rootPath + '/public', '.mst'));
 app.set('view engine', 'mustache');
 app.get('/', function (req, res) {
-  var lang = getLang(req);
-  res.render("".concat(root, "/public/index.mst"), {
+  var lang = (0, _serverHelpers.getLang)(req);
+  res.render("".concat(rootPath, "/public/index.mst"), {
     lang: lang,
     d: require("./langs/".concat(lang, ".js"))
   });
 });
-app.get(/\.js$/, function (req, res) {
-  res.sendFile(root + '/dist' + req.path);
-});
-app.get(/\.css$/, function (req, res) {
-  res.sendFile(root + '/public' + req.path);
-});
+app.use(_express["default"]["static"](rootPath + '/public'));
+app.use('/node_modules', _express["default"]["static"](rootPath + '/node_modules'));
+app.use('/js', _express["default"]["static"](rootPath + '/dist'));
+app.use('/css', _express["default"]["static"](rootPath + '/public'));
 app.get('/search', function (req, res) {
   var q = req.query.q || '';
-  var page = req.query.page || 1;
-  var lang = getLang(req);
+  var page = Math.max(1, req.query.page || 1);
+  var lang = (0, _serverHelpers.getLang)(req);
   var render = {
     lang: lang,
     d: require("./langs/".concat(lang, ".js")),
@@ -42,7 +44,7 @@ app.get('/search', function (req, res) {
   };
 
   if (q.trim().length === 0) {
-    res.render(root + '/public/search.mst', Object.assign(render, {
+    res.render(rootPath + '/public/search.mst', Object.assign(render, {
       vids: []
     }));
     return;
@@ -55,105 +57,64 @@ app.get('/search', function (req, res) {
   }, function (err, results) {
     if (err) {
       res.status(400);
-      res.render(root + '/public/search.mst', Object.assign(render, {
+      res.render(rootPath + '/public/search.mst', Object.assign(render, {
         error: err.toString().replace(/^Error(?::\s*)/, ''),
+        errCode: 0x0042,
         vids: []
       }));
       return;
     }
 
-    res.render(root + '/public/search.mst', Object.assign(render, {
-      vids: results.videos.map(function (v, i) {
+    res.render(rootPath + '/public/search.mst', Object.assign(render, {
+      vids: results.videos.filter(function (e) {
+        return e.videoId !== 'L&ai';
+      }).map(function (v, i) {
         v.index = i; // for mustashe lol
 
         v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
+        v.ago = v.ago.replace('Streamed ', '');
         delete v.url;
         return v;
       })
     }));
   });
 });
-app.get('/:id', function (req, res) {
-  var lang = getLang(req);
+app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
+  var lang = (0, _serverHelpers.getLang)(req);
   var q = req.query.q || '';
-  res.render(root + "/public/pageview.mst", {
+  res.render(rootPath + "/public/video.mst", {
     lang: lang,
     d: require("./langs/".concat(lang, ".js")),
     query: q
   });
 });
-app.get('/api/info', function (req, res) {
-  var id = req.query.id;
-  (0, _ytdlCore.getInfo)(id).then(function (info) {
-    res.json(info);
-  })["catch"](function (err) {
-    res.status(400);
-    res.json({
-      error: err.toString().replace(/^Error(?::\s*)/, '')
-    });
-  });
-});
-app.get('/api/search', function (req, res) {
-  var q = req.query.q || '';
-  var page = req.query.page || 1;
-  (0, _ytSearch["default"])({
-    query: q,
-    pageStart: page,
-    pageEnd: page + 1
-  }, function (err, results) {
-    if (err) {
-      res.status(400);
-      res.json({
-        error: err.toString().replace(/^Error(?::\s*)/, '')
+app.use('/api', require('./api')["default"]); // Handle 500s
+
+app.use(function (err, req, res, next) {
+  if (/no such file or directory/i.test(err)) {
+    res.status(404); // if (req.accepts('html')) {
+    //     res.render('404', { url: req.url })
+    //     return
+    // }
+
+    if (req.accepts('json')) {
+      res.send({
+        error: 'Not found',
+        errCode: 0x0012
       });
       return;
-    }
+    } // Plain text default
 
-    res.json({
-      query: q,
-      page: page,
-      vids: results.videos.map(function (v, i) {
-        v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
-        delete v.url;
-        return v;
-      })
-    });
+
+    res.type('txt').send('Not found');
+    return;
+  }
+
+  res.status(500).send({
+    error: 'Server error',
+    errCode: 0x0051
   });
 });
 app.listen(process.env.PORT || 8080, function () {
-  console.log('Server is live');
+  console.log("Server is live");
 });
-/**
- * Returns a supported language
- * @param {Request} req - The request lol
- * @returns {string} A supported language
- * @author MindfulMinun
- * @since Oct 19, 2019
- * @version 1.0.0
- */
-
-function getLang(req) {
-  var supported = ['en', 'es'];
-  var qLang = (req.query.lang || '').slice(0, 2);
-  var browser = req.acceptsLanguages(supported);
-
-  if (supported.includes(qLang)) {
-    return qLang;
-  }
-
-  if (browser) return browser;
-  return 'en';
-}
-/**
- * Selects a random element from an array
- * @param {Array} arr - The array to choose from
- * @returns {*} An element from the array
- * @author MindfulMinun
- * @since Oct 11, 2019
- * @version 1.0.0
- */
-
-
-function choose(arr) {
-  return arr[Math.floor(Math.random() * arr.length)];
-}
