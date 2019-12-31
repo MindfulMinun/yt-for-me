@@ -31,13 +31,14 @@ ready(function () {
   var sheet = document.createElement('xyz-sheet'); // sheet.setAttribute('peek', true)
 
   sheet.innerHTML = "\n        <div slot=\"peek\" class=\"flex\">\n            <span class=\"flex-stretch\">".concat(dict('dlSheet/labelDefault'), "</span>\n            <i class=\"material-icons\">menu</i>\n        </div>\n        <div id=\"slot-content\" data-empty=\"true\">\n            <p>").concat(dict('dlSheet/idle'), "</p>\n        </div>\n    ");
-  document.body.appendChild(sheet);
+  document.body.append(sheet);
 });
 
 function addToDownloadQueue(object) {
   // Peek the sheet if not already visible
   document.querySelector('xyz-sheet').setAttribute('peek', true);
   document.querySelector('xyz-sheet').open();
+  createDownloadListItem(object);
   fetch('/api/download', {
     method: 'POST',
     headers: {
@@ -53,7 +54,6 @@ function addToDownloadQueue(object) {
     var s = JSON.parse(localStorage.getItem('yt-dl-queue') || '[]');
     s.unshift(object);
     localStorage.setItem('yt-dl-queue', JSON.stringify(s));
-    createDownloadListItem(object);
 
     if (json.error) {
       return;
@@ -63,7 +63,9 @@ function addToDownloadQueue(object) {
 
 function pollUrl(object, callback) {
   if (!object.poll) {
-    callback(object);
+    setTimeout(function () {
+      return pollUrl(object, callback);
+    }, 1000);
     return;
   }
 
@@ -104,9 +106,9 @@ function createDownloadListItem(object) {
   var xyzProg = document.createElement('xyz-progress');
   li.classList.add('dl-list-element');
   txt.textContent = "".concat(object.id, ": ").concat(dict('dlSheet/states/starting'));
-  li.appendChild(txt);
-  li.appendChild(xyzProg);
-  ul.appendChild(li);
+  li.append(txt);
+  li.append(xyzProg);
+  ul.prepend(li);
   pollUrl(object, function (err, json) {
     if (err) {
       console.error(err);
@@ -121,7 +123,7 @@ function createDownloadListItem(object) {
       a.setAttribute('target', 'blank');
       a.href = json.url;
       a.innerText = dict('dlSheet/dlLabel');
-      txt.appendChild(a);
+      txt.append(a);
       xyzProg.setAttribute('value', 1);
       return;
     }
@@ -157,7 +159,7 @@ function makeFooter() {
   d.innerHTML = "<p class=\"flex-stretch\">".concat(yt.dict.welcome.love, "</p>");
   var s = document.createElement('select');
   s.setAttribute('aria-label', yt.dict.welcome.languageA11yLabel);
-  d.appendChild(s);
+  d.append(s);
   s.classList.add('yt-select'); // s.name = 'lang'
 
   yt.langs.forEach(function (lang) {
@@ -169,7 +171,7 @@ function makeFooter() {
       o.selected = true;
     }
 
-    s.appendChild(o);
+    s.append(o);
   });
   s.addEventListener('input', function () {
     var s = location.search;

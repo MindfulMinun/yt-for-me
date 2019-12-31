@@ -10,6 +10,9 @@
         <title>yt-for-me</title>
         <meta name="viewport" content="width=device-width">
         <meta name="theme-color" content="#448aff">
+        <link rel="icon" href="/icons/icon-72.png" type="image/png">
+        <link rel="apple-touch-icon" href="/icons/icon-maskable-192.png">
+        <link rel="manifest" href="/manifest.json">
 
         <!-- Import fonts & styles -->
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|IBM+Plex+Sans:400,400i&display=swap">
@@ -35,8 +38,10 @@
             <p class="browserupgrade">edge &gt; ie</p>
         <![endif]-->
         <main>
-            <div class="container">
+            <div class="hero">
                 <h1>yt-for-me</h1>
+            </div>
+            <div class="container">
                 <p>{{ d.welcome.hi }}</p>
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
                 <p class="no-js-hide">{{{ d.welcome.vid }}}</p>

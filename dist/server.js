@@ -19,7 +19,7 @@ var rootPath = _path["default"].resolve(__dirname + '/../'); // Load POST reques
 
 app.use(_express["default"].json()); // Use Mustache
 
-app.engine('mst', (0, _mustacheExpress["default"])(__dirname + '/public', '.mst'));
+app.engine('mst', (0, _mustacheExpress["default"])(rootPath + '/public', '.mst'));
 app.set('view engine', 'mustache');
 app.get('/', function (req, res) {
   var lang = (0, _serverHelpers.getLang)(req);
@@ -28,21 +28,10 @@ app.get('/', function (req, res) {
     d: require("./langs/".concat(lang, ".js"))
   });
 });
-app.get('/node_modules/:path([\\s\\S]*)', function (req, res) {
-  var p = _path["default"].resolve(rootPath + '/node_modules/' + req.params.path);
-
-  res.sendFile(p);
-});
-app.get('/js/:path([\\s\\S]*)', function (req, res) {
-  var p = _path["default"].resolve(rootPath + '/dist/' + req.params.path);
-
-  res.sendFile(p);
-});
-app.get('/css/:path([\\s\\S]*)', function (req, res) {
-  var p = _path["default"].resolve(rootPath + '/public/' + req.params.path);
-
-  res.sendFile(p);
-});
+app.use(_express["default"]["static"](rootPath + '/public'));
+app.use('/node_modules', _express["default"]["static"](rootPath + '/node_modules'));
+app.use('/js', _express["default"]["static"](rootPath + '/dist'));
+app.use('/css', _express["default"]["static"](rootPath + '/public'));
 app.get('/search', function (req, res) {
   var q = req.query.q || '';
   var page = Math.max(1, req.query.page || 1);
@@ -99,28 +88,28 @@ app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
     query: q
   });
 });
-app.use('/api', require('./api')["default"]); // Handle 404s
-
-app.use(function (req, res, next) {
-  res.status(404); // if (req.accepts('html')) {
-  //     res.render('404', { url: req.url })
-  //     return
-  // }
-
-  if (req.accepts('json')) {
-    res.send({
-      error: 'Not found',
-      errCode: 0x0012
-    });
-    return;
-  } // Plain text default
-
-
-  res.type('txt').send('Not found');
-}); // Handle 500s
+app.use('/api', require('./api')["default"]); // Handle 500s
 
 app.use(function (err, req, res, next) {
-  console.error(err.stack);
+  if (/no such file or directory/i.test(err)) {
+    res.status(404); // if (req.accepts('html')) {
+    //     res.render('404', { url: req.url })
+    //     return
+    // }
+
+    if (req.accepts('json')) {
+      res.send({
+        error: 'Not found',
+        errCode: 0x0012
+      });
+      return;
+    } // Plain text default
+
+
+    res.type('txt').send('Not found');
+    return;
+  }
+
   res.status(500).send({
     error: 'Server error',
     errCode: 0x0051

@@ -1,0 +1,27 @@
+{
+    "name": "yt-for-me",
+    "short_name": "yt-for-me",
+    "start_url": "/?launcher=true",
+    "theme_color":"#F1278C",
+    "background_color":"#FCD0E5",
+    "display":"standalone",
+    "icons": [{
+        "src": "/icons/icon-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+    }, {
+        "src": "/icons/icon-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+    }, {
+        "purpose": "maskable",
+        "src": "/icons/icon-maskable-192.png",
+        "type": "image/png",
+        "sizes": "192x192"
+    }, {
+        "purpose": "maskable",
+        "src": "/icons/icon-maskable-512.png",
+        "type": "image/png",
+        "sizes": "512x512"
+    }]
+}

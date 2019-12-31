@@ -43,13 +43,15 @@ ready(function () {
         </div>
     `
     
-    document.body.appendChild(sheet)
+    document.body.append(sheet)
 })
 
 function addToDownloadQueue(object) {
     // Peek the sheet if not already visible
     document.querySelector('xyz-sheet').setAttribute('peek', true)
     document.querySelector('xyz-sheet').open()
+
+    createDownloadListItem(object)
 
     fetch('/api/download', {
         method: 'POST',
@@ -66,8 +68,6 @@ function addToDownloadQueue(object) {
         const s = JSON.parse(localStorage.getItem('yt-dl-queue') || '[]')
         s.unshift(object)
         localStorage.setItem('yt-dl-queue', JSON.stringify(s))
-
-        createDownloadListItem(object)
         
         if (json.error) { return }
     })
@@ -76,7 +76,7 @@ function addToDownloadQueue(object) {
 
 function pollUrl(object, callback) {
     if (!object.poll) {
-        callback(object)
+        setTimeout(() => pollUrl(object, callback), 1000)
         return
     }
     let guardFinished = false
@@ -114,9 +114,9 @@ function createDownloadListItem(object) {
     const xyzProg = document.createElement('xyz-progress')
     li.classList.add('dl-list-element')
     txt.textContent = `${object.id}: ${dict('dlSheet/states/starting')}`
-    li.appendChild(txt)
-    li.appendChild(xyzProg)
-    ul.appendChild(li)
+    li.append(txt)
+    li.append(xyzProg)
+    ul.prepend(li)
 
 
     pollUrl(object, function (err, json) {
@@ -134,7 +134,7 @@ function createDownloadListItem(object) {
             a.setAttribute('target', 'blank')
             a.href = json.url
             a.innerText = dict('dlSheet/dlLabel')
-            txt.appendChild(a)
+            txt.append(a)
             xyzProg.setAttribute('value', 1)
             return
         }
@@ -174,7 +174,7 @@ function makeFooter() {
 
     const s = document.createElement('select')
     s.setAttribute('aria-label', yt.dict.welcome.languageA11yLabel)
-    d.appendChild(s)
+    d.append(s)
     s.classList.add('yt-select')
     // s.name = 'lang'
     yt.langs.forEach(lang => {
@@ -184,7 +184,7 @@ function makeFooter() {
         if (lang.full === yt.lang) {
             o.selected = true
         }
-        s.appendChild(o)
+        s.append(o)
     })
     s.addEventListener('input', function () {
         let s = location.search
