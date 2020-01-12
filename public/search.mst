@@ -40,7 +40,10 @@
         <main>
             <div class="container">
 
-                <form action="/search">
+                <form action="/search" class="flex">
+                    <a class="yt-home-btn" href="/" aria-label="{{ d.welcome.home }}">
+                        <img src="/icons/icon.svg">
+                    </a>
                     <input type="search" class="yt-input no-js-hide"
                         id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
                         placeholder="{{ d.welcome.searchPlaceholder }}"

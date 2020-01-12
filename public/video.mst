@@ -38,11 +38,14 @@
             <p class="browserupgrade">edge &gt; ie</p>
         <![endif]-->
         <main>
-            <form action="/search" class="container">
+            <form action="/search" class="container flex">
+                <a class="yt-home-btn" href="/" aria-label="{{ d.welcome.home }}">
+                    <img src="/icons/icon.svg">
+                </a>
                 <input type="search" class="yt-input no-js-hide"
                     id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
                     placeholder="{{ d.welcome.searchPlaceholder }}"
-                    value="{{query}}">
+                    value="{{ query }}">
                 <input type="hidden" name="lang" value="{{ lang }}">
             </form>
             <div class="container">

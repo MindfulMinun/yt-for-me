@@ -1,5 +1,6 @@
 import express from 'express'
 import path from 'path'
+import compression from 'compression'
 import ytSearch from 'yt-search'
 import mustacheExpress from 'mustache-express'
 import { getLang } from './serverHelpers'
@@ -10,6 +11,8 @@ const rootPath = path.resolve(__dirname + '/../')
 
 // Load POST requests as JSON
 app.use(express.json())
+// gzip *everything*
+app.use(compression())
 // Use Mustache
 app.engine('mst', mustacheExpress(rootPath + '/public', '.mst'))
 app.set('view engine', 'mustache')
@@ -107,7 +110,8 @@ app.use(function (err, req, res, next) {
 
     res.status(500).send({
         error: 'Server error',
-        errCode: 0x0051
+        errCode: 0x0051,
+        errMsg: err.toString()
     })
 })
 

@@ -49,7 +49,13 @@
         lang: 'es-US',
         welcome: {
             hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
-            love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
+            love: `
+                Hecho con &lt;3 por <a href="https://benjic.xyz" target="_blank">MindfulMinun.</a>
+            `,
+            don8: `Si te gustó esta página, <a href="https://ko-fi.com/mindfulminun" target="_blank">cómprame&nbsp;un&nbsp;café.</a>`,
+            source: `
+                <a href="https://github.com/MindfulMinun/yt-for-me" target="_blank">Código fuente</a>
+            `,
             nojs: `
                 <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.
                 Sin este, se te será casi imposible navegar el internet.
@@ -57,6 +63,7 @@
 
                 <p>Hazte un favor y <a href="https://www.enable-javascript.com/es/">habilítalo</a>.</p>
             `,
+            home: "Inicio",
             vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
             searchPre: "O busca lo que tu quieras:",
             searchPlaceholder: "Buscar",
@@ -228,7 +235,10 @@
             "Dame un segundo, me acabo de levantar...",
             "Generando un blob...",
             "Llegando tarde a clases de nuevo...",
-            "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"
+            "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>",
+            `Si te gustó esta página, <a href="https://ko-fi.com/mindfulminun" target="_blank">cómprame&nbsp;un&nbsp;café.</a>`
         ]
     }
+
+    return out
 })

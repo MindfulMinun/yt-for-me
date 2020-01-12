@@ -4,6 +4,8 @@ var _express = _interopRequireDefault(require("express"));
 
 var _path = _interopRequireDefault(require("path"));
 
+var _compression = _interopRequireDefault(require("compression"));
+
 var _ytSearch = _interopRequireDefault(require("yt-search"));
 
 var _mustacheExpress = _interopRequireDefault(require("mustache-express"));
@@ -17,7 +19,9 @@ var app = (0, _express["default"])();
 var rootPath = _path["default"].resolve(__dirname + '/../'); // Load POST requests as JSON
 
 
-app.use(_express["default"].json()); // Use Mustache
+app.use(_express["default"].json()); // gzip *everything*
+
+app.use((0, _compression["default"])()); // Use Mustache
 
 app.engine('mst', (0, _mustacheExpress["default"])(rootPath + '/public', '.mst'));
 app.set('view engine', 'mustache');
@@ -112,7 +116,8 @@ app.use(function (err, req, res, next) {
 
   res.status(500).send({
     error: 'Server error',
-    errCode: 0x0051
+    errCode: 0x0051,
+    errMsg: err.toString()
   });
 });
 app.listen(process.env.PORT || 8080, function () {

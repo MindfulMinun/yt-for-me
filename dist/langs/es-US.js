@@ -50,8 +50,11 @@
     lang: 'es-US',
     welcome: {
       hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
-      love: "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Código fuente</a>",
+      love: "\n                Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun.</a>\n            ",
+      don8: "Si te gust\xF3 esta p\xE1gina, <a href=\"https://ko-fi.com/mindfulminun\" target=\"_blank\">c\xF3mprame&nbsp;un&nbsp;caf\xE9.</a>",
+      source: "\n                <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">C\xF3digo fuente</a>\n            ",
       nojs: "\n                <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.\n                Sin este, se te ser\xE1 casi imposible navegar el internet.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favor y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
+      home: "Inicio",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
       searchPre: "O busca lo que tu quieras:",
       searchPlaceholder: "Buscar",
@@ -221,6 +224,7 @@
       license: "con_licencia_para_youtube_de",
       explicit: "advertencia_para_padres"
     },
-    loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Ejecutando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>"]
+    loadingBlobs: ["Cargando...", "Descargando los virus...", "ちょっと待って下さい", "bip bip bip cargando...", "Demorando un rato a ver si te enfadas...", "Ocurrió un error. Por favor espere 5 segundos.", "¿Listo?", "Durmiendo un rato...", "Ejecutando <code>setTimeout(render, 5000)</code>...", "Haciéndome un café...", "Dame un segundo, me acabo de levantar...", "Generando un blob...", "Llegando tarde a clases de nuevo...", "Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a>", "Si te gust\xF3 esta p\xE1gina, <a href=\"https://ko-fi.com/mindfulminun\" target=\"_blank\">c\xF3mprame&nbsp;un&nbsp;caf\xE9.</a>"]
   };
+  return out;
 });

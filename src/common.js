@@ -170,11 +170,17 @@ function createDownloadListItem(object) {
 function makeFooter() {
     const d = document.createElement('div')
     d.classList.add('with-love')
-    d.classList.add('flex')
-    d.innerHTML = `<p class="flex-stretch">${yt.dict.welcome.love}</p>`
+    // d.classList.add('flex')
+    // yt.dict.welcome.love,
+    // yt.dict.welcome.don8,
+    // yt.dict.welcome.source,
+    d.innerHTML = `
+        <p>${dict('welcome/love')}</p>
+        <p>${dict('welcome/don8')} • ${dict('welcome/source')}</p>
+    `
 
     const s = document.createElement('select')
-    s.setAttribute('aria-label', yt.dict.welcome.languageA11yLabel)
+    s.setAttribute('aria-label', dict('welcome/languageA11yLabel'))
     d.append(s)
     s.classList.add('yt-select')
     // s.name = 'lang'

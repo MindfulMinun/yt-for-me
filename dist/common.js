@@ -157,11 +157,14 @@ function createDownloadListItem(object) {
 
 function makeFooter() {
   var d = document.createElement('div');
-  d.classList.add('with-love');
-  d.classList.add('flex');
-  d.innerHTML = "<p class=\"flex-stretch\">".concat(yt.dict.welcome.love, "</p>");
+  d.classList.add('with-love'); // d.classList.add('flex')
+  // yt.dict.welcome.love,
+  // yt.dict.welcome.don8,
+  // yt.dict.welcome.source,
+
+  d.innerHTML = "\n        <p>".concat(dict('welcome/love'), "</p>\n        <p>").concat(dict('welcome/don8'), " \u2022 ").concat(dict('welcome/source'), "</p>\n    ");
   var s = document.createElement('select');
-  s.setAttribute('aria-label', yt.dict.welcome.languageA11yLabel);
+  s.setAttribute('aria-label', dict('welcome/languageA11yLabel'));
   d.append(s);
   s.classList.add('yt-select'); // s.name = 'lang'
 

@@ -21,7 +21,6 @@
     lang: 'en-US',
     welcome: {
       hi: "welcome/hi",
-      love: "welcome/love",
       nojs: "welcome/nojs",
       vid: "welcome/vid",
       searchPre: "welcome/searchPre",
@@ -59,7 +58,7 @@
       }
     },
     propertyLookup: {
-      // These can't be left out. They're used to 
+      // These can't be left out.
       song: "song",
       album: "album",
       artist: "artist",

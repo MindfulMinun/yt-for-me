@@ -33,7 +33,7 @@ var allowCorsOn = [// Requests from localhost to localhost are exempt from CORS
 'https://yt.benjic.xyz', 'https://yt-for-me.herokuapp.com'];
 
 if (process.env.NODE_ENV !== 'production') {
-  allowCorsOn.push('http://localhost:8080');
+  allowCorsOn.push('http://localhost');
 } // Used to keep track of video download/conversion progress
 
 
