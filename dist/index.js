@@ -2,7 +2,7 @@
 
 // index.js
 var rand = document.querySelectorAll('[data-random]');
-var form = document.querySelector('form');
+var main = document.querySelector('main');
 var vids = ['ckRSn2zWt_o', // Shyness Boy
 'VgUR1pna5cY', // Natural
 '1iKZhsc8WGs', // Moe Shop - Charm
@@ -10,6 +10,6 @@ var vids = ['ckRSn2zWt_o', // Shyness Boy
 'dQw4w9WgXcQ' // get rickrolled lol
 ];
 rand.forEach(function (el) {
-  return el.href = choose(vids);
+  return el.href = choose(vids) + location.search;
 });
-form.appendChild(makeFooter());
+main.appendChild(makeFooter());

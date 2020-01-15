@@ -21,7 +21,12 @@ yt.REGEX_URL = /(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6
 
 yt.REGEX_HASHTAG = /\B(#[a-zA-Z0-9\-_.]+)\b(?!#)/g; // Matches a timestamp?
 
-yt.REGEX_TIMESTAMP = /\b(\d+(?::\d{2})(?::\d{2})?)\b/g;
+yt.REGEX_TIMESTAMP = /\b(\d+(?::\d{2})(?::\d{2})?)\b/g; // Helper function for handling errors in fetch events
+
+yt.rejectOnFetchErr = function (r) {
+  return r.error || r.errCode ? Promise.reject(r) : Promise.resolve(r);
+};
+
 ready(function () {
   // If the sheet already exists, do not create a duplicate sheet.
   if (document.querySelector('xyz-sheet')) {
@@ -31,6 +36,16 @@ ready(function () {
   var sheet = document.createElement('xyz-sheet'); // sheet.setAttribute('peek', true)
 
   sheet.innerHTML = "\n        <div slot=\"peek\" class=\"flex\">\n            <span class=\"flex-stretch\">".concat(dict('dlSheet/labelDefault'), "</span>\n            <i class=\"material-icons\">menu</i>\n        </div>\n        <div id=\"slot-content\" data-empty=\"true\">\n            <p>").concat(dict('dlSheet/idle'), "</p>\n        </div>\n    ");
+  var lang = new URLSearchParams(location.search).get('lang');
+
+  if (lang) {
+    var langInput = document.createElement('input');
+    langInput.type = 'hidden';
+    langInput.name = 'lang';
+    langInput.value = lang;
+    document.querySelector('form').appendChild(langInput);
+  }
+
   document.body.append(sheet);
 });
 
@@ -157,15 +172,13 @@ function createDownloadListItem(object) {
 
 function makeFooter() {
   var d = document.createElement('div');
-  d.classList.add('with-love'); // d.classList.add('flex')
-  // yt.dict.welcome.love,
-  // yt.dict.welcome.don8,
-  // yt.dict.welcome.source,
-
-  d.innerHTML = "\n        <p>".concat(dict('welcome/love'), "</p>\n        <p>").concat(dict('welcome/don8'), " \u2022 ").concat(dict('welcome/source'), "</p>\n    ");
+  var c = document.createElement('div');
+  d.classList.add('with-love');
+  c.classList.add('container');
+  c.innerHTML = "\n        <p>".concat(dict('welcome/love'), "</p>\n        <p>").concat(dict('welcome/don8'), " \u2022 ").concat(dict('welcome/source'), "</p>\n    ");
   var s = document.createElement('select');
   s.setAttribute('aria-label', dict('welcome/languageA11yLabel'));
-  d.append(s);
+  c.append(s);
   s.classList.add('yt-select'); // s.name = 'lang'
 
   yt.langs.forEach(function (lang) {
@@ -186,6 +199,7 @@ function makeFooter() {
     s += "lang=".concat(this.value);
     location.search = s;
   });
+  d.append(c);
   return d;
 }
 /**

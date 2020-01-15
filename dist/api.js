@@ -49,7 +49,6 @@ api.use(function (req, res, next) {
 
   if (!origin) {
     res.send({
-      error: 'Request blocked, coming from different origin',
       errCode: 0x0013
     });
     return;
@@ -66,9 +65,9 @@ api.get('/info', function (req, res) {
   }).then(function (info) {
     res.json(info);
   })["catch"](function (err) {
-    res.status(500);
-    res.json({
-      error: err.toString().replace(/^Error(?::\s*)/, '')
+    res.status(500).json({
+      error: err.toString().replace(/^Error(?::\s*)/, ''),
+      errCode: 0x0041
     });
   });
 });
@@ -93,9 +92,9 @@ api.get('/search', function (req, res) {
     pageEnd: page + 1
   }, function (err, results) {
     if (err) {
-      res.status(500);
-      res.json({
-        error: err.toString().replace(/^Error(?::\s*)/, '')
+      res.status(500).json({
+        error: err.toString().replace(/^Error(?::\s*)/, ''),
+        errCode: 0x0041
       });
       return;
     }
@@ -116,8 +115,8 @@ api.get('/search', function (req, res) {
 });
 api.get('/progress/:id', function (req, res) {
   res.json(progresses[req.params.id] || {
-    error: 'Progress ID invalid',
-    errCode: 0x1a
+    // error: 'Progress ID invalid',
+    errCode: 0x001a
   });
 });
 api.post('/download', function (req, res) {
@@ -126,7 +125,7 @@ api.post('/download', function (req, res) {
   if (!_ytdlCore["default"].validateID(id)) {
     res.status(400);
     res.json({
-      error: "YouTube video ID invalid",
+      // error: "YouTube video ID invalid",
       errCode: 0x0044
     });
     return;
@@ -140,7 +139,7 @@ api.post('/download', function (req, res) {
   if (acceptedFormats.indexOf(req.body.outFormat) === -1) {
     res.status(400);
     res.json({
-      error: "Invalid output format",
+      // error: "Invalid output format",
       errCode: 0x0045
     });
     return;
@@ -154,7 +153,7 @@ api.post('/download', function (req, res) {
   if (!(video || audio)) {
     res.status(400);
     res.json({
-      error: "No input files provided",
+      // error: "No input files provided",
       errCode: 0x0046
     });
     return;
@@ -173,7 +172,7 @@ api.post('/download', function (req, res) {
     });
 
     if (err) {
-      progresses[dlid].error = "Format download error";
+      // progresses[dlid].error = "Format download error"
       progresses[dlid].errCode = 0x0048;
       return;
     }

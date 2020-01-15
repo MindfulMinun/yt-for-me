@@ -45,8 +45,9 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     // Assert that the id is a YouTube id
     if (!yt.REGEX_CAPTURE_ID.test(id)) {
       // ID didn't match regex, something's wrong.
-      cont.innerHTML = dict('errors/idAssertionFailed', id);
-      cont.appendChild(makeFooter());
+      cont.innerHTML = dict('errors/idAssertionFailed', {
+        errCode: 0x0032
+      });
       return Promise.reject();
     }
 
@@ -77,9 +78,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     })["catch"](function (err) {
       console.log(err); // If an error occurred, tell the user about it.
 
-      cont.innerHTML = dict('errors/error400', err.error);
-    })["finally"](function () {
-      cont.appendChild(makeFooter());
+      cont.innerHTML = dict('errors/error400', err);
     });
   } // Once we've recieved the vid data, generate the view
 

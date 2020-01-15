@@ -45,6 +45,34 @@
         years: "años"
     }
 
+    const errors = {
+        [0x0010]: "Error del pedido (HTTP 400)",
+            [0x0011]: "Pedido vacío",
+            [0x0012]: "No se encontró",
+            [0x0013]: "Se denegó el pedido Cross-origin",
+            [0x0014]: "Demasiados pedidos (HTTP 429)",
+            [0x0015]: "Eres robot",
+        [0x0030]: "Error del lado del cliente",
+            [0x0031]: "Afirmación no cumplida",
+            [0x0032]: "El ID del video de YouTube is inválida",
+        [0x0040]: "API error",
+            [0x0041]: "Imposible conseguir los datos del video mediante ytdl-core",
+            [0x0042]: "Imposible completar la búsqueda mediante yt-search",
+            [0x0043]: "El ID del progreso de la descarga es inválida",
+            [0x0044]: "El ID del video de YouTube is inválida",
+            [0x0045]: "Formato de salida inválida",
+            [0x0046]: "No se proporcionó archivos de entrada",
+            [0x0047]: "Error al convertir el video",
+            [0x0048]: "Error al descargar el formato",
+        [0x0050]: "Error del lado del servidor",
+            [0x0051]: "Error del servidor inesperado",
+            [0x0052]: "Corte temporal (HTTP 503)",
+            [0xba11ad]: "Se suspendió el servicio",
+        // For future use?
+            [0x0961]: "L is real",
+            [0x0539]: "Depurando"
+    }
+
     return {
         lang: 'es-US',
         welcome: {
@@ -70,13 +98,7 @@
             languageA11yLabel: "Idioma"
         },
         errors: {
-            error400: err => `
-                <h1>Ay caray, ¡¡un error nivel 400!!</h1>
-                <p>El servidor se enojó y me dijo: <samp>${err}</samp> (habla inglés)</p>
-                <p>
-                    Parece que el video ya no existe o no está disponible por alguna razón.
-                    Esto suele pasar de vez en cuando.
-                </p>
+            myFault: () => `
                 <p>
                     Si crees que me equivoqué <em>yo</em>, entonces
                     <a href="https://benjic.xyz/#contact" target="_blank">házmelo saber</a>
@@ -85,6 +107,30 @@
                 <p>
                     De lo contrario, <a href="/">inténtalo de nuevo</a>
                 </p>
+            `,
+            error400: err => `
+                <div class="error">
+                    <h2>¡Caray! ¡Ocurrió un error!</h2>
+                    <p>Error: ${
+                        errors[err.errCode] || err.error
+                    } (código 0x${(err.errCode || 0).toString(16)})</p>
+                    ${err.error ? `
+                        <p>El servidor también dijo: <samp>${err.error}</samp> (habla inglés)</p>
+                    ` : ''}
+                    <p>Vuelve a cargar la página.</p>
+                    </div>
+            `,
+            searchErr: err => `
+                <div class="error">
+                    <h2>¡Caray! Se me quebró la lupa de búsqueda.</h2>
+                    <p>Ocurrió un error: ${
+                        errors[err.errCode] || err.error
+                    } (código 0x${(err.errCode || 0).toString(16)})</p>
+                    ${err.error ? `
+                        <p>El servidor también dijo: <samp>${err.error}</samp> (habla inglés)</p>
+                    ` : ''}
+                    <p>Vuelve a cargar la página.</p>
+                </div>
             `,
             idAssertionFailed: id => `
                 <h1>${id || 'Esto'} no parece ser un video.</h1>
@@ -100,22 +146,22 @@
             `
         },
         search: {
-            resultsFor: () => (text, render) => `Resultados para la búsqueda “${render(text)}”`,
+            resultsFor: (query) => `Resultados para la búsqueda “${query}”`,
+            loading: (search) => `Buscando resultados para “${search}”`,
             emptySearch: () => `Parece que no buscaste nada. ¿Acaso no quieres ver nada? Si te cambias de opinión, puedes intentarlo de nuevo con la barra de arriba.`,
-            by: () => (text, render) => `por ${render(text)}`,
-            views: () => (text, render) => {
-                const views = render(text)
+            by: author => `por ${author}`,
+            views: views => {
                 switch (views) {
-                    case "0":
+                    case 0:
                         return "Sin vistas :("
-                    case "1":
+                    case 1:
                         return "Una sola vista :O"
                     default:
-                        return `${numFormatter.format(views)} vistas`
+                        return `${views} vistas`
                 }
             },
-            relTime: () => (text, render) => {
-                let arr = render(text).split(/\s/)
+            relTime: ago => {
+                let arr = ago.split(/\s/)
                 return `Hace ${arr[0] === '1' ? 'un' : arr[0]} ${relativeTimes[arr[1]]}`
             }
         },
@@ -239,6 +285,4 @@
             `Si te gustó esta página, <a href="https://ko-fi.com/mindfulminun" target="_blank">cómprame&nbsp;un&nbsp;café.</a>`
         ]
     }
-
-    return out
 })

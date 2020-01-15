@@ -1,6 +1,6 @@
 // index.js
 const rand = document.querySelectorAll('[data-random]')
-const form = document.querySelector('form')
+const main = document.querySelector('main')
 
 const vids = [
     'ckRSn2zWt_o', // Shyness Boy
@@ -10,6 +10,6 @@ const vids = [
     'dQw4w9WgXcQ'  // get rickrolled lol
 ]
 
-rand.forEach(el => el.href = choose(vids))
+rand.forEach(el => el.href = choose(vids) + location.search)
 
-form.appendChild(makeFooter())
+main.appendChild(makeFooter())

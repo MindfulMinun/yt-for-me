@@ -1,5 +1,7 @@
 "use strict";
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 (function (root, factory) {
   // UMD: https://git.io/fjxpW
   if (typeof module !== "undefined" && module.exports) {
@@ -10,6 +12,8 @@
     throw Error("UMD exporting failed");
   }
 })(typeof self !== 'undefined' ? self : void 0, function () {
+  var _errors;
+
   var numFormatter = new Intl.NumberFormat('en-US', {
     style: 'decimal'
   });
@@ -17,6 +21,7 @@
     dateStyle: "medium",
     timeStyle: "medium"
   });
+  var errors = (_errors = {}, _defineProperty(_errors, 0x0010, "Request error (HTTP 400)"), _defineProperty(_errors, 0x0011, "Empty request"), _defineProperty(_errors, 0x0012, "Not found"), _defineProperty(_errors, 0x0013, "Refused to serve cross-origin request"), _defineProperty(_errors, 0x0014, "Too many requests (HTTP 429)"), _defineProperty(_errors, 0x0015, "You're a bot"), _defineProperty(_errors, 0x0030, "Client-side error"), _defineProperty(_errors, 0x0031, "Assertion failed"), _defineProperty(_errors, 0x0032, "YouTube ID didn't match RegExp"), _defineProperty(_errors, 0x0040, "API error"), _defineProperty(_errors, 0x0041, "Failed to retrieve video information via ytdl-core"), _defineProperty(_errors, 0x0042, "Search via yt-search failed"), _defineProperty(_errors, 0x0043, "Download progress ID invalid"), _defineProperty(_errors, 0x0044, "YouTube video ID invalid"), _defineProperty(_errors, 0x0045, "Invalid output format"), _defineProperty(_errors, 0x0046, "No input files provided"), _defineProperty(_errors, 0x0047, "Conversion error"), _defineProperty(_errors, 0x0048, "Format download error"), _defineProperty(_errors, 0x0050, "Server error"), _defineProperty(_errors, 0x0051, "Unexpected server error"), _defineProperty(_errors, 0x0052, "Temporary outage (HTTP 503)"), _defineProperty(_errors, 0xba11ad, "Service discontinued"), _defineProperty(_errors, 0x0961, "L is real"), _defineProperty(_errors, 0x0539, "Debugging"), _errors);
   return {
     lang: 'en-US',
     welcome: {
@@ -32,52 +37,46 @@
       languageA11yLabel: "Language"
     },
     errors: {
+      myFault: function myFault() {
+        return "\n                <p>\n                    If you think <em>i</em> fucked up, then\n                    <a href=\"https://benjic.xyz/#contact\" target=\"_blank\">let me know</a>\n                </p>\n                <p>\n                    Otherwise, <a href=\"/\">start over</a>\n                </p>\n            ";
+      },
       error400: function error400(err) {
-        return "\n                <h1>Oh dang, a level 400 error!!1!!!</h1>\n                <p>The server says: <samp>".concat(err, "</samp></p>\n                <p>\n                    It looks like you did something wrong,\n                    that video probably doesn\u2019t exist.\n                </p>\n                <p>\n                    If you think <em>i</em> fucked up, then\n                    <a href=\"https://benjic.xyz/#contact\" target=\"_blank\">let me know</a>\n                </p>\n                <p>\n                    Otherwise, <a href=\"/\">start over</a>\n                </p>\n            ");
+        return "\n                <div class=\"error\">\n                    <h2>Ah snap,, an error occurred!!1!!</h2>\n                    <p>Error: ".concat(errors[err.errCode] || err.error, " (code 0x").concat((err.errCode || 0).toString(16), ")</p>\n                    ").concat(err.error ? "\n                        <p>The server said: <samp>".concat(err.error, "</samp></p>\n                    ") : '', "\n                    <p>Reload the page.</p>\n                </div>\n            ");
+      },
+      searchErr: function searchErr(err) {
+        return "\n                <div class=\"error\">\n                    <h2>Ah snap,, my search lens broke!</h2>\n                    <p>An error occurred: ".concat(errors[err.errCode] || err.error, " (code 0x").concat((err.errCode || 0).toString(16), ")</p>\n                    ").concat(err.error ? "\n                        <p>The server said: <samp>".concat(err.error, "</samp></p>\n                    ") : '', "\n                    <p>Reload the page.</p>\n                </div>\n            ");
       },
       idAssertionFailed: function idAssertionFailed(id) {
         return "\n                <h1>".concat(id || 'This', " doesn't seem to be a video.</h1>\n                <p>\n                    Look, this app supposedly talks to YouTube.\n                    And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?\n                </p>\n                <p>\n                    But cheer up, you can always <a href=\"/\">try it again</a>.\n                </p>\n            ");
       }
     },
     search: {
-      resultsFor: function resultsFor() {
-        return function (text, render) {
-          return "Results for \u201C".concat(render(text), "\u201D");
-        };
+      resultsFor: function resultsFor(query) {
+        return "Results for \u201C".concat(query, "\u201D");
+      },
+      loading: function loading(search) {
+        return "Searching for \u201C".concat(search, "\u201D...");
       },
       emptySearch: function emptySearch() {
         return "It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.";
       },
-      count: function count() {
-        return function (text, render) {
-          return "".concat(render(text), " views");
-        };
+      by: function by(author) {
+        return "by ".concat(author);
       },
-      by: function by() {
-        return function (text, render) {
-          return "by ".concat(render(text));
-        };
+      views: function views(_views) {
+        switch (_views) {
+          case 0:
+            return "No views :(";
+
+          case 1:
+            return "One singular view :O";
+
+          default:
+            return "".concat(numFormatter.format(_views), " views");
+        }
       },
-      views: function views() {
-        return function (text, render) {
-          var views = render(text);
-
-          switch (views) {
-            case "0":
-              return "No views :(";
-
-            case "1":
-              return "One singular view :O";
-
-            default:
-              return "".concat(numFormatter.format(views), " views");
-          }
-        };
-      },
-      relTime: function relTime() {
-        return function (text, render) {
-          return render(text);
-        };
+      relTime: function relTime(ago) {
+        return ago;
       } // It's in English by default
 
     },

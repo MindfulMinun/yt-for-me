@@ -25,6 +25,8 @@ yt.REGEX_HASHTAG = /\B(#[a-zA-Z0-9\-_.]+)\b(?!#)/g
 // Matches a timestamp?
 yt.REGEX_TIMESTAMP = /\b(\d+(?::\d{2})(?::\d{2})?)\b/g
 
+// Helper function for handling errors in fetch events
+yt.rejectOnFetchErr = r => (r.error || r.errCode) ? Promise.reject(r) : Promise.resolve(r)
 
 ready(function () {
     // If the sheet already exists, do not create a duplicate sheet.
@@ -43,6 +45,16 @@ ready(function () {
         </div>
     `
     
+    const lang = new URLSearchParams(location.search).get('lang')
+    if (lang) {
+        const langInput = document.createElement('input')
+        langInput.type = 'hidden'
+        langInput.name = 'lang'
+        langInput.value = lang
+    
+        document.querySelector('form').appendChild(langInput)
+    }
+
     document.body.append(sheet)
 })
 
@@ -169,19 +181,17 @@ function createDownloadListItem(object) {
 
 function makeFooter() {
     const d = document.createElement('div')
+    const c = document.createElement('div')
     d.classList.add('with-love')
-    // d.classList.add('flex')
-    // yt.dict.welcome.love,
-    // yt.dict.welcome.don8,
-    // yt.dict.welcome.source,
-    d.innerHTML = `
+    c.classList.add('container')
+    c.innerHTML = `
         <p>${dict('welcome/love')}</p>
         <p>${dict('welcome/don8')} • ${dict('welcome/source')}</p>
     `
 
     const s = document.createElement('select')
     s.setAttribute('aria-label', dict('welcome/languageA11yLabel'))
-    d.append(s)
+    c.append(s)
     s.classList.add('yt-select')
     // s.name = 'lang'
     yt.langs.forEach(lang => {
@@ -200,6 +210,7 @@ function makeFooter() {
         s += `lang=${this.value}`
         location.search = s
     })
+    d.append(c)
     return d
 }
 

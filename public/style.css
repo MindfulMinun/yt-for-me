@@ -20,17 +20,34 @@
     background-color: #1e1e1e;
     color: #fafafa;
 }
+html { height: 100%; }
+body {
+    margin: 0;
+    height: 100%;
+}
 
-body { margin: 0; }
+main {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+}
+main #view {
+    flex: 1;
+}
+main > * {
+    width: 100%;
+}
+
 :focus {
     outline: 0;
 }
 
-noscript {
+.error, noscript {
     display: block;
     border: 1px solid #ff5144;
     border: 1px solid var(--color-err);
     padding: 0 1em;
+    margin: 1em 0;
 }
 
 summary {
@@ -45,6 +62,10 @@ details > summary:focus {
     outline: 2px solid var(--accent);
     outline-offset: -2px;
 }
+form[action^="/search"] {
+    margin: 0 auto;
+    margin-top: 1em;
+}
 
 i.material-icons {
     display: block;
@@ -56,14 +77,15 @@ i.material-icons {
 input[type="search"] { -webkit-appearance: textfield; }
 input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
 
+.center {
+    text-align: center;
+}
 .loading {
     opacity: 1;
-    margin: 0;
 }
 .container {
     padding: 0 1em;
-    margin: 1em auto;
-    /* margin-bottom: 1rem; */
+    margin: 0 auto 1em auto;
     max-width: 840px;
 }
 
@@ -72,9 +94,8 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
     background-image: url(/icons/bg.svg);
     background-repeat: no-repeat;
     background-size: cover;
-    padding-top: 25vmin;
-    padding: 25vw 0em 1.5em 0em;
-    margin-bottom: 1.5rem;
+    padding: 25vmin 0em 1.5em 0em;
+    margin-bottom: 1rem;
 }
 .hero h1 {
     max-width: 840px;
@@ -126,8 +147,10 @@ samp {
 
 .with-love {
     color: var(--color-white);
-    margin: 2em 0;
     text-align: right;
+    background-color: #0e0e0e;
+    padding: 1em;
+    margin-bottom: 0;
 }
 .with-love a {
     color: inherit;
@@ -137,12 +160,6 @@ samp {
 .flex { display: flex !important; align-items: center; }
 .flex > * { margin: auto; }
 .flex-stretch, .flex-stretch { flex: 1 !important; }
-
-/* .yt-btn-group {
-    display: grid;
-    grid-gap: .5em;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-} */
 
 /***********************************************************
  * Search lol
@@ -233,6 +250,7 @@ ol.a11y-list {
  */
 
 .yt {
+    margin: 1em 0;
     border: 1px solid var(--color-gray);
     background-color: #1e1e1e;
     overflow: hidden;
@@ -406,6 +424,9 @@ ol.a11y-list {
         background .2s var(--anim-std)
     ;
 }
+.yt-btn--large {
+    padding: .5em 1em;
+}
 .yt-btn:focus {
     color: #fafafa;
     outline: 2px solid var(--accent);
@@ -414,6 +435,10 @@ ol.a11y-list {
 .yt-btn:disabled {
     border-color: var(--color-dark);
     border-style: dashed;
+}
+.yt-btn:active {
+    color: var(--color-white);
+    border-color: var(--accent);
 }
 
 .yt-select {
@@ -519,10 +544,8 @@ ol.a11y-list {
 }
 
 .loading {
-    animation: fade-in .2s var(--anim-peak-to-rest);
+    animation: breathe 1s var(--anim-std) infinite alternate;
     animation-fill-mode: forwards;
-    animation-delay: .4s;
-    opacity: 0;
 }
 .view {
     animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
@@ -536,12 +559,16 @@ ol.a11y-list {
     animation: fade-in .4s var(--anim-peak-to-rest);
     animation-fill-mode: both;
 }
+.fade-out {
+    animation-fill-mode: both;
+}
 .anim--fuck-this-shit-im-out .view,
 .anim--fuck-this-shit-im-out .search-list {
     animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
     animation-fill-mode: forwards;
 }
-.anim--fuck-this-shit-im-out .fade-in-out {
+.anim--fuck-this-shit-im-out .fade-in-out,
+.anim--fuck-this-shit-im-out .fade-out {
     animation: fade-out .4s var(--anim-rest-to-peak);
 }
 
@@ -608,5 +635,14 @@ ol.a11y-list {
     to {
         opacity: 1;
         transform: none;
+    }
+}
+
+@keyframes breathe {
+    from {
+        opacity: .52;
+    }
+    to {
+        opacity: 1;
     }
 }

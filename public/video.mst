@@ -48,13 +48,15 @@
                     value="{{ query }}">
                 <input type="hidden" name="lang" value="{{ lang }}">
             </form>
-            <div class="container">
+            <div id="view" class="container">
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
             </div>
         </main>
     </body>
     <script>
         document.documentElement.classList.remove("no-js");
+        {{! yt.views.videoInit() }}
+        document.querySelector('main').appendChild(makeFooter());
     </script>
     <script src="/js/video.js"></script>
 </html>

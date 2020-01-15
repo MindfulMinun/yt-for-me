@@ -46,42 +46,7 @@ app.get('/search', function (req, res) {
     query: q,
     page: page
   };
-
-  if (q.trim().length === 0) {
-    res.render(rootPath + '/public/search.mst', Object.assign(render, {
-      vids: []
-    }));
-    return;
-  }
-
-  (0, _ytSearch["default"])({
-    query: q,
-    pageStart: page,
-    pageEnd: page + 1
-  }, function (err, results) {
-    if (err) {
-      res.status(400);
-      res.render(rootPath + '/public/search.mst', Object.assign(render, {
-        error: err.toString().replace(/^Error(?::\s*)/, ''),
-        errCode: 0x0042,
-        vids: []
-      }));
-      return;
-    }
-
-    res.render(rootPath + '/public/search.mst', Object.assign(render, {
-      vids: results.videos.filter(function (e) {
-        return e.videoId !== 'L&ai';
-      }).map(function (v, i) {
-        v.index = i; // for mustashe lol
-
-        v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
-        v.ago = v.ago.replace('Streamed ', '');
-        delete v.url;
-        return v;
-      })
-    }));
-  });
+  res.render(rootPath + '/public/search.mst', render);
 });
 app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
   var lang = (0, _serverHelpers.getLang)(req);
@@ -115,9 +80,9 @@ app.use(function (err, req, res, next) {
   }
 
   res.status(500).send({
-    error: 'Server error',
-    errCode: 0x0051,
-    errMsg: err.toString()
+    // error: 'Server error',
+    error: err.toString(),
+    errCode: 0x0050
   });
 });
 app.listen(process.env.PORT || 8080, function () {

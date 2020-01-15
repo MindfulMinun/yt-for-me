@@ -70,28 +70,32 @@ And responds with one of the following status codes:
 
 Errors are in hexadecimal. The generic responses always have a zero as their least significant term
 
-- `0x0010`: Request error (HTTP 400)
-    - `0x0011`: Empty request
-    - `0x0012`: Not found
-    - `0x0013`: Refused to serve cross-origin request
-    - `0x0014`: Too many requests (HTTP 429)
-    - `0x0015`: You're a bot
-- `0x0030`: Client-side error
-    - `0x0031`: Assertion failed
-    - `0x0032`: YouTube ID didn't match RegExp
-- `0x0040`: API error
-    - `0x0041`: Failed to retrieve video information via ytdl-core
-    - `0x0042`: Search via yt-search failed
-    - `0x0043`: Download progress ID invalid
-    - `0x0044`: YouTube video ID invalid
-    - `0x0045`: Invalid output format
-    - `0x0046`: No input files provided
-    - `0x0047`: Conversion error
-    - `0x0048`: Format download error
-- `0x0050`: Server error
-    - `0x0051`: Unexpected server error
-    - `0x0052`: Temporary outage (HTTP 503)
-    - `0xba11ad`: Service discontinued
-- For future use?
-    - `0x0961`: L is real
-    - `0x0539`: Debugging
+```js
+{
+    [0x0010]: "Request error (HTTP 400)",
+        [0x0011]: "Empty request",
+        [0x0012]: "Not found",
+        [0x0013]: "Refused to serve cross-origin request",
+        [0x0014]: "Too many requests (HTTP 429)",
+        [0x0015]: "You're a bot",
+    [0x0030]: "Client-side error",
+        [0x0031]: "Assertion failed",
+        [0x0032]: "YouTube ID didn't match RegExp",
+    [0x0040]: "API error",
+        [0x0041]: "Failed to retrieve video information via ytdl-core",
+        [0x0042]: "Search via yt-search failed",
+        [0x0043]: "Download progress ID invalid",
+        [0x0044]: "YouTube video ID invalid",
+        [0x0045]: "Invalid output format",
+        [0x0046]: "No input files provided",
+        [0x0047]: "Conversion error",
+        [0x0048]: "Format download error",
+    [0x0050]: "Server error",
+        [0x0051]: "Unexpected server error",
+        [0x0052]: "Temporary outage (HTTP 503)",
+        [0xba11ad]: "Service discontinued",
+    // For future use?
+        [0x0961]: "L is real",
+        [0x0539]: "Debugging"
+}
+```
