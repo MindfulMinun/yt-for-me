@@ -51,6 +51,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     },
     search: {
+      searchTitle: function searchTitle(query) {
+        return "".concat(query, " \u2022 yt-for-me");
+      },
       resultsFor: function resultsFor(query) {
         return "Results for \u201C".concat(query, "\u201D");
       },

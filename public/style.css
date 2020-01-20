@@ -4,9 +4,10 @@
     --accent: #87c2d3;
     --color-err: #ff5144;
     --color-white: rgba(255,255,255, .52);
-    --color-gray: rgba(255,255,255, .24);
+    --color-gray: #424242;
     --color-dark: rgba(255,255,255, .12);
     --card-border: #424242;
+    --meta-data-color: #b8b8b8;
     /* https://material.io/design/motion/speed.html#easing */
     --anim-std: cubic-bezier(0.4, 0.0, 0.2, 1);
     --anim-peak-to-rest: cubic-bezier(0.0, 0.0, 0.2, 1);
@@ -81,6 +82,7 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
     text-align: center;
 }
 .loading {
+    position: absolute;
     opacity: 1;
 }
 .container {
@@ -251,7 +253,7 @@ ol.a11y-list {
 
 .yt {
     margin: 1em 0;
-    border: 1px solid var(--color-gray);
+    border: 1px solid var(--card-border);
     background-color: #1e1e1e;
     overflow: hidden;
 }
@@ -266,13 +268,15 @@ ol.a11y-list {
 }
 
 .yt-embed, .yt-dl {
-    border-bottom: 1px solid var(--color-gray);
+    border-bottom: 1px solid var(--card-border);
 }
 .yt-dl {
     padding: 1rem;
 }
 .yt-meta {
-    padding: 0 1rem;
+    padding: 1em;
+    padding-top: 0;
+    border-bottom: 1px solid var(--card-border);
 }
 .yt-meta__title {
     display: block;
@@ -293,7 +297,7 @@ ol.a11y-list {
 }
 
 .yt-meta__data {
-    opacity: .72;
+    color: var(--meta-data-color);
     display: block;
     margin: .125rem 0;
 }
@@ -511,13 +515,10 @@ ol.a11y-list {
     .search-card-content {
         padding: .5em;
     }
-    .yt-meta {
-        border-bottom: 1px solid var(--color-gray);
-    }
     .yt {
         border-left: 0;
         border-right: 0;
-        margin: 0;
+        margin-bottom: 0;
     }
     .yt-dl__lists ul:nth-of-type(3) {
         flex: 1 100%;
@@ -541,11 +542,14 @@ ol.a11y-list {
 .search-list {
     /* animation: sliding-into-dms-like .4s var(--anim-peak-to-rest); */
     animation-fill-mode: forwards;
+    overflow: hidden;
 }
 
 .loading {
-    animation: breathe 1s var(--anim-std) infinite alternate;
+    animation: breathe 1000ms var(--anim-std) infinite alternate;
     animation-fill-mode: forwards;
+    animation-delay: 400ms;
+    opacity: 0;
 }
 .view {
     animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
@@ -559,9 +563,6 @@ ol.a11y-list {
     animation: fade-in .4s var(--anim-peak-to-rest);
     animation-fill-mode: both;
 }
-.fade-out {
-    animation-fill-mode: both;
-}
 .anim--fuck-this-shit-im-out .view,
 .anim--fuck-this-shit-im-out .search-list {
     animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
@@ -570,6 +571,7 @@ ol.a11y-list {
 .anim--fuck-this-shit-im-out .fade-in-out,
 .anim--fuck-this-shit-im-out .fade-out {
     animation: fade-out .4s var(--anim-rest-to-peak);
+    animation-fill-mode: forwards;
 }
 
 /* Reduced motion means _reduced_ motion, not no anims at all. */

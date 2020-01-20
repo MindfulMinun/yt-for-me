@@ -112,6 +112,7 @@
             `
         },
         search: {
+            searchTitle: query => `${query} • yt-for-me`,
             resultsFor: (query) => `Results for “${query}”`,
             loading: (search) => `Searching for “${search}”...`,
             emptySearch: () => `It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.`,

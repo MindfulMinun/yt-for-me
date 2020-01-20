@@ -82,7 +82,7 @@
             `,
             don8: `Si te gustó esta página, <a href="https://ko-fi.com/mindfulminun" target="_blank">cómprame&nbsp;un&nbsp;café.</a>`,
             source: `
-                <a href="https://github.com/MindfulMinun/yt-for-me" target="_blank">Código fuente</a>
+                <a href="https://github.com/MindfulMinun/yt-for-me" target="_blank">Código&nbsp;fuente</a>
             `,
             nojs: `
                 <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.
@@ -146,8 +146,9 @@
             `
         },
         search: {
-            resultsFor: (query) => `Resultados para la búsqueda “${query}”`,
-            loading: (search) => `Buscando resultados para “${search}”`,
+            searchTitle: query => `${query} • yt-for-me`,
+            resultsFor: query => `Resultados para la búsqueda “${query}”`,
+            loading: search => `Buscando resultados para “${search}”`,
             emptySearch: () => `Parece que no buscaste nada. ¿Acaso no quieres ver nada? Si te cambias de opinión, puedes intentarlo de nuevo con la barra de arriba.`,
             by: author => `por ${author}`,
             views: views => {
@@ -157,7 +158,7 @@
                     case 1:
                         return "Una sola vista :O"
                     default:
-                        return `${views} vistas`
+                        return `${numFormatter.format(views)} vistas`
                 }
             },
             relTime: ago => {

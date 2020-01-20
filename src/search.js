@@ -26,48 +26,45 @@
             }</p>
         `
         fetch(`/api/search?${searchParams}`)
-        .then(r => r.json())
-        .then(yt.rejectOnFetchErr)
-        .then(results => {
-            console.log(results)
-            view.innerHTML = `
-                <p class="fade-out">${
-                    dict('search/resultsFor', results.query)
-                }</p>
-            `
+            .then(r => r.json())
+            .then(yt.rejectOnFetchErr)
+            .then(results => {
+                document.title = dict('search/searchTitle', results.query)
+                view.innerHTML = `
+                    <p class="fade-out">${
+                        dict('search/resultsFor', results.query)
+                    }</p>
+                `
 
-            const searchUl = document.createElement('ul')
-            searchUl.classList.add('a11y-list', 'search-list', 'mobile-edge-flush')
+                const searchUl = document.createElement('ul')
+                searchUl.classList.add('a11y-list', 'search-list', 'mobile-edge-flush')
 
-            _appendToUl(results, searchUl)
-            view.appendChild(searchUl) 
+                _appendToUl(results, searchUl)
+                view.appendChild(searchUl) 
 
-            const wrapper = document.createElement('div')
-            wrapper.classList.add('center')
-            const loadMore = document.createElement('button')
-            loadMore.classList.add('yt-btn', 'yt-btn--large')
-            loadMore.innerText = 'Cargar más resultados'
+                const wrapper = document.createElement('div')
+                wrapper.classList.add('center')
+                const loadMore = document.createElement('button')
+                loadMore.classList.add('yt-btn', 'yt-btn--large')
+                loadMore.innerText = 'Cargar más resultados'
 
-            loadMore.addEventListener('click', event => {
-                // Disable the button while the search is being performed
-                loadMore.setAttribute('disabled', 'disabled')
+                loadMore.addEventListener('click', event => {
+                    // Disable the button while the search is being performed
+                    loadMore.setAttribute('disabled', 'disabled')
 
-                // Load the results and disable the button again
-                _loadMore(searchUl, searchParams)
-                    .then(() => {
-                        loadMore.removeAttribute('disabled')
-                    })
+                    // Load the results and disable the button again
+                    _loadMore(searchUl, searchParams)
+                        .then(() => {
+                            loadMore.removeAttribute('disabled')
+                        })
+                })
+
+                wrapper.appendChild(loadMore)
+                view.appendChild(wrapper)
             })
-
-            wrapper.appendChild(loadMore)
-            view.appendChild(wrapper)
-        })
-        .catch(err => {
-            console.log(err)
-            view.innerHTML = dict('errors/searchErr', err)
-        })
-
-
+            .catch(err => {
+                view.innerHTML = dict('errors/searchErr', err)
+            })
     }
 
     function _loadMore(ul, searchParams) {
@@ -92,6 +89,32 @@
             li.appendChild(a)
             a.classList.add('search-card')
             a.href = `/${vid.videoId}${location.search}`
+            a.onclick = function (e) {
+                // Start animation
+                document.querySelector('main').classList.add('anim--fuck-this-shit-im-out');
+
+                // If a browser doesn't have animation events
+                // or if the user doesn't like animations, navigate immediately
+                const shouldWaitTillAnim = guard('AnimationEvent' in window && window.matchMedia,
+                    mm => mm('not all and (prefers-reduced-motion: reduce)').matches
+                ) || false;
+
+                if (!shouldWaitTillAnim) { return; }
+
+                // Otherwise, stop the navigation event
+                e.preventDefault();
+
+                // Wait until the animation completes before navigating
+                document.querySelector('main .search-list').addEventListener('animationend', () => {
+                    location.href = this.href;
+                })
+
+                // In case the event listener fails unexpectedly, navigate after 700ms
+                setTimeout(() => {
+                    location.href = this.href;
+                }, 700)
+            }
+
             a.setAttribute('title', vid.title)
             a.setAttribute('aria-label', vid.title)
 

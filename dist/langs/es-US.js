@@ -57,7 +57,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
       love: "\n                Hecho con &lt;3 por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun.</a>\n            ",
       don8: "Si te gust\xF3 esta p\xE1gina, <a href=\"https://ko-fi.com/mindfulminun\" target=\"_blank\">c\xF3mprame&nbsp;un&nbsp;caf\xE9.</a>",
-      source: "\n                <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">C\xF3digo fuente</a>\n            ",
+      source: "\n                <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">C\xF3digo&nbsp;fuente</a>\n            ",
       nojs: "\n                <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.\n                Sin este, se te ser\xE1 casi imposible navegar el internet.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favor y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
       home: "Inicio",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
@@ -80,6 +80,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       }
     },
     search: {
+      searchTitle: function searchTitle(query) {
+        return "".concat(query, " \u2022 yt-for-me");
+      },
       resultsFor: function resultsFor(query) {
         return "Resultados para la b\xFAsqueda \u201C".concat(query, "\u201D");
       },
@@ -101,7 +104,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return "Una sola vista :O";
 
           default:
-            return "".concat(_views, " vistas");
+            return "".concat(numFormatter.format(_views), " vistas");
         }
       },
       relTime: function relTime(ago) {

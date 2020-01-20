@@ -46,7 +46,6 @@
                     id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
                     placeholder="{{ d.welcome.searchPlaceholder }}"
                     value="{{ query }}">
-                <input type="hidden" name="lang" value="{{ lang }}">
             </form>
             <div id="view" class="container">
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
