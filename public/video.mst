@@ -52,10 +52,10 @@
             </div>
         </main>
     </body>
+    <script src="/js/video.js"></script>
     <script>
         document.documentElement.classList.remove("no-js");
-        {{! yt.views.videoInit() }}
+        yt.views.videoInit(location.pathname.slice(1));
         document.querySelector('main').appendChild(makeFooter());
     </script>
-    <script src="/js/video.js"></script>
 </html>

@@ -84,7 +84,7 @@
         results.vids.forEach((vid, i) => {
             const li = document.createElement('li')
             li.classList.add('search-li')
-            li.style.setProperty('--animation-order', i)
+            li.style.setProperty('--anim-stagger', i)
             const a = document.createElement('a')
             li.appendChild(a)
             a.classList.add('search-card')

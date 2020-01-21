@@ -15,13 +15,12 @@ yt.langs = [{
   full: "es-US"
 }]; // Matches a YouTube video id
 
-yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/; // Matches a url?
-
-yt.REGEX_URL = /(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g; // Matches a hashtag?
-
-yt.REGEX_HASHTAG = /\B(#[a-zA-Z0-9\-_.]+)\b(?!#)/g; // Matches a timestamp?
-
-yt.REGEX_TIMESTAMP = /\b(\d+(?::\d{2})(?::\d{2})?)\b/g; // Helper function for handling errors in fetch events
+yt.regexps = {
+  id: /([a-zA-Z\d\-_]{11})/,
+  url: /(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g,
+  hashtag: /\B(#[a-zA-Z0-9\-_.]+)\b(?!#)/g,
+  timestamp: /\b(\d+(?::\d{2})(?::\d{2})?)\b/g
+}; // Helper function for handling errors in fetch events
 
 yt.rejectOnFetchErr = function (r) {
   return r.error || r.errCode ? Promise.reject(r) : Promise.resolve(r);
@@ -216,6 +215,45 @@ function makeFooter() {
 function guard(what, mod) {
   return typeof what !== 'undefined' && what !== null ? mod(what) : void 0;
 }
+/**
+ * Retrieves a deep property without throwing if not deep enough
+ * @param {*} what The object
+ * @param {string[]} props The properties to look up
+ * @returns {*} The retrieved property or undefined if not found
+ * @author MindfulMinun
+ * @since 2020-01-20
+ * @version 1.0.0
+ */
+
+
+function safeLookup(what, props) {
+  var currentProp;
+
+  while (props.length) {
+    if (what == null) {
+      return void 0;
+    }
+
+    currentProp = props.shift();
+    what = what[currentProp];
+  }
+
+  return what;
+}
+
+safeLookup({
+  a: {
+    b: {
+      c: {
+        d: {
+          e: {
+            f: 'g'
+          }
+        }
+      }
+    }
+  }
+}, ['a', 'b', 'c', 'd', 'e', 'f']); // g
 
 function dict(what) {
   var path = what.split('/');
@@ -292,15 +330,16 @@ if (!Promise.never) {
 
 if (!Array.prototype.partition) {
   Array.prototype.partition = function (f) {
-    var matched = [],
-        unmatched = [],
+    var left = [],
+        right = [],
         i = 0,
         j = this.length;
+    var out = [left, right];
 
     for (; i < j; i++) {
-      (f.call(this, this[i], i) ? matched : unmatched).push(this[i]);
+      (f.call(this, this[i], i) ? left : right).push(this[i]);
     }
 
-    return [matched, unmatched];
+    return out;
   };
 }

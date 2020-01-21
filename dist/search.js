@@ -66,7 +66,7 @@
     results.vids.forEach(function (vid, i) {
       var li = document.createElement('li');
       li.classList.add('search-li');
-      li.style.setProperty('--animation-order', i);
+      li.style.setProperty('--anim-stagger', i);
       var a = document.createElement('a');
       li.appendChild(a);
       a.classList.add('search-card');

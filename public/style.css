@@ -20,6 +20,7 @@
     line-height: 1.5;
     background-color: #1e1e1e;
     color: #fafafa;
+    scroll-behavior: smooth;
 }
 html { height: 100%; }
 body {
@@ -335,6 +336,13 @@ ol.a11y-list {
     transition: background .2s var(--anim-std);
     /* The var is populated by JavaScript lol */
     background-image: var(--card-bg-image);
+    opacity: 0;
+
+    animation-name: fade-in;
+    animation-duration: 250ms;
+    animation-delay: calc(240ms + var(--anim-stagger) * 80ms);
+    animation-fill-mode: forwards;
+    animation-timing-function: var(--anim-peak-to-rest);
 }
 .yt-card:hover, .yt-card:focus {
     text-decoration: none;
@@ -349,11 +357,11 @@ ol.a11y-list {
     top: 0; left: 0; right: 0; bottom: 0;
     transition: opacity .2s var(--anim-std);
     opacity: .52;
-    background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.52));
+    background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,1));
 }
 .yt-card:hover::before,
 .yt-card:focus::before {
-    opacity: 1;
+    opacity: .72;
 }
 
 /* Remove the box shadow from the search dude (since no image is behind it, text is completely visible) */
@@ -533,7 +541,7 @@ ol.a11y-list {
         opacity: 0;
         animation-name: slide-in;
         animation-duration: 250ms;
-        animation-delay: calc(var(--animation-order) * 50ms);
+        animation-delay: calc(var(--anim-stagger) * 50ms);
         animation-fill-mode: forwards;
         animation-timing-function: var(--anim-peak-to-rest);
     }
@@ -551,7 +559,7 @@ ol.a11y-list {
     animation-delay: 400ms;
     opacity: 0;
 }
-.view {
+.yt {
     animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
     animation-fill-mode: forwards;
 }
@@ -563,7 +571,7 @@ ol.a11y-list {
     animation: fade-in .4s var(--anim-peak-to-rest);
     animation-fill-mode: both;
 }
-.anim--fuck-this-shit-im-out .view,
+.anim--fuck-this-shit-im-out .yt,
 .anim--fuck-this-shit-im-out .search-list {
     animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
     animation-fill-mode: forwards;
@@ -576,10 +584,10 @@ ol.a11y-list {
 
 /* Reduced motion means _reduced_ motion, not no anims at all. */
 @media (prefers-reduced-motion: reduce) {
-    .view {
+    .yt {
         animation-name: fade-in;
     }
-    .anim--fuck-this-shit-im-out .view,
+    .anim--fuck-this-shit-im-out .yt,
     .anim--fuck-this-shit-im-out .search-list {
         animation-name: fade-out;
     }
