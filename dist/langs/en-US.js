@@ -47,7 +47,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return "\n                <div class=\"error\">\n                    <h2>Ah snap,, my search lens broke!</h2>\n                    <p>An error occurred: ".concat(errors[err.errCode] || err.error, " (code 0x").concat((err.errCode || 0).toString(16), ")</p>\n                    ").concat(err.error ? "\n                        <p>The server said: <samp>".concat(err.error, "</samp></p>\n                    ") : '', "\n                    <p>Reload the page.</p>\n                </div>\n            ");
       },
       idAssertionFailed: function idAssertionFailed(id) {
-        return "\n                <h1>".concat(id || 'This', " doesn't seem to be a video.</h1>\n                <p>\n                    Look, this app supposedly talks to YouTube.\n                    And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?\n                </p>\n                <p>\n                    But cheer up, you can always <a href=\"/\">try it again</a>.\n                </p>\n            ");
+        return "\n                <h1>This doesn't seem like a video.</h1>\n                <p>\n                    Look, this app supposedly talks to YouTube.\n                    And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?\n                </p>\n                <p>\n                    But cheer up, you can always <a href=\"/\">try it again</a>.\n                </p>\n            ";
       }
     },
     search: {
@@ -134,6 +134,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       },
       searchLabel: function searchLabel() {
         return "Back to search";
+      },
+      noDesc: function noDesc() {
+        return "No description";
       }
     },
     dlForm: {

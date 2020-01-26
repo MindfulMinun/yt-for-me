@@ -133,7 +133,7 @@
                 </div>
             `,
             idAssertionFailed: id => `
-                <h1>${id || 'Esto'} no parece ser un video.</h1>
+                <h1>Esto no parece un video.</h1>
                 <p>
                     Esta aplicación habla con YouTube para darte información sobre ella,
                     incluyendo cómo descargarla. Para eso, se necesita algunas letritas
@@ -197,7 +197,8 @@
                         return `${views} vistas`
                 }
             },
-            searchLabel: () => "Regresar a la búsqueda"
+            searchLabel: () => "Regresar a la búsqueda",
+            noDesc: () => "Sin descripción"
         },
         dlForm: {
             label: "Descargar",

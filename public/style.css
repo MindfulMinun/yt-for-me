@@ -257,6 +257,8 @@ ol.a11y-list {
     border: 1px solid var(--card-border);
     background-color: #1e1e1e;
     overflow: hidden;
+    animation: sliding-into-dms-like 400ms var(--anim-peak-to-rest);
+    animation-fill-mode: forwards;
 }
 
 .yt-dl__mini-form {
@@ -338,7 +340,7 @@ ol.a11y-list {
     background-image: var(--card-bg-image);
     opacity: 0;
 
-    animation-name: fade-in;
+    animation-name: slide-in;
     animation-duration: 250ms;
     animation-delay: calc(240ms + var(--anim-stagger) * 80ms);
     animation-fill-mode: forwards;
@@ -539,7 +541,7 @@ ol.a11y-list {
 @supports (--css: variables) {
     .search-li {
         opacity: 0;
-        animation-name: slide-in;
+        animation-name: slide-and-scale-in;
         animation-duration: 250ms;
         animation-delay: calc(var(--anim-stagger) * 50ms);
         animation-fill-mode: forwards;
@@ -559,26 +561,22 @@ ol.a11y-list {
     animation-delay: 400ms;
     opacity: 0;
 }
-.yt {
-    animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
-    animation-fill-mode: forwards;
-}
 .search {
-    animation: fade-in .4s var(--anim-peak-to-rest);
+    animation: fade-in 400ms var(--anim-peak-to-rest);
     animation-fill-mode: forwards;
 }
 .fade-in-out {
-    animation: fade-in .4s var(--anim-peak-to-rest);
+    animation: fade-in 400ms var(--anim-peak-to-rest);
     animation-fill-mode: both;
 }
 .anim--fuck-this-shit-im-out .yt,
 .anim--fuck-this-shit-im-out .search-list {
-    animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
+    animation: fuck-this-shit-im-out 400ms var(--anim-rest-to-peak);
     animation-fill-mode: forwards;
 }
 .anim--fuck-this-shit-im-out .fade-in-out,
 .anim--fuck-this-shit-im-out .fade-out {
-    animation: fade-out .4s var(--anim-rest-to-peak);
+    animation: fade-out 400ms var(--anim-rest-to-peak);
     animation-fill-mode: forwards;
 }
 
@@ -636,7 +634,7 @@ ol.a11y-list {
     }
 }
 
-@keyframes slide-in {
+@keyframes slide-and-scale-in {
     from {
         opacity: 0;
         /* transform: scale(.72) translateY(-.5em); */
@@ -647,6 +645,18 @@ ol.a11y-list {
         transform: none;
     }
 }
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(50%);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
 
 @keyframes breathe {
     from {

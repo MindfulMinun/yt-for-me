@@ -10,7 +10,13 @@
     yt.views = yt.views || {}
     yt.views.videoInit = videoInit
 
-    function videoInit(videoId) {
+    yt.views.videoReplace = function (id, wasReplaced) {
+        document.getElementById('view').classList.add('anim--fuck-this-shit-im-out')
+        yt.views.videoInit(id, wasReplaced)
+    }
+
+    function videoInit(videoId, wasReplaced) {
+        const searchParams = new URLSearchParams(location.search)
         const view = document.getElementById('view')
 
         if (!yt.regexps.id.test(videoId)) {
@@ -19,8 +25,17 @@
             return Promise.reject()
         }
 
-        history.pushState(videoId, videoId, '/' + videoId + location.search)
+        searchParams.set('v', videoId)
 
+        if (!wasReplaced) {
+            history.pushState({
+                qi: yt.qi(),
+                view: 'video',
+                params: searchParams.toString(),
+                id: videoId
+            }, videoId, `/video?${searchParams}`)
+        }
+    
         setLoading(view)
 
         // Get video data
@@ -41,7 +56,7 @@
             view.classList.remove('anim--fuck-this-shit-im-out')
 
             // Populate the div
-            generateView(videoInfo, view)
+            view.append(generateView(videoInfo))
         })
         .catch(err => {
             // If an error occurred, tell the user about it.
@@ -57,7 +72,7 @@
         cont.prepend(loading)
     }
 
-    function generateView(videoInfo, view) {
+    function generateView(videoInfo) {
         const ytContainer = document.createElement('div')
 
         ytContainer.classList.add('yt')
@@ -71,13 +86,11 @@
             generateYtDescription(videoInfo)
         )
 
-        view.append(ytContainer)
-
         const cherry = cherryPickProperties(videoInfo)
         window.cherry = cherry
 
         document.title = `${cherry.title} • yt-for-me`
-
+        return ytContainer
     }
 
     function generateYtDownloadForm(videoInfo) {
@@ -228,7 +241,10 @@
             </div>
         `
         backToSearch.style.setProperty('--anim-stagger', 0)
-        backToSearch.onclick = e => document.getElementById('view').classList.add('anim--fuck-this-shit-im-out')
+        backToSearch.onclick = e => {
+            e.preventDefault()
+            yt.views.searchReplace()
+        }
 
         related.append(backToSearch)
 
@@ -239,8 +255,7 @@
             card.dataset.id = vid.id
             card.onclick = function (e) {
                 e.preventDefault()
-                document.getElementById('view').classList.add('anim--fuck-this-shit-im-out')
-                yt.views.videoInit(this.dataset.id)
+                yt.views.videoReplace(this.dataset.id)
             }
             card.classList.add('yt-card')
             card.style.setProperty('--card-bg-image', `url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)`)
@@ -294,6 +309,11 @@
         const cherry = cherryPickProperties(videoInfo)
         const desc = document.createElement('div')
         desc.classList.add("yt-desc")
+
+        if (!cherry.description) {
+            desc.innerHTML = `<em class="yt-meta__data">${dict('view/noDesc')}</em>`
+            return desc
+        }
         desc.innerHTML = cherry.description
 
         desc.querySelectorAll('a[data-timestamp]')
@@ -355,7 +375,7 @@
         })
         div.append(table)
         return div
-    }
+    } 
 
     function cherryPickProperties(videoInfo = {}) {
         const vid = {}
@@ -373,6 +393,7 @@
 
         vid.author =
             safeLookup(videoInfo.media, [yt.dict.propertyLookup.artist]) ||
+            safeLookup(videoInfo.player_response, ['videoDetails', 'author']) ||
             safeLookup(videoInfo.author, ['name'])
         ;
         
@@ -397,6 +418,17 @@
         vid.description = _parseDescription(vid.description)
 
         vid.views = +safeLookup(videoInfo.player_response, ['videoDetails', 'viewCount'])
+
+        vid.ldRatio = NaN
+
+        if (safeLookup(videoInfo.player_response, ['videoDetails', 'allowRatings'])) {
+            vid.ldRatio = guard(
+                safeLookup(videoInfo.player_response, ['videoDetails', 'averageRating']),
+                ld => ld / 5 * 100
+            ) || NaN
+        }
+
+
 
         return vid
     }

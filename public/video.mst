@@ -53,9 +53,10 @@
         </main>
     </body>
     <script src="/js/video.js"></script>
+    <script src="/js/search.js" async defer></script>
     <script>
         document.documentElement.classList.remove("no-js");
-        yt.views.videoInit(location.pathname.slice(1));
+        yt.views.videoInit(new URLSearchParams(location.search).get('v'));
         document.querySelector('main').appendChild(makeFooter());
     </script>
 </html>

@@ -26,11 +26,27 @@ yt.regexps = {
 // Helper function for handling errors in fetch events
 yt.rejectOnFetchErr = r => (r.error || r.errCode) ? Promise.reject(r) : Promise.resolve(r)
 
+// Use a random string to handle history events
+yt.qi = () => Math.random().toString(36).substr(2, 5)
+
 ready(function () {
+    // Routing
+    window.addEventListener('popstate', event => {
+        if (event.state) {
+            switch (event.state.view) {
+                case 'video':  return yt.views.videoReplace(event.state.id, true)
+                case 'search': return yt.views.searchReplace(null, true)
+            }
+        } else {
+            history.back()
+        }
+    }, false);
+
     // If the sheet already exists, do not create a duplicate sheet.
     if (document.querySelector('xyz-sheet')) { return }
 
     const sheet = document.createElement('xyz-sheet')
+    const form = document.querySelector('form')
     // sheet.setAttribute('peek', true)
 
     sheet.innerHTML = `
@@ -50,7 +66,14 @@ ready(function () {
         langInput.name = 'lang'
         langInput.value = lang
     
-        document.querySelector('form').appendChild(langInput)
+        form.appendChild(langInput)
+    }
+
+    form.onsubmit = e => {
+        if (yt.views && yt.views.searchReplace) {
+            e.preventDefault()
+            yt.views.searchReplace(form.querySelector('input[type="search"]').value)
+        }
     }
 
     document.body.append(sheet)
@@ -169,9 +192,13 @@ function createDownloadListItem(object) {
 
         const progression = progresses.reduce((acc, v) => acc + v) / progresses.length
 
-        txt.textContent = `
-            ${object.id}: ${dict('dlSheet/states/downloading')} ${dict('dlSheet/percentage', progression)}
-        `
+        txt.textContent = `${
+            object.id
+        }: ${
+            dict('dlSheet/states/downloading')
+        } ${
+            dict('dlSheet/percentage', progression)
+        }`
 
         xyzProg.setAttribute('value', progression)
     })
@@ -222,7 +249,7 @@ function makeFooter() {
  * @version 0.1.0
  */
 function guard(what, mod) {
-    return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0;
+    return what != null ? mod(what) : void 0;
 }
 
 /**
@@ -244,9 +271,6 @@ function safeLookup(what, props) {
     }
     return what
 }
-
-safeLookup({a: {b: {c: {d: {e: {f: 'g'}}}}}}, ['a', 'b', 'c', 'd', 'e', 'f']) // g
-
 
 function dict(what, ...params) {
     const path = what.split('/')

@@ -19,7 +19,13 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
   yt.views = yt.views || {};
   yt.views.videoInit = videoInit;
 
-  function videoInit(videoId) {
+  yt.views.videoReplace = function (id, wasReplaced) {
+    document.getElementById('view').classList.add('anim--fuck-this-shit-im-out');
+    yt.views.videoInit(id, wasReplaced);
+  };
+
+  function videoInit(videoId, wasReplaced) {
+    var searchParams = new URLSearchParams(location.search);
     var view = document.getElementById('view');
 
     if (!yt.regexps.id.test(videoId)) {
@@ -30,7 +36,17 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       return Promise.reject();
     }
 
-    history.pushState(videoId, videoId, '/' + videoId + location.search);
+    searchParams.set('v', videoId);
+
+    if (!wasReplaced) {
+      history.pushState({
+        qi: yt.qi(),
+        view: 'video',
+        params: searchParams.toString(),
+        id: videoId
+      }, videoId, "/video?".concat(searchParams));
+    }
+
     setLoading(view); // Get video data
 
     return fetch("/api/info?id=".concat(videoId, "&lang=").concat(yt.dict.lang), {
@@ -48,7 +64,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       view.innerHTML = '';
       view.classList.remove('anim--fuck-this-shit-im-out'); // Populate the div
 
-      generateView(videoInfo, view);
+      view.append(generateView(videoInfo));
     })["catch"](function (err) {
       // If an error occurred, tell the user about it.
       console.log(err);
@@ -63,15 +79,15 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     cont.prepend(loading);
   }
 
-  function generateView(videoInfo, view) {
+  function generateView(videoInfo) {
     var ytContainer = document.createElement('div');
     ytContainer.classList.add('yt'); // Create the view
 
     ytContainer.append(generateYtDownloadForm(videoInfo), generateYtEmbed(videoInfo), generateYtRelated(videoInfo), generateYtMeta(videoInfo), generateYtDescription(videoInfo));
-    view.append(ytContainer);
     var cherry = cherryPickProperties(videoInfo);
     window.cherry = cherry;
     document.title = "".concat(cherry.title, " \u2022 yt-for-me");
+    return ytContainer;
   }
 
   function generateYtDownloadForm(videoInfo) {
@@ -174,7 +190,8 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     backToSearch.style.setProperty('--anim-stagger', 0);
 
     backToSearch.onclick = function (e) {
-      return document.getElementById('view').classList.add('anim--fuck-this-shit-im-out');
+      e.preventDefault();
+      yt.views.searchReplace();
     };
 
     related.append(backToSearch);
@@ -186,8 +203,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
       card.onclick = function (e) {
         e.preventDefault();
-        document.getElementById('view').classList.add('anim--fuck-this-shit-im-out');
-        yt.views.videoInit(this.dataset.id);
+        yt.views.videoReplace(this.dataset.id);
       };
 
       card.classList.add('yt-card');
@@ -226,6 +242,12 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     var cherry = cherryPickProperties(videoInfo);
     var desc = document.createElement('div');
     desc.classList.add("yt-desc");
+
+    if (!cherry.description) {
+      desc.innerHTML = "<em class=\"yt-meta__data\">".concat(dict('view/noDesc'), "</em>");
+      return desc;
+    }
+
     desc.innerHTML = cherry.description;
     desc.querySelectorAll('a[data-timestamp]').forEach(function (el) {
       el.onclick = function (event) {
@@ -265,7 +287,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
     vid.title = safeLookup(videoInfo.media, [yt.dict.propertyLookup.song]) || safeLookup(videoInfo, ['player_response', 'microformat', 'playerMicroformatRenderer', 'title', 'simpleText']) || videoInfo.title;
     vid.id = videoInfo.video_id;
-    vid.author = safeLookup(videoInfo.media, [yt.dict.propertyLookup.artist]) || safeLookup(videoInfo.author, ['name']);
+    vid.author = safeLookup(videoInfo.media, [yt.dict.propertyLookup.artist]) || safeLookup(videoInfo.player_response, ['videoDetails', 'author']) || safeLookup(videoInfo.author, ['name']);
     vid.album = safeLookup(videoInfo, ['media', yt.dict.propertyLookup.album]);
 
     if (vid.album && vid.author) {
@@ -281,6 +303,14 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     vid.description = safeLookup(videoInfo.player_response, ['microformat', 'playerMicroformatRenderer', 'description', 'simpleText']) || videoInfo.description;
     vid.description = _parseDescription(vid.description);
     vid.views = +safeLookup(videoInfo.player_response, ['videoDetails', 'viewCount']);
+    vid.ldRatio = NaN;
+
+    if (safeLookup(videoInfo.player_response, ['videoDetails', 'allowRatings'])) {
+      vid.ldRatio = guard(safeLookup(videoInfo.player_response, ['videoDetails', 'averageRating']), function (ld) {
+        return ld / 5 * 100;
+      }) || NaN;
+    }
+
     return vid;
   }
 

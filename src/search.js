@@ -3,28 +3,53 @@
 
     // fetch('/api/search?q=tokyo+night+flyght&1').then(r => r.json()).then(console.log)
 
+    // Export the function to the global
+    yt.views = yt.views || {}
+    yt.views.searchInit = searchInit
+
+    yt.views.searchReplace = function (query, wasReplaced) {
+        document.getElementById('view').classList.add('anim--fuck-this-shit-im-out')
+        yt.views.searchInit(query, wasReplaced)
+    }
+
     // Called when a search request is made.
-    function searchInit(query) {
+    function searchInit(query, wasReplaced) {
         const searchParams = new URLSearchParams(location.search)
         if (query) {
             searchParams.set('q', query)
         }
+        query = searchParams.get('q') || ''
+
+        if (!wasReplaced) {
+            history.pushState({
+                qi: yt.qi(),
+                view: 'search',
+                params: searchParams.toString(),
+                id: null
+            }, dict('search/searchTitle', query), `/search?${searchParams}`)
+        }
+
         searchParams.set('page',
-            +searchParams.get('page') || 1
+            +searchParams.get('page') + 1
         )
+
         const view = document.getElementById('view')
 
-        if (searchParams.get('q').trim() === '') {
+        if (!query || query.trim() === '') {
+            view.classList.add('search--empty-state')
+            view.classList.remove('anim--fuck-this-shit-im-out')
             view.innerHTML = `
-                <p>${dict('search/emptySearch')}</p>
+                <p class="fade-in-out">${dict('search/emptySearch')}</p>
             `
             return
         }
-        view.innerHTML = `
+        
+        view.insertAdjacentHTML('afterbegin', `
             <p class="loading">${
-                dict('search/loading', searchParams.get('q') || '...')
+                dict('search/loading', query || '...')
             }</p>
-        `
+        `)
+
         fetch(`/api/search?${searchParams}`)
             .then(r => r.json())
             .then(yt.rejectOnFetchErr)
@@ -38,9 +63,11 @@
 
                 const searchUl = document.createElement('ul')
                 searchUl.classList.add('a11y-list', 'search-list', 'mobile-edge-flush')
+                view.classList.remove('anim--fuck-this-shit-im-out')
 
                 _appendToUl(results, searchUl)
                 view.appendChild(searchUl) 
+                
 
                 const wrapper = document.createElement('div')
                 wrapper.classList.add('center')
@@ -89,30 +116,13 @@
             li.appendChild(a)
             a.classList.add('search-card')
             a.href = `/${vid.videoId}${location.search}`
-            a.onclick = function (e) {
-                // Start animation
-                document.querySelector('main').classList.add('anim--fuck-this-shit-im-out');
+            a.dataset.id = vid.videoId
 
-                // If a browser doesn't have animation events
-                // or if the user doesn't like animations, navigate immediately
-                const shouldWaitTillAnim = guard('AnimationEvent' in window && window.matchMedia,
-                    mm => mm('not all and (prefers-reduced-motion: reduce)').matches
-                ) || false;
-
-                if (!shouldWaitTillAnim) { return; }
-
-                // Otherwise, stop the navigation event
-                e.preventDefault();
-
-                // Wait until the animation completes before navigating
-                document.querySelector('main .search-list').addEventListener('animationend', () => {
-                    location.href = this.href;
-                })
-
-                // In case the event listener fails unexpectedly, navigate after 700ms
-                setTimeout(() => {
-                    location.href = this.href;
-                }, 700)
+            a.onclick = event => {
+                if (yt.views && yt.views.videoReplace) {
+                    event.preventDefault()
+                    yt.views.videoReplace(a.dataset.id)
+                }
             }
 
             a.setAttribute('title', vid.title)
@@ -138,9 +148,5 @@
             searchUl.appendChild(li)
         })
     }
-
-    // Export the function to the global
-    yt.views = yt.views || {}
-    yt.views.searchInit = searchInit
 
 })()

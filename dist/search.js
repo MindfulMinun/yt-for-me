@@ -2,24 +2,46 @@
 
 (function () {
   'use strict'; // fetch('/api/search?q=tokyo+night+flyght&1').then(r => r.json()).then(console.log)
-  // Called when a search request is made.
+  // Export the function to the global
 
-  function searchInit(query) {
+  yt.views = yt.views || {};
+  yt.views.searchInit = searchInit;
+
+  yt.views.searchReplace = function (query, wasReplaced) {
+    document.getElementById('view').classList.add('anim--fuck-this-shit-im-out');
+    yt.views.searchInit(query, wasReplaced);
+  }; // Called when a search request is made.
+
+
+  function searchInit(query, wasReplaced) {
     var searchParams = new URLSearchParams(location.search);
 
     if (query) {
       searchParams.set('q', query);
     }
 
-    searchParams.set('page', +searchParams.get('page') || 1);
+    query = searchParams.get('q') || '';
+
+    if (!wasReplaced) {
+      history.pushState({
+        qi: yt.qi(),
+        view: 'search',
+        params: searchParams.toString(),
+        id: null
+      }, dict('search/searchTitle', query), "/search?".concat(searchParams));
+    }
+
+    searchParams.set('page', +searchParams.get('page') + 1);
     var view = document.getElementById('view');
 
-    if (searchParams.get('q').trim() === '') {
-      view.innerHTML = "\n                <p>".concat(dict('search/emptySearch'), "</p>\n            ");
+    if (!query || query.trim() === '') {
+      view.classList.add('search--empty-state');
+      view.classList.remove('anim--fuck-this-shit-im-out');
+      view.innerHTML = "\n                <p class=\"fade-in-out\">".concat(dict('search/emptySearch'), "</p>\n            ");
       return;
     }
 
-    view.innerHTML = "\n            <p class=\"loading\">".concat(dict('search/loading', searchParams.get('q') || '...'), "</p>\n        ");
+    view.insertAdjacentHTML('afterbegin', "\n            <p class=\"loading\">".concat(dict('search/loading', query || '...'), "</p>\n        "));
     fetch("/api/search?".concat(searchParams)).then(function (r) {
       return r.json();
     }).then(yt.rejectOnFetchErr).then(function (results) {
@@ -27,6 +49,7 @@
       view.innerHTML = "\n                    <p class=\"fade-out\">".concat(dict('search/resultsFor', results.query), "</p>\n                ");
       var searchUl = document.createElement('ul');
       searchUl.classList.add('a11y-list', 'search-list', 'mobile-edge-flush');
+      view.classList.remove('anim--fuck-this-shit-im-out');
 
       _appendToUl(results, searchUl);
 
@@ -71,32 +94,13 @@
       li.appendChild(a);
       a.classList.add('search-card');
       a.href = "/".concat(vid.videoId).concat(location.search);
+      a.dataset.id = vid.videoId;
 
-      a.onclick = function (e) {
-        var _this = this;
-
-        // Start animation
-        document.querySelector('main').classList.add('anim--fuck-this-shit-im-out'); // If a browser doesn't have animation events
-        // or if the user doesn't like animations, navigate immediately
-
-        var shouldWaitTillAnim = guard('AnimationEvent' in window && window.matchMedia, function (mm) {
-          return mm('not all and (prefers-reduced-motion: reduce)').matches;
-        }) || false;
-
-        if (!shouldWaitTillAnim) {
-          return;
-        } // Otherwise, stop the navigation event
-
-
-        e.preventDefault(); // Wait until the animation completes before navigating
-
-        document.querySelector('main .search-list').addEventListener('animationend', function () {
-          location.href = _this.href;
-        }); // In case the event listener fails unexpectedly, navigate after 700ms
-
-        setTimeout(function () {
-          location.href = _this.href;
-        }, 700);
+      a.onclick = function (event) {
+        if (yt.views && yt.views.videoReplace) {
+          event.preventDefault();
+          yt.views.videoReplace(a.dataset.id);
+        }
       };
 
       a.setAttribute('title', vid.title);
@@ -104,9 +108,5 @@
       a.innerHTML = "\n                <div class=\"search-card-content\">\n                    <span class=\"search-card-entry\">".concat(vid.title, "</span>\n                    <span class=\"search-card-entry\">\n                        ").concat(dict('search/by', vid.author.name), " \u2022\n                        ").concat(dict('search/views', vid.views), "\n                    </span>\n                    <span class=\"search-card-entry\">\n                        ").concat(dict('search/relTime', vid.ago), "\n                    </span>\n                </div>\n                <div class=\"search-card-cover\" style=\"background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),url('").concat(vid.thumb, "');\" aria-hidden>\n                    <span class=\"search-card-duration\">").concat(vid.duration.timestamp, "</span>\n                </div>\n            ");
       searchUl.appendChild(li);
     });
-  } // Export the function to the global
-
-
-  yt.views = yt.views || {};
-  yt.views.searchInit = searchInit;
+  }
 })();

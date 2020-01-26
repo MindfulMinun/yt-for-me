@@ -24,15 +24,35 @@ yt.regexps = {
 
 yt.rejectOnFetchErr = function (r) {
   return r.error || r.errCode ? Promise.reject(r) : Promise.resolve(r);
+}; // Use a random string to handle history events
+
+
+yt.qi = function () {
+  return Math.random().toString(36).substr(2, 5);
 };
 
 ready(function () {
-  // If the sheet already exists, do not create a duplicate sheet.
+  // Routing
+  window.addEventListener('popstate', function (event) {
+    if (event.state) {
+      switch (event.state.view) {
+        case 'video':
+          return yt.views.videoReplace(event.state.id, true);
+
+        case 'search':
+          return yt.views.searchReplace(null, true);
+      }
+    } else {
+      history.back();
+    }
+  }, false); // If the sheet already exists, do not create a duplicate sheet.
+
   if (document.querySelector('xyz-sheet')) {
     return;
   }
 
-  var sheet = document.createElement('xyz-sheet'); // sheet.setAttribute('peek', true)
+  var sheet = document.createElement('xyz-sheet');
+  var form = document.querySelector('form'); // sheet.setAttribute('peek', true)
 
   sheet.innerHTML = "\n        <div slot=\"peek\" class=\"flex\">\n            <span class=\"flex-stretch\">".concat(dict('dlSheet/labelDefault'), "</span>\n            <i class=\"material-icons\">menu</i>\n        </div>\n        <div id=\"slot-content\" data-empty=\"true\">\n            <p>").concat(dict('dlSheet/idle'), "</p>\n        </div>\n    ");
   var lang = new URLSearchParams(location.search).get('lang');
@@ -42,8 +62,15 @@ ready(function () {
     langInput.type = 'hidden';
     langInput.name = 'lang';
     langInput.value = lang;
-    document.querySelector('form').appendChild(langInput);
+    form.appendChild(langInput);
   }
+
+  form.onsubmit = function (e) {
+    if (yt.views && yt.views.searchReplace) {
+      e.preventDefault();
+      yt.views.searchReplace(form.querySelector('input[type="search"]').value);
+    }
+  };
 
   document.body.append(sheet);
 });
@@ -163,7 +190,7 @@ function createDownloadListItem(object) {
       var progression = progresses.reduce(function (acc, v) {
         return acc + v;
       }) / progresses.length;
-      txt.textContent = "\n            ".concat(object.id, ": ").concat(dict('dlSheet/states/downloading'), " ").concat(dict('dlSheet/percentage', progression), "\n        ");
+      txt.textContent = "".concat(object.id, ": ").concat(dict('dlSheet/states/downloading'), " ").concat(dict('dlSheet/percentage', progression));
       xyzProg.setAttribute('value', progression);
     });
   };
@@ -213,7 +240,7 @@ function makeFooter() {
 
 
 function guard(what, mod) {
-  return typeof what !== 'undefined' && what !== null ? mod(what) : void 0;
+  return what != null ? mod(what) : void 0;
 }
 /**
  * Retrieves a deep property without throwing if not deep enough
@@ -240,20 +267,6 @@ function safeLookup(what, props) {
 
   return what;
 }
-
-safeLookup({
-  a: {
-    b: {
-      c: {
-        d: {
-          e: {
-            f: 'g'
-          }
-        }
-      }
-    }
-  }
-}, ['a', 'b', 'c', 'd', 'e', 'f']); // g
 
 function dict(what) {
   var path = what.split('/');

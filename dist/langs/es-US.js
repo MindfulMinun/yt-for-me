@@ -76,7 +76,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return "\n                <div class=\"error\">\n                    <h2>\xA1Caray! Se me quebr\xF3 la lupa de b\xFAsqueda.</h2>\n                    <p>Ocurri\xF3 un error: ".concat(errors[err.errCode] || err.error, " (c\xF3digo 0x").concat((err.errCode || 0).toString(16), ")</p>\n                    ").concat(err.error ? "\n                        <p>El servidor tambi\xE9n dijo: <samp>".concat(err.error, "</samp> (habla ingl\xE9s)</p>\n                    ") : '', "\n                    <p>Vuelve a cargar la p\xE1gina.</p>\n                </div>\n            ");
       },
       idAssertionFailed: function idAssertionFailed(id) {
-        return "\n                <h1>".concat(id || 'Esto', " no parece ser un video.</h1>\n                <p>\n                    Esta aplicaci\xF3n habla con YouTube para darte informaci\xF3n sobre ella,\n                    incluyendo c\xF3mo descargarla. Para eso, se necesita algunas letritas\n                    raras que identifican al video (el ID del video). Si est\xE1s en esta p\xE1gina, es que\n                    las letras est\xE1n mal. \xBFQuiz\xE1 te equivocaste al copiar el ID?\n                </p>\n                <p>\n                    Pero no te desanimes, puedes <a href=\"/\">intentarlo de nuevo</a>.\n                </p>\n            ");
+        return "\n                <h1>Esto no parece un video.</h1>\n                <p>\n                    Esta aplicaci\xF3n habla con YouTube para darte informaci\xF3n sobre ella,\n                    incluyendo c\xF3mo descargarla. Para eso, se necesita algunas letritas\n                    raras que identifican al video (el ID del video). Si est\xE1s en esta p\xE1gina, es que\n                    las letras est\xE1n mal. \xBFQuiz\xE1 te equivocaste al copiar el ID?\n                </p>\n                <p>\n                    Pero no te desanimes, puedes <a href=\"/\">intentarlo de nuevo</a>.\n                </p>\n            ";
       }
     },
     search: {
@@ -162,6 +162,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       },
       searchLabel: function searchLabel() {
         return "Regresar a la búsqueda";
+      },
+      noDesc: function noDesc() {
+        return "Sin descripción";
       }
     },
     dlForm: {

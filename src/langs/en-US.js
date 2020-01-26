@@ -101,7 +101,7 @@
                 </div>
             `,
             idAssertionFailed: id => `
-                <h1>${id || 'This'} doesn't seem to be a video.</h1>
+                <h1>This doesn't seem like a video.</h1>
                 <p>
                     Look, this app supposedly talks to YouTube.
                     And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?
@@ -154,7 +154,8 @@
             metaLicense: lic => `℗ ${lic}`,
             cardAuthor: name => `by ${name}`,
             cardViews: views => `${views} views`,
-            searchLabel: () => "Back to search"
+            searchLabel: () => "Back to search",
+            noDesc: () => "No description"
         },
         dlForm: {
             label: "Download",

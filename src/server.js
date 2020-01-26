@@ -1,5 +1,6 @@
 import express from 'express'
 import path from 'path'
+import url from 'url'
 import compression from 'compression'
 import ytSearch from 'yt-search'
 import mustacheExpress from 'mustache-express'
@@ -45,12 +46,21 @@ app.get('/search', function (req, res) {
 })
 
 app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
+    res.redirect(url.format({
+        pathname: "/video",
+        query: {
+            ...req.query,
+            v: req.params.id
+        }
+    }))
+})
+
+app.get('/video', function (req, res) {
     const lang = getLang(req)
-    const q = req.query.q || ''
     res.render(rootPath + `/public/video.mst`, {
         lang: lang,
         d: require(`./langs/${lang}.js`),
-        query: q
+        query: req.query.q || ''
     })
 })
 
