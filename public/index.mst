@@ -41,7 +41,7 @@
             <div class="hero">
                 <h1>yt-for-me</h1>
             </div>
-            <div class="container">
+            <div class="container" id="view">
                 <p>{{ d.welcome.hi }}</p>
                 <noscript>{{{ d.welcome.nojs }}}</noscript>
                 <p class="no-js-hide">{{{ d.welcome.vid }}}</p>
@@ -54,6 +54,10 @@
                         name="q" pattern="^\s*(\S[\s\S]*)\s*$"
                         placeholder="{{ d.welcome.searchPlaceholder }}">
                 </form>
+
+                <hr>
+
+                <p>{{{ d.welcome.thanks }}}</p>
 
             </div>
         </main>

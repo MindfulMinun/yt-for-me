@@ -1,5 +1,7 @@
 import express from 'express'
 import path from 'path'
+import url from 'url'
+import compression from 'compression'
 import ytSearch from 'yt-search'
 import mustacheExpress from 'mustache-express'
 import { getLang } from './serverHelpers'
@@ -10,6 +12,8 @@ const rootPath = path.resolve(__dirname + '/../')
 
 // Load POST requests as JSON
 app.use(express.json())
+// gzip *everything*
+app.use(compression())
 // Use Mustache
 app.engine('mst', mustacheExpress(rootPath + '/public', '.mst'))
 app.set('view engine', 'mustache')
@@ -38,47 +42,25 @@ app.get('/search', function (req, res) {
         page: page
     }
 
-    if (q.trim().length === 0) {
-        res.render(rootPath + '/public/search.mst', Object.assign(render, {
-            vids: []
-        }))
-        return
-    }
-
-    ytSearch({
-        query: q,
-        pageStart: page,
-        pageEnd: page + 1
-    }, function (err, results) {
-        if (err) {
-            res.status(400)
-            res.render(rootPath + '/public/search.mst', Object.assign(render, {
-                error: err.toString().replace(/^Error(?::\s*)/, ''),
-                errCode: 0x0042,
-                vids: []
-            }))
-            return
-        }
-        
-        res.render(rootPath + '/public/search.mst', Object.assign(render, {
-            vids: results.videos.filter(e => e.videoId !== 'L&ai').map((v, i) => {
-                v.index = i // for mustashe lol
-                v.thumb = `https://img.youtube.com/vi/${v.videoId}/mqdefault.jpg`
-                v.ago = v.ago.replace('Streamed ', '')
-                delete v.url
-                return v
-            })
-        }))
-    })
+    res.render(rootPath + '/public/search.mst', render)
 })
 
 app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
+    res.redirect(url.format({
+        pathname: "/video",
+        query: {
+            ...req.query,
+            v: req.params.id
+        }
+    }))
+})
+
+app.get('/video', function (req, res) {
     const lang = getLang(req)
-    const q = req.query.q || ''
     res.render(rootPath + `/public/video.mst`, {
         lang: lang,
         d: require(`./langs/${lang}.js`),
-        query: q
+        query: req.query.q || ''
     })
 })
 
@@ -106,8 +88,9 @@ app.use(function (err, req, res, next) {
     }
 
     res.status(500).send({
-        error: 'Server error',
-        errCode: 0x0051
+        // error: 'Server error',
+        error: err.toString(),
+        errCode: 0x0050
     })
 })
 

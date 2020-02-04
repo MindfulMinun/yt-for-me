@@ -14,31 +14,65 @@
         timeStyle: "medium"
     })
 
+    const errors = {
+        [0x0010]: "Request error (HTTP 400)",
+            [0x0011]: "Empty request",
+            [0x0012]: "Not found",
+            [0x0013]: "Refused to serve cross-origin request",
+            [0x0014]: "Too many requests (HTTP 429)",
+            [0x0015]: "You're a bot",
+        [0x0030]: "Client-side error",
+            [0x0031]: "Assertion failed",
+            [0x0032]: "YouTube ID didn't match RegExp",
+        [0x0040]: "API error",
+            [0x0041]: "Failed to retrieve video information via ytdl-core",
+            [0x0042]: "Search via yt-search failed",
+            [0x0043]: "Download progress ID invalid",
+            [0x0044]: "YouTube video ID invalid",
+            [0x0045]: "Invalid output format",
+            [0x0046]: "No input files provided",
+            [0x0047]: "Conversion error",
+            [0x0048]: "Format download error",
+        [0x0050]: "Server error",
+            [0x0051]: "Unexpected server error",
+            [0x0052]: "Temporary outage (HTTP 503)",
+            [0xba11ad]: "Service discontinued",
+        // For future use?
+            [0x0961]: "L is real",
+            [0x0539]: "Debugging"
+    }
+
     return {
         lang: 'en-US',
         welcome: {
             hi: "Hi there. This app lets you download videos from YouTube in any format you want. Give it a try.",
-            love: "Made with &lt;3 by <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun</a> • <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Source</a>",
+            love: `
+                Made with &lt;3 by <a href="https://benjic.xyz" target="_blank">MindfulMinun.</a>
+            `,
+            don8: `If you like this website, <a href="https://ko-fi.com/mindfulminun" target="_blank">buy&nbsp;me&nbsp;a&nbsp;coffee.</a>`,
+            source: `
+                <a href="https://github.com/MindfulMinun/yt-for-me" target="_blank">Source</a>
+            `,
             nojs: `
                 <p>Unfortunately, this really cool website needs you to enable <em>JavaScript</em>.
                 The internet won't stop asking you to enable it if you don't.
                 But most importantly, you won't be able to watch YouTube videos. :(</p>
                 
                 <p>Do yourself a favor and <a href="https://www.enable-javascript.com/">enable it</a>.</p>
-                `,
+            `,
+            thanks: `
+                Some icons were created by
+                <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
+                via <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a>.
+            `,
+            home: "Home",
             vid: "Might I suggest <a href=\"/VgUR1pna5cY\" data-random>a video</a>?",
             searchPre: "Or search for your own:",
             searchPlaceholder: "Search",
             languageA11yLabel: "Language"
         },
         errors: {
-            error400: err => `
-                <h1>Oh dang, a level 400 error!!1!!!</h1>
-                <p>The server says: <samp>${err}</samp></p>
-                <p>
-                    It looks like you did something wrong,
-                    that video probably doesn’t exist.
-                </p>
+            myFault: () => `
                 <p>
                     If you think <em>i</em> fucked up, then
                     <a href="https://benjic.xyz/#contact" target="_blank">let me know</a>
@@ -47,8 +81,32 @@
                     Otherwise, <a href="/">start over</a>
                 </p>
             `,
+            error400: err => `
+                <div class="error">
+                    <h2>Ah snap,, an error occurred!!1!!</h2>
+                    <p>Error: ${
+                        errors[err.errCode] || err.error
+                    } (code 0x${(err.errCode || 0).toString(16)})</p>
+                    ${err.error ? `
+                        <p>The server said: <samp>${err.error}</samp></p>
+                    ` : ''}
+                    <p>Reload the page.</p>
+                </div>
+            `,
+            searchErr: err => `
+                <div class="error">
+                    <h2>Ah snap,, my search lens broke!</h2>
+                    <p>An error occurred: ${
+                        errors[err.errCode] || err.error
+                    } (code 0x${(err.errCode || 0).toString(16)})</p>
+                    ${err.error ? `
+                        <p>The server said: <samp>${err.error}</samp></p>
+                    ` : ''}
+                    <p>Reload the page.</p>
+                </div>
+            `,
             idAssertionFailed: id => `
-                <h1>${id || 'This'} doesn't seem to be a video.</h1>
+                <h1>This doesn't seem like a video.</h1>
                 <p>
                     Look, this app supposedly talks to YouTube.
                     And for that, the mumbo jumbo after forward slash in the URL corresponds to a specific video on YouTube. Maybe you just copied the ID wrong?
@@ -59,23 +117,24 @@
             `
         },
         search: {
-            resultsFor: () => (text, render) => `Results for “${render(text)}”`,
-            emptySearch: () => `It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.`,
-            count: () => (text, render) => `${render(text)} views`,
-            by: () => (text, render) => `by ${render(text)}`,
-            views: () => (text, render) => {
-                const views = render(text)
-                    
+            searchTitle: query => `${query} • yt-for-me`,
+            resultsFor: (query) => `Results for “${query}”`,
+            loading: (search) => `Searching for “${search}”...`,
+            emptySearchTitle: `Search for something`,
+            emptySearch: `Use the search bar above to search for videos. <a data-random>Like this one.</a>`,
+            by: author => `by ${author}`,
+            views: views => {
                 switch (views) {
-                    case "0":
+                    case 0:
                         return "No views :("
-                    case "1":
+                    case 1:
                         return "One singular view :O"
                     default:
                         return `${numFormatter.format(views)} views`
                 }
             },
-            relTime: () => (text, render) => render(text) // It's in English by default
+            relTime: ago => ago, // It's in English by default
+            loadMore: "Load more results"
         },
         view: {
             dlSummaryLabel: () => "Download",
@@ -102,7 +161,8 @@
             metaLicense: lic => `℗ ${lic}`,
             cardAuthor: name => `by ${name}`,
             cardViews: views => `${views} views`,
-            searchLabel: () => "Back to search"
+            searchLabel: () => "Back to search",
+            noDesc: () => "No description"
         },
         dlForm: {
             label: "Download",

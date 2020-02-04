@@ -4,6 +4,10 @@ var _express = _interopRequireDefault(require("express"));
 
 var _path = _interopRequireDefault(require("path"));
 
+var _url = _interopRequireDefault(require("url"));
+
+var _compression = _interopRequireDefault(require("compression"));
+
 var _ytSearch = _interopRequireDefault(require("yt-search"));
 
 var _mustacheExpress = _interopRequireDefault(require("mustache-express"));
@@ -12,12 +16,20 @@ var _serverHelpers = require("./serverHelpers");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
 
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
+
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var app = (0, _express["default"])();
 
 var rootPath = _path["default"].resolve(__dirname + '/../'); // Load POST requests as JSON
 
 
-app.use(_express["default"].json()); // Use Mustache
+app.use(_express["default"].json()); // gzip *everything*
+
+app.use((0, _compression["default"])()); // Use Mustache
 
 app.engine('mst', (0, _mustacheExpress["default"])(rootPath + '/public', '.mst'));
 app.set('view engine', 'mustache');
@@ -42,50 +54,22 @@ app.get('/search', function (req, res) {
     query: q,
     page: page
   };
-
-  if (q.trim().length === 0) {
-    res.render(rootPath + '/public/search.mst', Object.assign(render, {
-      vids: []
-    }));
-    return;
-  }
-
-  (0, _ytSearch["default"])({
-    query: q,
-    pageStart: page,
-    pageEnd: page + 1
-  }, function (err, results) {
-    if (err) {
-      res.status(400);
-      res.render(rootPath + '/public/search.mst', Object.assign(render, {
-        error: err.toString().replace(/^Error(?::\s*)/, ''),
-        errCode: 0x0042,
-        vids: []
-      }));
-      return;
-    }
-
-    res.render(rootPath + '/public/search.mst', Object.assign(render, {
-      vids: results.videos.filter(function (e) {
-        return e.videoId !== 'L&ai';
-      }).map(function (v, i) {
-        v.index = i; // for mustashe lol
-
-        v.thumb = "https://img.youtube.com/vi/".concat(v.videoId, "/mqdefault.jpg");
-        v.ago = v.ago.replace('Streamed ', '');
-        delete v.url;
-        return v;
-      })
-    }));
-  });
+  res.render(rootPath + '/public/search.mst', render);
 });
 app.get('/:id([a-zA-Z0-9_-]{11})', function (req, res) {
+  res.redirect(_url["default"].format({
+    pathname: "/video",
+    query: _objectSpread({}, req.query, {
+      v: req.params.id
+    })
+  }));
+});
+app.get('/video', function (req, res) {
   var lang = (0, _serverHelpers.getLang)(req);
-  var q = req.query.q || '';
   res.render(rootPath + "/public/video.mst", {
     lang: lang,
     d: require("./langs/".concat(lang, ".js")),
-    query: q
+    query: req.query.q || ''
   });
 });
 app.use('/api', require('./api')["default"]); // Handle 500s
@@ -111,8 +95,9 @@ app.use(function (err, req, res, next) {
   }
 
   res.status(500).send({
-    error: 'Server error',
-    errCode: 0x0051
+    // error: 'Server error',
+    error: err.toString(),
+    errCode: 0x0050
   });
 });
 app.listen(process.env.PORT || 8080, function () {

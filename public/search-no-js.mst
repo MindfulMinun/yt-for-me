@@ -1,0 +1,130 @@
+<!doctype html>
+<!--
+    Made with love by MindfulMinun
+    https://benjic.xyz
+-->
+<html class="no-js" lang="{{ d.lang }}">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>yt-for-me</title>
+        <meta name="viewport" content="width=device-width">
+        <meta name="theme-color" content="#448aff">
+        <link rel="icon" href="/icons/icon-72.png" type="image/png">
+        <link rel="apple-touch-icon" href="/icons/icon-maskable-192.png">
+        <link rel="manifest" href="/manifest.json">
+
+        <!-- Import fonts & styles -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Material+Icons|IBM+Plex+Sans:400,400i&display=swap">
+        <style media="screen">
+            *, *::before, *::after {
+                box-sizing: border-box;
+            }
+            .no-js .no-js-hide {
+                display: none;
+            }
+        </style>
+        <link rel="stylesheet" href="/css/style.css">
+        <script>window.yt = {
+            lang: "{{ lang }}",
+        };</script>
+        <script src="/js/langs/{{ lang }}.js"></script>
+        <script src="/js/common.js"></script>
+        <script src="/node_modules/xyz-elements/sheet/index.js" onload="XyzSheet.register()"></script>
+        <script src="/node_modules/xyz-elements/progress/index.js" onload="XyzProgress.register()"></script>
+    </head>
+    <body>
+        <!--[if lte IE 9]>
+            <p class="browserupgrade">edge &gt; ie</p>
+        <![endif]-->
+        <main>
+            <div class="container">
+
+                <form action="/search" class="flex">
+                    <a class="yt-home-btn" href="/" aria-label="{{ d.welcome.home }}">
+                        <img src="/icons/icon.svg">
+                    </a>
+                    <input type="search" class="yt-input no-js-hide"
+                        id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
+                        placeholder="{{ d.welcome.searchPlaceholder }}"
+                        value="{{ query }}">
+                    <input type="hidden" name="lang" value="{{ lang }}">
+                </form>
+
+                <noscript>{{{ d.welcome.nojs }}}</noscript>
+
+                <p class="fade-in-out">
+                    {{#d.search.resultsFor}}{{query}}{{/d.search.resultsFor}}
+                </p>
+
+                {{^vids}}
+                    <p>{{d.search.emptySearch}}</p>
+                {{/vids}}
+
+                <ul class="a11y-list search-list mobile-edge-flush">
+                    {{#vids}}
+                        <li class="search-li" style="--animation-order: {{ index }};"><a
+                            class="search-card"
+                            href="/{{ videoId }}"
+                            title="{{ title }}"
+                            aria-label="{{ title }}">
+                            <div class="search-card-content">
+                                <span class="search-card-entry">{{ title }}</span>
+                                <span class="search-card-entry">
+                                    {{#d.search.by}}{{ author.name }}{{/d.search.by}} •
+                                    {{#d.search.views}}{{ views }}{{/d.search.views}}
+                                </span>
+                                <span class="search-card-entry">
+                                    {{#d.search.relTime}}{{ ago }}{{/d.search.relTime}}
+                                </span>
+                            </div>
+                            <div class="search-card-cover" style="background-image: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)),url('{{{ thumb }}}');" aria-hidden>
+                                <span class="search-card-duration">{{duration.timestamp}}</span>
+                            </div>
+                        </a></li>
+                    {{/vids}}
+                </ul>
+
+            </div>
+        </main>
+    </body>
+    <script>
+        document.documentElement.classList.remove("no-js");
+
+        [].forEach.call(document.querySelectorAll('.search-list a.search-card'), function (el) {
+            el.href = el.href + location.search;
+
+            // Wait until the anim finishes before navigating
+            el.onclick = function (e) {
+                // Start animation
+                document.querySelector('main').classList.add('anim--fuck-this-shit-im-out');
+
+                // If a browser doesn't have animation events
+                // or if the user doesn't like animations, navigate immediately
+                const shouldWaitTillAnim = guard('AnimationEvent' in window && window.matchMedia,
+                    mm => mm('not all and (prefers-reduced-motion: reduce)').matches
+                ) || false;
+
+                if (!shouldWaitTillAnim) {
+                    return;
+                }
+
+                // Otherwise, stop the navigation event
+                e.preventDefault();
+
+                // Wait until the animation completes before navigating
+                document.querySelector('main .search-list').addEventListener('animationend', function() {
+                    location.href = el.href;
+                })
+
+                // In case the event listener fails unexpectedly, navigate after 700ms
+                setTimeout(function(){
+                    location.href = el.href;
+                }, 700)
+            };
+        });
+
+        document.querySelector('.container').appendChild(makeFooter())
+
+    </script>
+</html>

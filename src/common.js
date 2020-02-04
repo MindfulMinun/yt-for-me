@@ -3,6 +3,7 @@ if (!yt) {
     throw Error("yt isn't defined, idk what to do.")
 }
 
+// Declare accepted languages
 yt.langs = [{
     name: "English (US)",
     code: "en",
@@ -13,24 +14,104 @@ yt.langs = [{
     full: "es-US"
 }];
 
-// Matches a YouTube video id
-yt.REGEX_CAPTURE_ID = /([a-zA-Z\d\-_]{11})/
+// Declare regexes
+yt.regexps = {
+    id: /([a-zA-Z\d\-_]{11})/,
+    url: /(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g,
+    hashtag: /\B(#[a-zA-Z0-9\-_.]+)\b(?!#)/g,
+    timestamp: /\b(\d+(?::\d{2})(?::\d{2})?)\b/g
+}
 
-// Matches a url?
-yt.REGEX_URL = /(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g
+// Random videos (songs) in case the user doesn't know what to play
+yt.squiggleBooty = [
+    // https://www.youtube.com/playlist?list=PLIm1cC9KsS_0AvI3B30PikS7A2k_puXTr
+    'j3LHAt7jp68', // Android52 - Future Groove Product - Future Groove
+    '63EAaS19NI4', // Android52 - Future Groove Product - Melt City
+    'CGIOSIk5IJk', // Android52 - Future Groove Product - Everyday
+    '94IN5JsR6Lw', // Android52 - Ultra Groove Product - Fall in Love
+    'ckRSn2zWt_o', // Anri - Shyness Boy
+    'wYY-XUXHofs', // Breakbot - Why (con Ruckazoid)
+    '69oj-ISqaOA', // Cowboy Bebop - Jupiter Jazz
+    'irbdwyEjF3M', // D-Real - Candy
+    '8Vpzha5PzLg', // D-Real - It's Your Day
+    'yfHzzXlSTxI', // D-Real - Just Bought a Dragon Maid
+    'IRW3R_ATpKo', // Dark Cat - Crazy Milk
+    '0RmNN1AFsbA', // Dark Cat - Maple Adventure
+    'doRlssu0SEo', // Diveo - Daddy Like (Remix)
+    'mUqgaE99L94', // Diveo - Hoverboard
+    'Y0-92nVrK7c', // Diveo - Say Goodbye
+    'H-AfGh8gmiQ', // Garoad - Every Day is Night
+    'OJQyTnD74gk', // Gorillaz - Doncamatic (con Daley)
+    '6gIXh0-e2R0', // Gyari - Moonlight Stage 10-year cover
+    'xLQWFNZ-wIc', // Hopeful Romantics - Why Wont You Reach For Me
+    'QNxfYXYIyLc', // Jamie Paige - Apple Shampoo (Remix)
+    'znphh0fB-gA', // Jamie Paige - Swag pt. 2: Gumi Megpoid Gets Real (with Ricco Harver)
+    'Wmlp3hiD6QA', // Jamie Paige - Anew, Again - Adelaide Delays
+    'kDHWcv0whNY', // Jamie Paige - Autumn Every Day - To Atlantis
+    'TfnRTifSWh0', // Madeon - Good Faith - Be Fine
+    'D_EnyikMsEU', // Madeon - Good Faith - No Fear No More
+    'omab6QAwBCA', // Marc Rebillet - Funk Emergency
+    'LzWjdtTN3VM', // Marsy - Je N'ai Plus Confiance En Toi
+    'ZwqOJlZ9Pc4', // Moe Shop - Tokyo Night Flyght (Remix)
+    'VgUR1pna5cY', // Moe Shop - Natural
+    'l2nbIwDj7iY', // Moe Shop - Moshi Moshi - Crosstalk
+    'fkuynpzI3bI', // Moe Shop - Pure Pure - Say
+    'FFyZzEJuymg', // Naz3nt - Love Taste (Remix)
+    'yD2FSwTy2lw', // No one's around to help
+    'dQw4w9WgXcQ'  // get rickrolled lol
+]
 
-// Matches a hashtag?
-yt.REGEX_HASHTAG = /\B(#[a-zA-Z0-9\-_.]+)\b(?!#)/g
+// The order of query parameters
+yt.queryParamsOrder = ['v', 'q', 'lang']
 
-// Matches a timestamp?
-yt.REGEX_TIMESTAMP = /\b(\d+(?::\d{2})(?::\d{2})?)\b/g
+yt.sortQueryParams = (a, b) => {
+    // Get the index based on the order
+    
+    a = yt.queryParamsOrder.indexOf(a[0])
+    b = yt.queryParamsOrder.indexOf(b[0])
 
+    // The unknown query parameters should be last no matter what
+    a = a === -1 ? Infinity : a
+    b = b === -1 ? Infinity : b
+
+    return a - b
+}
+
+// Cleans up the search paramaters and puts them in the order above.
+// Unknown parameters get placed at the end. Returns URLSearchParams
+yt.cleanUpSearchParams = () => {
+    const s = new URLSearchParams('');
+    [...new URLSearchParams(location.search).entries()]
+        .filter(pair => !!pair[1])
+        .sort(yt.sortQueryParams)
+        .forEach(el => s.set(el[0], el[1]))
+    return s
+}
+
+// Helper function for handling errors in fetch events
+yt.rejectOnFetchErr = r => (r.error || r.errCode) ? Promise.reject(r) : Promise.resolve(r)
+
+// Use a random string to handle history events
+yt.qi = () => Math.random().toString(36).substr(2, 5)
 
 ready(function () {
+    // Routing
+    window.addEventListener('popstate', event => {
+        if (event.state) {
+            switch (event.state.view) {
+                case 'video':  return yt.views.videoReplace(event.state.id, true)
+                case 'search': return yt.views.searchReplace(null, true)
+            }
+        } else {
+            history.back()
+        }
+    }, false);
+
     // If the sheet already exists, do not create a duplicate sheet.
     if (document.querySelector('xyz-sheet')) { return }
 
     const sheet = document.createElement('xyz-sheet')
+    const form = document.querySelector('form')
     // sheet.setAttribute('peek', true)
 
     sheet.innerHTML = `
@@ -43,6 +124,23 @@ ready(function () {
         </div>
     `
     
+    const lang = new URLSearchParams(location.search).get('lang')
+    if (lang) {
+        const langInput = document.createElement('input')
+        langInput.type = 'hidden'
+        langInput.name = 'lang'
+        langInput.value = lang
+    
+        form.appendChild(langInput)
+    }
+
+    form.onsubmit = e => {
+        if (yt.views && yt.views.searchReplace) {
+            e.preventDefault()
+            yt.views.searchReplace(form.querySelector('input[type="search"]').value)
+        }
+    }
+
     document.body.append(sheet)
 })
 
@@ -159,9 +257,13 @@ function createDownloadListItem(object) {
 
         const progression = progresses.reduce((acc, v) => acc + v) / progresses.length
 
-        txt.textContent = `
-            ${object.id}: ${dict('dlSheet/states/downloading')} ${dict('dlSheet/percentage', progression)}
-        `
+        txt.textContent = `${
+            object.id
+        }: ${
+            dict('dlSheet/states/downloading')
+        } ${
+            dict('dlSheet/percentage', progression)
+        }`
 
         xyzProg.setAttribute('value', progression)
     })
@@ -169,13 +271,17 @@ function createDownloadListItem(object) {
 
 function makeFooter() {
     const d = document.createElement('div')
+    const c = document.createElement('div')
     d.classList.add('with-love')
-    d.classList.add('flex')
-    d.innerHTML = `<p class="flex-stretch">${yt.dict.welcome.love}</p>`
+    c.classList.add('container')
+    c.innerHTML = `
+        <p>${dict('welcome/love')}</p>
+        <p>${dict('welcome/don8')} • ${dict('welcome/source')}</p>
+    `
 
     const s = document.createElement('select')
-    s.setAttribute('aria-label', yt.dict.welcome.languageA11yLabel)
-    d.append(s)
+    s.setAttribute('aria-label', dict('welcome/languageA11yLabel'))
+    c.append(s)
     s.classList.add('yt-select')
     // s.name = 'lang'
     yt.langs.forEach(lang => {
@@ -194,6 +300,7 @@ function makeFooter() {
         s += `lang=${this.value}`
         location.search = s
     })
+    d.append(c)
     return d
 }
 
@@ -207,9 +314,28 @@ function makeFooter() {
  * @version 0.1.0
  */
 function guard(what, mod) {
-    return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0;
+    return what != null ? mod(what) : void 0;
 }
 
+/**
+ * Retrieves a deep property without throwing if not deep enough
+ * @param {*} what The object
+ * @param {string[]} props The properties to look up
+ * @returns {*} The retrieved property or undefined if not found
+ * @author MindfulMinun
+ * @since 2020-01-20
+ * @version 1.0.0
+ */
+function safeLookup(what, props) {
+    let currentProp;
+
+    while (props.length) {
+        if (what == null) { return void 0 }
+        currentProp = props.shift()
+        what = what[currentProp]
+    }
+    return what
+}
 
 function dict(what, ...params) {
     const path = what.split('/')
@@ -276,15 +402,17 @@ if (!Promise.never) {
 // Array::partition divides an array in two
 if (!Array.prototype.partition) {
     Array.prototype.partition = function (f) {
-        let matched = [],
-            unmatched = [],
+        let left = [],
+            right = [],
             i = 0,
             j = this.length
+        
+        const out = [left, right]
 
         for (; i < j; i++){
-            (f.call(this, this[i], i) ? matched : unmatched).push(this[i]);
+            (f.call(this, this[i], i) ? left : right).push(this[i]);
         }
 
-        return [matched, unmatched]
+        return out
     }
 }

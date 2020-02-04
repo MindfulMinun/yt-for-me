@@ -1,12 +1,20 @@
 :root {
     /* --accent: #448aff; */
-    /* --palette: #6663ce #87c2d3; */
-    --accent: #87c2d3;
+    /* --palette: #272727 #6564db #645e9d #89d2dc #e46a98; */
+    --accent: #89d2dc;
+    --against-accent: #fafafa;
     --color-err: #ff5144;
     --color-white: rgba(255,255,255, .52);
-    --color-gray: rgba(255,255,255, .24);
     --color-dark: rgba(255,255,255, .12);
     --card-border: #424242;
+    --color-bg: #1e1e1e;
+    --color-txt: #fafafa;
+    --footer-bg: #0e0e0e;
+    --meta-data-color: #b8b8b8;
+
+    --gradient: rgba(0, 0, 0, .2);
+    --txt-against-gradient: #fff;
+
     /* https://material.io/design/motion/speed.html#easing */
     --anim-std: cubic-bezier(0.4, 0.0, 0.2, 1);
     --anim-peak-to-rest: cubic-bezier(0.0, 0.0, 0.2, 1);
@@ -17,20 +25,46 @@
     font-family: "IBM Plex Sans", sans-serif;
     font-size: 16px;
     line-height: 1.5;
-    background-color: #1e1e1e;
-    color: #fafafa;
+    background-color: var(--color-bg);
+    color: var(--color-txt);
+    scroll-behavior: smooth;
 }
 
-body { margin: 0; }
+@media only screen and (prefers-color-scheme: light) {
+    :root {
+        --color-white: rgba(0,0,0, .52);
+        --color-dark: rgba(0,0,0, .12);
+        --card-border: #9e9e9e;
+        --color-bg: #ffffff;
+        --color-txt: #050505;
+        --footer-bg: #fafafa;
+        --meta-data-color: #474747;
+    }
+}
+
+html { height: 100%; }
+body {
+    margin: 0;
+    height: 100%;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
 :focus {
     outline: 0;
 }
 
-noscript {
+.error, noscript {
     display: block;
     border: 1px solid #ff5144;
     border: 1px solid var(--color-err);
     padding: 0 1em;
+    margin: 1em 0;
 }
 
 summary {
@@ -46,6 +80,17 @@ details > summary:focus {
     outline-offset: -2px;
 }
 
+hr {
+    border: 0;
+    border-bottom: 2px solid var(--card-border);
+    margin: 1em 0;
+}
+
+form[action^="/search"] {
+    margin: 1em auto;
+    width: 100%;
+}
+
 i.material-icons {
     display: block;
 }
@@ -56,14 +101,17 @@ i.material-icons {
 input[type="search"] { -webkit-appearance: textfield; }
 input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
 
+.center {
+    text-align: center;
+}
 .loading {
+    position: absolute;
     opacity: 1;
     margin: 0;
 }
 .container {
     padding: 0 1em;
-    margin: 1em auto;
-    /* margin-bottom: 1rem; */
+    margin: 0 auto 1em auto;
     max-width: 840px;
 }
 
@@ -72,26 +120,14 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
     background-image: url(/icons/bg.svg);
     background-repeat: no-repeat;
     background-size: cover;
-    padding-top: 25vmin;
-    padding: 25vw 0em 1.5em 0em;
+    padding: 25vmin 0em 1.5em 0em;
     margin-bottom: 1.5rem;
 }
 .hero h1 {
     max-width: 840px;
     padding: 0 1rem;
     margin: 0 auto;
-}
-
-.yt-embed {
-    position: relative;
-    padding-top: 56.25%;
-    background-color: #000;
-}
-.yt-embed * {
-    position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    width: 100%;
-    height: 100%;
+    color: var(--against-accent);
 }
 
 [href] {
@@ -107,7 +143,7 @@ input[type="search"]::-webkit-search-decoration { -webkit-appearance: none; }
     outline-offset: 4px;
 }
 
-iframe {
+iframe, img {
     display: block;
     width: 100%;
 }
@@ -126,25 +162,49 @@ samp {
 
 .with-love {
     color: var(--color-white);
-    margin: 1em 0;
+    text-align: right;
+    background-color: var(--footer-bg);
+    padding: 1em;
+    margin-bottom: 0;
 }
 .with-love a {
     color: inherit;
+    text-decoration: underline;
 }
 
-.flex { display: flex !important; }
+.flex { display: flex !important; align-items: center; }
 .flex > * { margin: auto; }
 .flex-stretch, .flex-stretch { flex: 1 !important; }
 
-/* .yt-btn-group {
-    display: grid;
-    grid-gap: .5em;
-    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-} */
+.yt-home-btn {
+    padding: .25em;
+    width: 48px;
+    display: block;
+}
+.yt-home-btn:focus {
+    outline-offset: 0;
+}
 
 /***********************************************************
  * Search lol
  */
+
+.search--empty-state {
+    text-align: center;
+}
+
+.search--empty-state .search__lupa {
+    margin: 3rem auto;
+    max-width: 96px;
+    animation-delay: 360ms;
+    animation-duration: 1400ms;
+    transform: scaleX(-1);
+}
+.search-empty__title {
+    font-size: 1.5rem;
+    margin-top: 1em;
+    margin-bottom: 0;
+}
 
 ul.a11y-list,
 ol.a11y-list {
@@ -155,7 +215,7 @@ ol.a11y-list {
 
 /* see anim for search-li anims */
 .search-li {
-    border: 1px solid var(--color-gray);
+    border: 1px solid var(--card-border);
 }
 .search-li:not(:last-child) {
     border-bottom: 0;
@@ -195,8 +255,8 @@ ol.a11y-list {
     right: 0;
     font-size: 11px;
     padding: .25em .5em;
-    background-color: rgba(0, 0, 0, .2);
-    color: #fff;
+    background-color: var(--gradient);
+    color: var(--txt-against-gradient);
 }
 .search-card-entry {
     opacity: .72;
@@ -222,11 +282,13 @@ ol.a11y-list {
  */
 
 .yt {
-    border: 1px solid var(--color-gray);
-    background-color: #1e1e1e;
+    margin: 1em 0;
+    border: 1px solid var(--card-border);
+    /* background-color: #1e1e1e; */
     overflow: hidden;
+    animation: sliding-into-dms-like 400ms var(--anim-peak-to-rest);
+    animation-fill-mode: forwards;
 }
-
 .yt-dl__mini-form {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -237,13 +299,26 @@ ol.a11y-list {
 }
 
 .yt-embed, .yt-dl {
-    border-bottom: 1px solid var(--color-gray);
+    border-bottom: 1px solid var(--card-border);
 }
 .yt-dl {
     padding: 1rem;
 }
+.yt-embed {
+    position: relative;
+    padding-top: 56.25%;
+    background-color: #000;
+}
+.yt-embed * {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    width: 100%;
+    height: 100%;
+}
 .yt-meta {
-    padding: 0 1rem;
+    padding: 1em;
+    padding-top: 0;
+    border-bottom: 1px solid var(--card-border);
 }
 .yt-meta__title {
     display: block;
@@ -264,7 +339,7 @@ ol.a11y-list {
 }
 
 .yt-meta__data {
-    opacity: .72;
+    color: var(--meta-data-color);
     display: block;
     margin: .125rem 0;
 }
@@ -297,11 +372,17 @@ ol.a11y-list {
     white-space: normal;
     line-height: 1.5;
     scroll-snap-align: start;
-    color: inherit !important;
     text-decoration: inherit;
     transition: background .2s var(--anim-std);
     /* The var is populated by JavaScript lol */
     background-image: var(--card-bg-image);
+    opacity: 0;
+    color: var(--txt-against-gradient);
+    animation-name: slide-in;
+    animation-duration: 250ms;
+    animation-delay: calc(240ms + var(--anim-stagger) * 80ms);
+    animation-fill-mode: forwards;
+    animation-timing-function: var(--anim-peak-to-rest);
 }
 .yt-card:hover, .yt-card:focus {
     text-decoration: none;
@@ -316,19 +397,21 @@ ol.a11y-list {
     top: 0; left: 0; right: 0; bottom: 0;
     transition: opacity .2s var(--anim-std);
     opacity: .52;
-    background-image: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.52));
+    background-image: linear-gradient(transparent, black);
 }
 .yt-card:hover::before,
 .yt-card:focus::before {
-    opacity: 1;
+    opacity: .72;
 }
 
 /* Remove the box shadow from the search dude (since no image is behind it, text is completely visible) */
 .yt-card.yt-card--back-to-search::before {
     content: none;
 }
+.yt-card--back-to-search {
+    color: inherit;
+}
 
-/* Last card lol */
 .yt-card--back-to-search__container {
     margin: auto;
     text-align: center;
@@ -365,7 +448,7 @@ ol.a11y-list {
     border: 0;
     color: inherit;
     font: inherit;
-    border: 2px solid var(--color-gray);
+    border: 2px solid var(--card-border);
     outline: 0;
     padding: .5em .75em;
     width: 100%;
@@ -376,7 +459,7 @@ ol.a11y-list {
     ;
 }
 .yt-input:focus {
-    color: #fafafa;
+    /* color: #fafafa; */
     border-color: var(--accent);
     /* background-color: var(--dark); */
 }
@@ -387,7 +470,7 @@ ol.a11y-list {
     color: var(--color-white);
     font: inherit;
     font-size: 14px;
-    border: 2px solid var(--color-gray);
+    border: 2px solid var(--card-border);
     outline: 0;
     padding: .25em .5em;
     transition:
@@ -395,14 +478,21 @@ ol.a11y-list {
         background .2s var(--anim-std)
     ;
 }
+.yt-btn--large {
+    padding: .5em 1em;
+}
 .yt-btn:focus {
-    color: #fafafa;
+    /* color: #fafafa; */
     outline: 2px solid var(--accent);
     /* background-color: var(--dark); */
 }
 .yt-btn:disabled {
     border-color: var(--color-dark);
     border-style: dashed;
+}
+.yt-btn:active {
+    color: var(--color-white);
+    border-color: var(--accent);
 }
 
 .yt-select {
@@ -413,18 +503,16 @@ ol.a11y-list {
     background-image: url(data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIyNHB4IiBoZWlnaHQ9IjI0cHgiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0iIzU0NTQ1NCI+PHBhdGggZD0iTTcgMTBsNSA1IDUtNXoiPjwvcGF0aD48L3N2Zz4=);
     background-position: right 50%;
     background-repeat: no-repeat;
-    border: 2px solid var(--color-gray);
+    border: 2px solid var(--card-border);
     border-radius: 0;
     color: var(--color-white);
     font: inherit;
     font-size: 14px;
-    margin: 1em 0;
     padding: .5em 1.5em .5em 1em;
     min-width: 120px;
 }
 .yt-select.yt-select--compact {
     padding: .25em 1.25em .25em .5em;
-    margin: 0;
 }
 .yt-select:focus {
     border-color: var(--accent);
@@ -445,7 +533,7 @@ ol.a11y-list {
 .yt-table table {
     width: 100%;
     border: 0;
-    /* border: 1px solid var(--color-gray); */
+    /* border: 1px solid var(--card-border); */
     text-align: left;
     border-collapse: collapse;
 }
@@ -453,7 +541,7 @@ ol.a11y-list {
     padding: .25em 1em;
 }
 .yt-table thead {
-    border-bottom: 1px solid var(--color-gray);
+    border-bottom: 1px solid var(--card-border);
 }
 .yt-table thead tr th {
     font-weight: bold;
@@ -477,13 +565,10 @@ ol.a11y-list {
     .search-card-content {
         padding: .5em;
     }
-    .yt-meta {
-        border-bottom: 1px solid var(--color-gray);
-    }
     .yt {
         border-left: 0;
         border-right: 0;
-        margin: 0;
+        margin-bottom: 0;
     }
     .yt-dl__lists ul:nth-of-type(3) {
         flex: 1 100%;
@@ -496,9 +581,9 @@ ol.a11y-list {
 @supports (--css: variables) {
     .search-li {
         opacity: 0;
-        animation-name: slide-in;
+        animation-name: slide-and-scale-in;
         animation-duration: 250ms;
-        animation-delay: calc(var(--animation-order) * 50ms);
+        animation-delay: calc(var(--anim-stagger) * 50ms);
         animation-fill-mode: forwards;
         animation-timing-function: var(--anim-peak-to-rest);
     }
@@ -507,41 +592,40 @@ ol.a11y-list {
 .search-list {
     /* animation: sliding-into-dms-like .4s var(--anim-peak-to-rest); */
     animation-fill-mode: forwards;
+    overflow: hidden;
 }
 
 .loading {
-    animation: fade-in .2s var(--anim-peak-to-rest);
+    animation: breathe 1000ms var(--anim-std) infinite alternate;
     animation-fill-mode: forwards;
-    animation-delay: .4s;
+    animation-delay: 400ms;
     opacity: 0;
 }
-.view {
-    animation: sliding-into-dms-like .4s var(--anim-peak-to-rest);
-    animation-fill-mode: forwards;
-}
 .search {
-    animation: fade-in .4s var(--anim-peak-to-rest);
+    animation: fade-in 400ms var(--anim-peak-to-rest);
     animation-fill-mode: forwards;
 }
 .fade-in-out {
-    animation: fade-in .4s var(--anim-peak-to-rest);
+    animation: fade-in 400ms var(--anim-peak-to-rest);
     animation-fill-mode: both;
 }
-.anim--fuck-this-shit-im-out .view,
+.anim--fuck-this-shit-im-out .yt,
 .anim--fuck-this-shit-im-out .search-list {
-    animation: fuck-this-shit-im-out .4s var(--anim-rest-to-peak);
+    animation: fuck-this-shit-im-out 400ms var(--anim-rest-to-peak);
     animation-fill-mode: forwards;
 }
-.anim--fuck-this-shit-im-out .fade-in-out {
-    animation: fade-out .4s var(--anim-rest-to-peak);
+.anim--fuck-this-shit-im-out .fade-in-out,
+.anim--fuck-this-shit-im-out .fade-out {
+    animation: fade-out 400ms var(--anim-rest-to-peak);
+    animation-fill-mode: forwards;
 }
 
 /* Reduced motion means _reduced_ motion, not no anims at all. */
 @media (prefers-reduced-motion: reduce) {
-    .view {
+    .yt {
         animation-name: fade-in;
     }
-    .anim--fuck-this-shit-im-out .view,
+    .anim--fuck-this-shit-im-out .yt,
     .anim--fuck-this-shit-im-out .search-list {
         animation-name: fade-out;
     }
@@ -590,7 +674,7 @@ ol.a11y-list {
     }
 }
 
-@keyframes slide-in {
+@keyframes slide-and-scale-in {
     from {
         opacity: 0;
         /* transform: scale(.72) translateY(-.5em); */
@@ -599,5 +683,26 @@ ol.a11y-list {
     to {
         opacity: 1;
         transform: none;
+    }
+}
+
+@keyframes slide-in {
+    from {
+        opacity: 0;
+        transform: translateY(50%);
+    }
+    to {
+        opacity: 1;
+        transform: none;
+    }
+}
+
+
+@keyframes breathe {
+    from {
+        opacity: .52;
+    }
+    to {
+        opacity: 1;
     }
 }

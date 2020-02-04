@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg">
+<svg viewBox="0 0 500 500" xmlns="http://www.w3.org/2000/svg" xmlns:bx="https://boxy-svg.com">
   <defs>
     <clipPath id="clip-path">
-      <circle height="500&quot; r=&quot;230" r="230" cx="250" cy="250"/>
+      <circle height="500" r="230" cx="250" cy="250"/>
     </clipPath>
   </defs>
   <g style="clip-path: url(#clip-path)">
@@ -154,7 +154,7 @@
     <path d="M-42,559L-85,576L51,621Z" fill="#936797" stroke="#936797" stroke-width="1.51"/>
     <path d="M-104,502L-85,576L-42,559Z" fill="#7f6985" stroke="#7f6985" stroke-width="1.51"/>
   </g>
-  <g transform="matrix(11.363636, 0, 0, -11.363636, 295.454529, 125)" id="g-1" style="">
+  <g transform="matrix(10, 0, 0, -10, 290, 140)" id="g-1" bx:origin="0.5 0.5">
     <path id="path-1" style="fill-opacity: 1; fill-rule: nonzero; stroke: none; fill: rgb(255, 255, 255);" d="m 0,0 0,-9 7,0 -11,-13 -11,13 7,0 0,9 8,0 z"/>
   </g>
 </svg>

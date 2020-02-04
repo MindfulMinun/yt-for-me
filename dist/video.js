@@ -13,95 +13,89 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
   if (!yt) {
     throw Error("yt isn't defined, idk what to do.");
-  } // Some locals for later
-  //================================================================================
-  //================================================================================
-  //================================================================================
+  } // Expose the videoInit function to the yt object
 
 
-  var cont = document.querySelector('div.container'); // Listen for back/forward events
-  // Bootstrap view handles view loading
+  yt.views = yt.views || {};
+  yt.views.videoInit = videoInit;
 
-  window.addEventListener('popstate', function (e) {
-    console.log(e); // Anim the card out
+  yt.views.videoReplace = function (id, wasReplaced) {
+    document.getElementById('view').classList.add('anim--fuck-this-shit-im-out');
+    yt.views.videoInit(id, wasReplaced);
+  };
 
-    guard(document.querySelector('.view'), function (view) {
-      return cont.classList.add('anim--fuck-this-shit-im-out');
-    }); // If there's a state, load it.
-    // Otherwise, the user was probably trying to go back.
+  function videoInit(videoId, wasReplaced) {
+    var searchParams = yt.cleanUpSearchParams();
+    var view = document.getElementById('view');
 
-    if (e.state && e.state !== (window.info && window.info.video_id)) {
-      bootstrapView(e.state);
-    } else {
-      history.back();
-    }
-  }); // On page load, load the video the URL is currently at
-
-  bootstrapView(guard(yt.REGEX_CAPTURE_ID.exec(location.pathname.slice(1) || ''), function (match) {
-    return match[0];
-  }) || ''); // Get video information required for loading the view
-
-  function bootstrapView(id) {
-    // Assert that the id is a YouTube id
-    if (!yt.REGEX_CAPTURE_ID.test(id)) {
+    if (!yt.regexps.id.test(videoId)) {
       // ID didn't match regex, something's wrong.
-      cont.innerHTML = dict('errors/idAssertionFailed', id);
-      cont.appendChild(makeFooter());
+      view.innerHTML = dict('errors/idAssertionFailed', {
+        errCode: 0x32
+      });
       return Promise.reject();
     }
 
-    history.pushState(id, id, '/' + id + location.search); // Display a loading blob (blob = message before UI loads)
+    searchParams.set('v', videoId);
 
-    var loading = document.createElement('p');
-    loading.classList.add('loading');
-    loading.innerHTML = choose(yt.dict.loadingBlobs);
-    cont.prepend(loading); // Get video data
+    if (!wasReplaced) {
+      history.pushState({
+        qi: yt.qi(),
+        view: 'video',
+        params: searchParams.toString(),
+        id: videoId
+      }, videoId, "/video?".concat(searchParams));
+    }
 
-    return fetch("/api/info?id=".concat(id, "&lang=").concat(yt.dict.lang), {
+    setLoading(view); // Get video data
+
+    return fetch("/api/info?id=".concat(videoId, "&lang=").concat(yt.dict.lang), {
       headers: {
         'Accept': 'application/json'
       }
     }).then(function (res) {
       return res.json();
-    }).then(function (json) {
-      return json.error ? Promise.reject(json) : json;
-    }).then(function (info) {
+    }).then(yt.rejectOnFetchErr).then(function (videoInfo) {
       // Set the document title to the video title
       // (may be overwritten later)
-      document.title = "".concat(info.title, " \u2022 yt-for-me"); // Prepare the content div for population
+      document.title = "".concat(videoInfo.title, " \u2022 yt-for-me");
+      window.info = videoInfo; // Prepare the content div for population
 
-      cont.innerHTML = '';
-      cont.classList.remove('anim--fuck-this-shit-im-out'); // Populate the div
+      view.innerHTML = '';
+      view.classList.remove('anim--fuck-this-shit-im-out', 'search--empty-state'); // Populate the div
 
-      cont.appendChild(genView(info));
+      view.append(generateView(videoInfo));
     })["catch"](function (err) {
-      console.log(err); // If an error occurred, tell the user about it.
-
-      cont.innerHTML = dict('errors/error400', err.error);
-    })["finally"](function () {
-      cont.appendChild(makeFooter());
+      // If an error occurred, tell the user about it.
+      console.log(err);
+      view.innerHTML = dict('errors/error400', err);
     });
-  } // Once we've recieved the vid data, generate the view
+  }
 
+  function setLoading(cont) {
+    var loading = document.createElement('p');
+    loading.classList.add('loading');
+    loading.innerHTML = choose(yt.dict.loadingBlobs);
+    cont.prepend(loading);
+  }
 
-  function genView(info) {
-    // Wrapper div yay
-    var view = document.createElement('div');
-    view.classList.add('view');
-    view.classList.add('mobile-edge-flush'); // Cherry pick the properties we want from info and mod them here.
-    // And expose the vid data into the global cuz why not
+  function generateView(videoInfo) {
+    var ytContainer = document.createElement('div');
+    ytContainer.classList.add('yt'); // Create the view
 
-    var vid = cherryPickProperties(info);
-    window.vid = vid;
-    window.info = info;
-    console.log('Video info (window.info):', info);
-    console.log('Cherry-picked video properties (window.vid):', vid); // Overwrite the video title (neccesary if the vid's a music vid)
+    ytContainer.append(generateYtDownloadForm(videoInfo), generateYtEmbed(videoInfo), generateYtRelated(videoInfo), generateYtMeta(videoInfo), generateYtDescription(videoInfo));
+    var cherry = cherryPickProperties(videoInfo);
+    window.cherry = cherry;
+    document.title = "".concat(cherry.title, " \u2022 yt-for-me");
+    return ytContainer;
+  }
 
-    document.title = "".concat(vid.title, " \u2022 yt-for-me"); // Construct the view
+  function generateYtDownloadForm(videoInfo) {
+    var details = document.createElement('details');
+    details.classList.add('yt-dl');
+    details.innerHTML = "\n            <summary>".concat(dict('dlForm/label'), "</summary>\n            <p>").concat(dict('dlForm/howTo'), "</p>\n            <div class=\"yt-dl__mini-form\">\n                <label id=\"label-audio\" class=\"flex\">\n                    <span class=\"yt-dl__txt-label\">").concat(dict('dlForm/audioLabel'), ":</span>\n                    <select class=\"yt-select yt-select--compact flex-stretch\" name=\"audioItag\" disabled>\n                        <option value=\"none\">").concat(dict('dlForm/kind/noAudio'), "</option>\n                    </select>\n                </label>\n                <label id=\"label-video\" class=\"flex\">\n                    <span class=\"yt-dl__txt-label\">").concat(dict('dlForm/videoLabel'), ":</span>\n                    <select class=\"yt-select yt-select--compact flex-stretch\" name=\"videoItag\" disabled>\n                        <option value=\"none\">").concat(dict('dlForm/kind/noVideo'), "</option>\n                    </select>\n                </label>\n                <label id=\"label-out\" class=\"flex\">\n                    <span class=\"yt-dl__txt-label\">").concat(dict('dlForm/outLabel'), ":</span>\n                    <select class=\"yt-select yt-select--compact flex-stretch\" name=\"outFormat\" disabled>\n                        <optgroup label=\"").concat(dict('dlForm/kind/onlyAudio'), "\">\n                            <option value=\"mp3\">mp3</option>\n                            <option value=\"acc\">acc</option>\n                            <option value=\"ogg\">ogg</option>\n                        </optgroup>\n                        <optgroup label=\"").concat(dict('dlForm/kind/vidOrBoth'), "\">\n                            <option value=\"mp4\" selected>mp4</option>\n                            <option value=\"webm\">webm</option>\n                            <option value=\"mpeg\">mpeg</option>\n                            <option value=\"mov\">mov</option>\n                        </optgroup>\n                    </select>\n                </label>\n                <div>\n                    <button class=\"yt-btn\" disabled>").concat(dict('dlForm/dlLabel'), "</button>\n                </div>\n            </div>\n        "); // Split the formats into video and audio
 
-    view.innerHTML = "\n            <div class=\"yt\">\n                <details class=\"yt-dl\">\n                    <summary>".concat(dict('dlForm/label'), "</summary>\n                    <p>").concat(dict('dlForm/howTo'), "</p>\n                    <div class=\"yt-dl__mini-form\">\n                        <label id=\"label-audio\" class=\"flex\">\n                            <span class=\"yt-dl__txt-label\">").concat(dict('dlForm/audioLabel'), ":</span>\n                            <select class=\"yt-select yt-select--compact flex-stretch\" name=\"audioItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noAudio'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-video\" class=\"flex\">\n                            <span class=\"yt-dl__txt-label\">").concat(dict('dlForm/videoLabel'), ":</span>\n                            <select class=\"yt-select yt-select--compact flex-stretch\" name=\"videoItag\" disabled>\n                                <option value=\"none\">").concat(dict('dlForm/kind/noVideo'), "</option>\n                            </select>\n                        </label>\n                        <label id=\"label-out\" class=\"flex\">\n                            <span class=\"yt-dl__txt-label\">").concat(dict('dlForm/outLabel'), ":</span>\n                            <select class=\"yt-select yt-select--compact flex-stretch\" name=\"outFormat\" disabled>\n                                <optgroup label=\"").concat(dict('dlForm/kind/onlyAudio'), "\">\n                                    <option value=\"mp3\">mp3</option>\n                                    <option value=\"acc\">acc</option>\n                                    <option value=\"ogg\">ogg</option>\n                                </optgroup>\n                                <optgroup label=\"").concat(dict('dlForm/kind/vidOrBoth'), "\">\n                                    <option value=\"mp4\" selected>mp4</option>\n                                    <option value=\"webm\">webm</option>\n                                    <option value=\"mpeg\">mpeg</option>\n                                    <option value=\"mov\">mov</option>\n                                </optgroup>\n                            </select>\n                        </label>\n                        <div>\n                            <button class=\"yt-btn\" disabled>").concat(dict('dlForm/dlLabel'), "</button>\n                        </div>\n                    </div>\n                </details>\n                <div class=\"yt-embed\">\n                    <iframe\n                        id=\"yt-iframe\"\n                        title=\"").concat(dict('view/iframeA11yLabel', info.title), "\" frameborder=\"0\"\n                        src=\"https://www.youtube.com/embed/").concat(info.video_id, "?autoplay=1&hl=").concat(yt.dict.lang, "\"\n                        allow=\"accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture\"\n                        allowfullscreen\n                    ></iframe>\n                </div>\n                <div class=\"yt-related\"></div>\n                <div class=\"yt-meta\">\n                    <span class=\"yt-meta__title\">").concat(vid.title, "</span>\n                </div>\n                <div class=\"yt-desc\">").concat(vid.description, "</div>\n            </div>\n        "); // Split the formats into video and audio
-
-    var filteredFormats = info.formats // Exclude live formats
+    var filteredFormats = videoInfo.formats // Exclude live formats
     .filter(function (f) {
       return !f.live;
     }) // Exclude mixed formats
@@ -117,13 +111,23 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     }),
         _filteredFormats$part2 = _slicedToArray(_filteredFormats$part, 2),
         vids = _filteredFormats$part2[0],
-        auds = _filteredFormats$part2[1]; // Generate a table with the filtered formats
+        auds = _filteredFormats$part2[1]; // Add the format options in the dropdowns
+    // TODO: These functions are very similar, refactor and reduce to a single function
 
 
-    view.querySelector('details').appendChild(createTable(filteredFormats)); // Add the format options in the dropdowns
-
+    vids.forEach(function (format) {
+      var select = details.querySelector('#label-video select');
+      var option = document.createElement('option');
+      var out = '';
+      out += "".concat(format.itag, ": ");
+      out += dict('dlForm/qualityHelper', format.quality, format.qualityLabel);
+      out += " ".concat(format.container, " (").concat(format.codecs, ")");
+      option.innerText = out;
+      option.value = format.itag;
+      select.append(option);
+    });
     auds.forEach(function (format) {
-      var select = view.querySelector('#label-audio select');
+      var select = details.querySelector('#label-audio select');
       var option = document.createElement('option');
       var out = '';
       out += "".concat(format.itag, ": ");
@@ -132,23 +136,12 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       out += 'kHz';
       option.innerText = out;
       option.value = format.itag;
-      select.appendChild(option);
-    });
-    vids.forEach(function (format) {
-      var select = view.querySelector('#label-video select');
-      var option = document.createElement('option');
-      var out = '';
-      out += "".concat(format.itag, ": ");
-      out += dict('dlForm/qualityHelper', format.quality, format.qualityLabel);
-      out += " ".concat(format.container, " (").concat(format.codecs, ")");
-      option.innerText = out;
-      option.value = format.itag;
-      select.appendChild(option);
+      select.append(option);
     }); // Add the event listener to the dl button
 
-    view.querySelector('.yt-dl__mini-form button').addEventListener('click', function (e) {
+    details.querySelector('button').addEventListener('click', function (e) {
       this.disabled = true;
-      var selects = Array.from(view.querySelectorAll('.yt-dl__mini-form select'));
+      var selects = Array.from(details.querySelectorAll('select'));
       var out = {
         id: info.video_id
       };
@@ -159,52 +152,50 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       });
       document.querySelector('xyz-sheet').open();
       addToDownloadQueue(out);
-    }); // Enable the dropdowns and the dl button
+    }); // Enable the dropdowns and download button
 
-    view.querySelectorAll('.yt-dl__mini-form select, .yt-dl__mini-form button').forEach(function (el) {
-      el.removeAttribute('disabled');
-    }) // Add the video meta information
-    ;
+    details.querySelectorAll('select, button').forEach(function (el) {
+      return el.removeAttribute('disabled');
+    }); // Add the table
 
-    (function () {
-      var meta = view.querySelector('.yt-meta');
-      vid.views && meta.appendChild(createMetaTag(dict('view/metaViews', vid.views)));
-      info.published && meta.appendChild(createMetaTag(dict('view/metaPublished', info.published)));
-      vid.author && meta.appendChild(createMetaTag(vid.album ? dict('view/metaAlbumAuthor', vid.album, vid.author) : dict('view/metaAuthor', vid.author)));
-      vid.license && meta.appendChild(createMetaTag(dict('view/metaLicense', vid.license)));
-    })(); // If the video falls under a certain category (i.e. "Music")
-    // add a class to add neat little icon next to the video title
+    details.append(createTable(filteredFormats));
+    return details;
+  }
 
+  function generateYtEmbed(videoInfo) {
+    var div = document.createElement('div');
+    var iframe = document.createElement('iframe');
+    div.classList.add('yt-embed');
+    iframe.id = 'yt-iframe';
+    iframe.setAttribute('title', dict('view/iframeA11yLabel', videoInfo.title));
+    iframe.setAttribute('frameborder', 0);
+    iframe.src = "https://www.youtube.com/embed/".concat(videoInfo.video_id, "?autoplay=1&hl=").concat(yt.dict.lang);
+    iframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture');
+    iframe.setAttribute('allowfullscreen', true); // Expose the iframe so we can manipulate it later
 
-    guard(info.player_response, function (pr) {
-      return guard(pr.microformat, function (mf) {
-        return guard(mf.playerMicroformatRenderer, function (pmr) {
-          return guard(pmr.category, function (category) {
-            return view.querySelector('.yt-meta').dataset.category = category;
-          });
-        });
-      });
-    }); // Add the related video cards
+    yt.iframe = iframe;
+    div.append(iframe);
+    return div;
+  }
 
-    var rel = view.querySelector('.yt-related') // Add the "Return to search" card first
-    ;
+  function generateYtRelated(videoInfo) {
+    var related = document.createElement('div');
+    related.classList.add('yt-related'); // First, add the "Return to search" button
 
-    (function (card) {
-      card.href = '/search' + location.search;
-      card.classList.add('yt-card');
-      card.classList.add('yt-card--back-to-search');
-      card.setAttribute('aria-label', dict('view/searchLabel'));
-      card.innerHTML = "\n            <div class=\"yt-card--back-to-search__container\">\n                <i class=\"material-icons\">search</i>\n                <span class=\"yt-card-label\">".concat(dict('view/searchLabel'), "</span>\n            </div>\n        ");
+    var backToSearch = document.createElement('a');
+    backToSearch.href = '/search' + location.search;
+    backToSearch.classList.add('yt-card', 'yt-card--back-to-search');
+    backToSearch.setAttribute('aria-label', dict('view/searchLabel'));
+    backToSearch.innerHTML = "\n            <div class=\"yt-card--back-to-search__container\">\n                <i class=\"material-icons\">search</i>\n                <span class=\"yt-card-label\">".concat(dict('view/searchLabel'), "</span>\n            </div>\n        ");
+    backToSearch.style.setProperty('--anim-stagger', 0);
 
-      card.onclick = function (e) {
-        return cont.classList.add('anim--fuck-this-shit-im-out');
-      };
+    backToSearch.onclick = function (e) {
+      e.preventDefault();
+      yt.views.searchReplace();
+    };
 
-      rel.appendChild(card);
-    })(document.createElement('a')) // Add the other related video cards
-    ;
-
-    info.related_videos.forEach(function (vid, i) {
+    related.append(backToSearch);
+    videoInfo.related_videos.forEach(function (vid, i) {
       if (vid.list) return;
       var card = document.createElement('a');
       card.href = '/' + vid.id + location.search;
@@ -212,64 +203,120 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
       card.onclick = function (e) {
         e.preventDefault();
-        var id = this.dataset.id;
-        cont.classList.add('anim--fuck-this-shit-im-out');
-        bootstrapView(id);
+        yt.views.videoReplace(this.dataset.id);
       };
 
       card.classList.add('yt-card');
       card.style.setProperty('--card-bg-image', "url(https://img.youtube.com/vi/".concat(vid.id, "/mqdefault.jpg)"));
+      card.style.setProperty('--anim-stagger', i + 1);
       card.innerHTML = "\n                <div class=\"yt-card--info\">\n                    <strong>".concat(vid.title, "</strong>\n                    <span>").concat(dict('view/cardAuthor', vid.author), "</span>\n                    <span>").concat(dict('view/cardViews', vid.short_view_count_text), "</span>\n                </div>\n            ");
-      rel.appendChild(card);
+      related.append(card);
     });
-    view.querySelectorAll('[data-timestamp]').forEach(function (el) {
-      el.onclick = function (e) {
-        var iframe = document.getElementById('yt-iframe');
-        if (!iframe) return;
-        e.preventDefault();
-        var url = new URL(iframe.src); // For every more significant group, multiply by powers of 60
-
-        var timestamp = el.dataset.timestamp.split(':').reverse().map(function (a, i) {
-          return +a * Math.pow(60, i);
-        }).reduce(function (acc, v) {
-          return acc + v;
-        }); // Set the timestamp and replace the src
-
-        url.searchParams.set('start', timestamp);
-        iframe.src = url; // Scroll to the iframe so the user sees it
-
-        scrollTo(0, 0);
-      };
-    });
-    return view;
+    return related;
   }
 
-  function cherryPickProperties(info) {
-    var vid = {};
-    var ps = info.player_response || {}; // Check media title (song title),
+  function generateYtMeta(videoInfo) {
+    var meta = document.createElement('div');
+    var cherry = cherryPickProperties(videoInfo);
+    meta.classList.add('yt-meta'); // Set the title
+
+    meta.innerHTML = "<span class=\"yt-meta__title\">".concat(cherry.title, "</span>") // Set the other info properties
+    ;
+    cherry.views != null && meta.append(_createMetaTag(dict('view/metaViews', cherry.views)));
+    videoInfo.published && meta.append(_createMetaTag(dict('view/metaPublished', videoInfo.published)));
+    cherry.author && meta.append(_createMetaTag(cherry.albumUrl ? dict('view/metaAlbumAuthor', cherry.albumUrl, cherry.artistUrl) : dict('view/metaAuthor', cherry.author)));
+    cherry.license && meta.append(_createMetaTag(dict('view/metaLicense', cherry.license))); // Set the category as a data-* property
+
+    guard(safeLookup(info.player_response, ['microformat', 'playerMicroformatRenderer', 'category']), function (category) {
+      return meta.dataset.category = category;
+    });
+    meta.querySelectorAll('a').forEach(function (el) {
+      el.onclick = function (event) {
+        return document.getElementById('view').classList.add('anim--fuck-this-shit-im-out');
+      };
+    });
+    return meta;
+  }
+
+  function generateYtDescription(videoInfo) {
+    var cherry = cherryPickProperties(videoInfo);
+    var desc = document.createElement('div');
+    desc.classList.add("yt-desc");
+
+    if (!cherry.description) {
+      desc.innerHTML = "<em class=\"yt-meta__data\">".concat(dict('view/noDesc'), "</em>");
+      return desc;
+    }
+
+    desc.innerHTML = cherry.description;
+    desc.querySelectorAll('a[data-timestamp]').forEach(function (el) {
+      el.onclick = function (event) {
+        var frame = yt.iframe || document.getElementById('yt-iframe');
+        if (!frame) return;
+        event.preventDefault();
+        var url = new URL(frame.src);
+        url.searchParams.set('start', +el.dataset.timestamp);
+        frame.src = url; // Scroll to the iframe so the user sees it
+
+        window.scrollTo && window.scrollTo(0, 0);
+      };
+    });
+    return desc;
+  }
+
+  function createTable(filteredFormats) {
+    var div = document.createElement('div');
+    var table = document.createElement('table');
+    div.classList.add('yt-table');
+    table.innerHTML = "\n            <thead>\n                <tr>\n                    <th>".concat(dict('dlForm/tableHeaders/kind'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/itag'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/container'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/codecs'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/quality'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/sampR8'), "</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        ");
+    var tbody = table.querySelector('tbody');
+    filteredFormats.forEach(function (f) {
+      var tr = document.createElement('tr');
+      tr.innerHTML = "\n                <th>".concat(dict("dlForm/kind/".concat(f.audioQuality ? 'audio' : 'video')), "</th>\n                <th>").concat(f.itag, "</th>\n                <th>").concat(f.container, "</th>\n                <th>").concat(f.codecs, "</th>\n                <th>").concat(f.audioQuality ? dict('dlForm/qualityHelper', f.audioQuality, f.audioBitrate) : dict('dlForm/qualityHelper', f.quality, f.qualityLabel), "</th>\n                <th>").concat(f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : '', "</th>\n            ");
+      tbody.append(tr);
+    });
+    div.append(table);
+    return div;
+  }
+
+  function cherryPickProperties() {
+    var videoInfo = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : {};
+    var vid = {}; // Check media title (song title),
     // then check the microformat title (translated?)
     // then default the basic property
 
-    vid.title = info.media && info.media[yt.dict.propertyLookup.song] || guard(ps.microformat, function (mf) {
-      return guard(mf.playerMicroformatRenderer, function (r) {
-        return guard(r.title, function (t) {
-          return t.simpleText;
-        });
-      });
-    }) || info.title;
-    vid.id = info.video_id;
-    vid.author = info.media && info.media[yt.dict.propertyLookup.artist] || info.author.name;
-    vid.album = info.media && info.media[yt.dict.propertyLookup.album];
-    vid.license = info.media && info.media[yt.dict.propertyLookup.license];
-    vid.isExplicit = !!(info.media && info.media[yt.dict.propertyLookup.explicit]);
-    vid.description = guard(ps.microformat, function (mf) {
-      return guard(mf.playerMicroformatRenderer, function (pmr) {
-        return guard(pmr.description, function (desc) {
-          return desc.simpleText;
-        });
-      });
-    }) || info.description;
-    vid.description = vid.description.replace(yt.REGEX_URL, function (match) {
+    vid.title = safeLookup(videoInfo.media, [yt.dict.propertyLookup.song]) || safeLookup(videoInfo, ['player_response', 'microformat', 'playerMicroformatRenderer', 'title', 'simpleText']) || videoInfo.title;
+    vid.id = videoInfo.video_id;
+    vid.author = safeLookup(videoInfo.media, [yt.dict.propertyLookup.artist]) || safeLookup(videoInfo.player_response, ['videoDetails', 'author']) || safeLookup(videoInfo.author, ['name']);
+    vid.album = safeLookup(videoInfo, ['media', yt.dict.propertyLookup.album]);
+
+    if (vid.album && vid.author) {
+      var params = new URLSearchParams(location.search);
+      params.set('q', "".concat(vid.author, " ").concat(vid.album));
+      vid.albumUrl = "<a href=\"/search?".concat(params, "\">").concat(vid.album, "</a>");
+      params.set('q', vid.author);
+      vid.artistUrl = "<a href=\"/search?".concat(params, "\">").concat(vid.author, "</a>");
+    }
+
+    vid.license = safeLookup(videoInfo.media, [yt.dict.propertyLookup.license]);
+    vid.isExplicit = !!safeLookup(videoInfo.media, [yt.dict.propertyLookup.explicit]);
+    vid.description = safeLookup(videoInfo.player_response, ['microformat', 'playerMicroformatRenderer', 'description', 'simpleText']) || videoInfo.description;
+    vid.description = _parseDescription(vid.description);
+    vid.views = +safeLookup(videoInfo.player_response, ['videoDetails', 'viewCount']);
+    vid.ldRatio = NaN;
+
+    if (safeLookup(videoInfo.player_response, ['videoDetails', 'allowRatings'])) {
+      vid.ldRatio = guard(safeLookup(videoInfo.player_response, ['videoDetails', 'averageRating']), function (ld) {
+        return ld / 5 * 100;
+      }) || NaN;
+    }
+
+    return vid;
+  }
+
+  function _parseDescription() {
+    var desc = arguments.length > 0 && arguments[0] !== undefined ? arguments[0] : '';
+    return desc.replace(yt.regexps.url, function (match) {
       var url;
 
       try {
@@ -283,39 +330,27 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
       var out = "<a href=\"".concat(match, "\" target=\"_blank\">");
       out += url.hostname.replace(/^www\./, '');
-      out += url.pathname !== '/' && url.pathname || '';
+      out += decodeURI(url.pathname !== '/' && url.pathname || '');
       out += '</a>';
       return out;
-    }).replace(yt.REGEX_HASHTAG, function (match) {
+    }).replace(yt.regexps.hashtag, function (match) {
       var q = new URLSearchParams(location.search);
       q.set('q', match);
       return "<a href=\"/search?".concat(q, "\">").concat(match, "</a>");
-    }).replace(yt.REGEX_TIMESTAMP, function (match) {
-      return "<a href=\"/".concat(vid.id, "\" data-timestamp=\"").concat(match, "\">").concat(match, "</a>");
+    }).replace(yt.regexps.timestamp, function (match) {
+      var seconds = match.split(':').reverse().map(function (a, i) {
+        return +a * Math.pow(60, i);
+      }).reduce(function (acc, v) {
+        return acc + v;
+      }, 0);
+      return "<a href=\"#\" data-timestamp=\"".concat(seconds, "\">").concat(match, "</a>");
     });
-    vid.views = +ps.videoDetails.viewCount;
-    return vid;
   }
 
-  function createMetaTag(innerHTML) {
+  function _createMetaTag(innerHTML) {
     var span = document.createElement('span');
     span.classList.add('yt-meta__data');
     span.innerHTML = innerHTML;
     return span;
-  }
-
-  function createTable(filteredFormats) {
-    var div = document.createElement('div');
-    var table = document.createElement('table');
-    div.classList.add('yt-table');
-    table.innerHTML = "\n            <thead>\n                <tr>\n                    <th>".concat(dict('dlForm/tableHeaders/kind'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/itag'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/container'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/codecs'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/quality'), "</th>\n                    <th>").concat(dict('dlForm/tableHeaders/sampR8'), "</th>\n                </tr>\n            </thead>\n            <tbody></tbody>\n        ");
-    var tbody = table.querySelector('tbody');
-    filteredFormats.forEach(function (f) {
-      var tr = document.createElement('tr');
-      tr.innerHTML = "\n                <th>".concat(dict("dlForm/kind/".concat(f.audioQuality ? 'audio' : 'video')), "</th>\n                <th>").concat(f.itag, "</th>\n                <th>").concat(f.container, "</th>\n                <th>").concat(f.codecs, "</th>\n                <th>").concat(f.audioQuality ? dict('dlForm/qualityHelper', f.audioQuality, f.audioBitrate) : dict('dlForm/qualityHelper', f.quality, f.qualityLabel), "</th>\n                <th>").concat(f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : '', "</th>\n            ");
-      tbody.appendChild(tr);
-    });
-    div.appendChild(table);
-    return div;
   }
 })();

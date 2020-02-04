@@ -6,158 +6,137 @@
         throw Error("yt isn't defined, idk what to do.")
     }
 
-    // Some locals for later
-    //================================================================================
-    //================================================================================
-    //================================================================================
-    const cont = document.querySelector('div.container')
+    // Expose the videoInit function to the yt object
+    yt.views = yt.views || {}
+    yt.views.videoInit = videoInit
 
-    // Listen for back/forward events
-    // Bootstrap view handles view loading
-    window.addEventListener('popstate', function (e) {
-        console.log(e)
-        // Anim the card out
-        guard(
-            document.querySelector('.view'),
-            view => cont.classList.add('anim--fuck-this-shit-im-out')
-        )
-        // If there's a state, load it.
-        // Otherwise, the user was probably trying to go back.
-        if (e.state && (e.state !== (window.info && window.info.video_id))) {
-            bootstrapView(e.state)
-        } else {
-            history.back()
-        }
-    })
+    yt.views.videoReplace = function (id, wasReplaced) {
+        document.getElementById('view').classList.add('anim--fuck-this-shit-im-out')
+        yt.views.videoInit(id, wasReplaced)
+    }
 
-    // On page load, load the video the URL is currently at
-    bootstrapView(
-        guard(yt.REGEX_CAPTURE_ID.exec(location.pathname.slice(1) || ''),
-            match => match[0]
-        ) || ''
-    )
+    function videoInit(videoId, wasReplaced) {
+        const searchParams = yt.cleanUpSearchParams()
+        const view = document.getElementById('view')
 
-    // Get video information required for loading the view
-    function bootstrapView(id) {
-        // Assert that the id is a YouTube id
-        if (!yt.REGEX_CAPTURE_ID.test(id)) {
+        if (!yt.regexps.id.test(videoId)) {
             // ID didn't match regex, something's wrong.
-            cont.innerHTML = dict('errors/idAssertionFailed', id)
-            cont.appendChild(makeFooter())
+            view.innerHTML = dict('errors/idAssertionFailed', {errCode: 0x32})
             return Promise.reject()
         }
-        history.pushState(id, id, '/' + id + location.search)
 
-        // Display a loading blob (blob = message before UI loads)
+        searchParams.set('v', videoId)
+
+        if (!wasReplaced) {
+            history.pushState({
+                qi: yt.qi(),
+                view: 'video',
+                params: searchParams.toString(),
+                id: videoId
+            }, videoId, `/video?${searchParams}`)
+        }
+    
+        setLoading(view)
+
+        // Get video data
+        return fetch(`/api/info?id=${videoId}&lang=${yt.dict.lang}`, {
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => res.json())
+        .then(yt.rejectOnFetchErr)
+        .then(videoInfo => {
+            // Set the document title to the video title
+            // (may be overwritten later)
+            document.title = `${videoInfo.title} • yt-for-me`
+
+            window.info = videoInfo
+
+            // Prepare the content div for population
+            view.innerHTML = ''
+            view.classList.remove('anim--fuck-this-shit-im-out', 'search--empty-state')
+
+            // Populate the div
+            view.append(generateView(videoInfo))
+        })
+        .catch(err => {
+            // If an error occurred, tell the user about it.
+            console.log(err)
+            view.innerHTML = dict('errors/error400', err)
+        })
+    }
+
+    function setLoading(cont) {
         const loading = document.createElement('p')
         loading.classList.add('loading')
         loading.innerHTML = choose(yt.dict.loadingBlobs)
         cont.prepend(loading)
-
-        // Get video data
-        return fetch(`/api/info?id=${id}&lang=${yt.dict.lang}`, {
-            headers: {
-                'Accept': 'application/json'
-            }
-        }).then(res => res.json())
-        .then(json => json.error ? Promise.reject(json) : json)
-        .then(function (info) {
-            // Set the document title to the video title
-            // (may be overwritten later)
-            document.title = `${info.title} • yt-for-me`
-
-            // Prepare the content div for population
-            cont.innerHTML = ''
-            cont.classList.remove('anim--fuck-this-shit-im-out')
-
-            // Populate the div
-            cont.appendChild(genView(info))
-        })
-        .catch(function (err) {
-            console.log(err)
-            // If an error occurred, tell the user about it.
-            cont.innerHTML = dict('errors/error400', err.error)
-        }).finally(function () {
-            cont.appendChild(makeFooter())
-        })
     }
 
-    // Once we've recieved the vid data, generate the view
-    function genView(info) {
-        // Wrapper div yay
-        const view = document.createElement('div')
-        view.classList.add('view')
-        view.classList.add('mobile-edge-flush')
+    function generateView(videoInfo) {
+        const ytContainer = document.createElement('div')
 
-        // Cherry pick the properties we want from info and mod them here.
-        // And expose the vid data into the global cuz why not
-        const vid = cherryPickProperties(info)
-        window.vid = vid
-        window.info = info
-        console.log('Video info (window.info):', info)
-        console.log('Cherry-picked video properties (window.vid):', vid)
+        ytContainer.classList.add('yt')
 
-        // Overwrite the video title (neccesary if the vid's a music vid)
-        document.title = `${vid.title} • yt-for-me`
-    
-        // Construct the view
-        view.innerHTML = `
-            <div class="yt">
-                <details class="yt-dl">
-                    <summary>${dict('dlForm/label')}</summary>
-                    <p>${dict('dlForm/howTo')}</p>
-                    <div class="yt-dl__mini-form">
-                        <label id="label-audio" class="flex">
-                            <span class="yt-dl__txt-label">${dict('dlForm/audioLabel')}:</span>
-                            <select class="yt-select yt-select--compact flex-stretch" name="audioItag" disabled>
-                                <option value="none">${dict('dlForm/kind/noAudio')}</option>
-                            </select>
-                        </label>
-                        <label id="label-video" class="flex">
-                            <span class="yt-dl__txt-label">${dict('dlForm/videoLabel')}:</span>
-                            <select class="yt-select yt-select--compact flex-stretch" name="videoItag" disabled>
-                                <option value="none">${dict('dlForm/kind/noVideo')}</option>
-                            </select>
-                        </label>
-                        <label id="label-out" class="flex">
-                            <span class="yt-dl__txt-label">${dict('dlForm/outLabel')}:</span>
-                            <select class="yt-select yt-select--compact flex-stretch" name="outFormat" disabled>
-                                <optgroup label="${dict('dlForm/kind/onlyAudio')}">
-                                    <option value="mp3">mp3</option>
-                                    <option value="acc">acc</option>
-                                    <option value="ogg">ogg</option>
-                                </optgroup>
-                                <optgroup label="${dict('dlForm/kind/vidOrBoth')}">
-                                    <option value="mp4" selected>mp4</option>
-                                    <option value="webm">webm</option>
-                                    <option value="mpeg">mpeg</option>
-                                    <option value="mov">mov</option>
-                                </optgroup>
-                            </select>
-                        </label>
-                        <div>
-                            <button class="yt-btn" disabled>${dict('dlForm/dlLabel')}</button>
-                        </div>
-                    </div>
-                </details>
-                <div class="yt-embed">
-                    <iframe
-                        id="yt-iframe"
-                        title="${dict('view/iframeA11yLabel', info.title)}" frameborder="0"
-                        src="https://www.youtube.com/embed/${info.video_id}?autoplay=1&hl=${yt.dict.lang}"
-                        allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture"
-                        allowfullscreen
-                    ></iframe>
+        // Create the view
+        ytContainer.append(
+            generateYtDownloadForm(videoInfo),
+            generateYtEmbed(videoInfo),
+            generateYtRelated(videoInfo),
+            generateYtMeta(videoInfo),
+            generateYtDescription(videoInfo)
+        )
+
+        const cherry = cherryPickProperties(videoInfo)
+        window.cherry = cherry
+
+        document.title = `${cherry.title} • yt-for-me`
+        return ytContainer
+    }
+
+    function generateYtDownloadForm(videoInfo) {
+        const details = document.createElement('details')
+
+        details.classList.add('yt-dl')
+        details.innerHTML = `
+            <summary>${dict('dlForm/label')}</summary>
+            <p>${dict('dlForm/howTo')}</p>
+            <div class="yt-dl__mini-form">
+                <label id="label-audio" class="flex">
+                    <span class="yt-dl__txt-label">${dict('dlForm/audioLabel')}:</span>
+                    <select class="yt-select yt-select--compact flex-stretch" name="audioItag" disabled>
+                        <option value="none">${dict('dlForm/kind/noAudio')}</option>
+                    </select>
+                </label>
+                <label id="label-video" class="flex">
+                    <span class="yt-dl__txt-label">${dict('dlForm/videoLabel')}:</span>
+                    <select class="yt-select yt-select--compact flex-stretch" name="videoItag" disabled>
+                        <option value="none">${dict('dlForm/kind/noVideo')}</option>
+                    </select>
+                </label>
+                <label id="label-out" class="flex">
+                    <span class="yt-dl__txt-label">${dict('dlForm/outLabel')}:</span>
+                    <select class="yt-select yt-select--compact flex-stretch" name="outFormat" disabled>
+                        <optgroup label="${dict('dlForm/kind/onlyAudio')}">
+                            <option value="mp3">mp3</option>
+                            <option value="acc">acc</option>
+                            <option value="ogg">ogg</option>
+                        </optgroup>
+                        <optgroup label="${dict('dlForm/kind/vidOrBoth')}">
+                            <option value="mp4" selected>mp4</option>
+                            <option value="webm">webm</option>
+                            <option value="mpeg">mpeg</option>
+                            <option value="mov">mov</option>
+                        </optgroup>
+                    </select>
+                </label>
+                <div>
+                    <button class="yt-btn" disabled>${dict('dlForm/dlLabel')}</button>
                 </div>
-                <div class="yt-related"></div>
-                <div class="yt-meta">
-                    <span class="yt-meta__title">${vid.title}</span>
-                </div>
-                <div class="yt-desc">${vid.description}</div>
             </div>
         `
+
         // Split the formats into video and audio
-        const filteredFormats = info.formats
+        const filteredFormats = videoInfo.formats
             // Exclude live formats
             .filter(f => !f.live)
             // Exclude mixed formats
@@ -168,12 +147,23 @@
         // Split them into video and audio arrays
         const [vids, auds] = filteredFormats.partition(f => !f.audioQuality)
 
-        // Generate a table with the filtered formats
-        view.querySelector('details').appendChild(createTable(filteredFormats))
-            
         // Add the format options in the dropdowns
+        // TODO: These functions are very similar, refactor and reduce to a single function
+        vids.forEach(format => {
+            const select = details.querySelector('#label-video select')
+            const option = document.createElement('option')
+            let out = ''
+            out += `${format.itag}: `
+            out += dict('dlForm/qualityHelper', format.quality, format.qualityLabel)
+            out += ` ${format.container} (${format.codecs})`
+
+            option.innerText = out
+            option.value = format.itag
+
+            select.append(option)
+        })
         auds.forEach(format => {
-            const select = view.querySelector('#label-audio select')
+            const select = details.querySelector('#label-audio select')
             const option = document.createElement('option')
             let out = ''
             out += `${format.itag}: `
@@ -184,28 +174,14 @@
             option.innerText = out
             option.value = format.itag
 
-            select.appendChild(option)
+            select.append(option)
         })
-        vids.forEach(format => {
-            const select = view.querySelector('#label-video select')
-            const option = document.createElement('option')
-            let out = ''
-            out += `${format.itag}: `
-            out += dict('dlForm/qualityHelper', format.quality, format.qualityLabel)
-            out += ` ${format.container} (${format.codecs})`
-
-            option.innerText = out
-            option.value = format.itag
-
-            select.appendChild(option)
-        })
-            
 
         // Add the event listener to the dl button
-        view.querySelector('.yt-dl__mini-form button')
+        details.querySelector('button')
             .addEventListener('click', function (e) {
                 this.disabled = true
-                const selects = Array.from(view.querySelectorAll('.yt-dl__mini-form select'))
+                const selects = Array.from(details.querySelectorAll('select'))
                 const out = {
                     id: info.video_id
                 }
@@ -218,81 +194,72 @@
                 addToDownloadQueue(out)
             })
 
-        // Enable the dropdowns and the dl button
-        view.querySelectorAll('.yt-dl__mini-form select, .yt-dl__mini-form button').forEach(el => {
-            el.removeAttribute('disabled')
-        })
+        // Enable the dropdowns and download button
+        details.querySelectorAll('select, button')
+               .forEach(el => el.removeAttribute('disabled'))
         
-        // Add the video meta information
-        ;(() => {
-            const meta = view.querySelector('.yt-meta')
+        // Add the table
+        details.append(createTable(filteredFormats))
+        
+        return details
+    }
 
-            vid.views && meta.appendChild(createMetaTag(
-                dict('view/metaViews', vid.views)
-            ))
-            info.published && meta.appendChild(createMetaTag(
-                dict('view/metaPublished', info.published)
-            ))
-            vid.author && meta.appendChild(createMetaTag(
-                vid.album ?
-                    dict('view/metaAlbumAuthor', vid.album, vid.author) :
-                    dict('view/metaAuthor', vid.author)
-            ))
-            vid.license && meta.appendChild(createMetaTag(
-                dict('view/metaLicense', vid.license)
-            ))
-        })();
+    function generateYtEmbed(videoInfo) {
+        const div = document.createElement('div')
+        const iframe = document.createElement('iframe')
+        div.classList.add('yt-embed')
 
-        // If the video falls under a certain category (i.e. "Music")
-        // add a class to add neat little icon next to the video title
-        guard(
-            info.player_response,
-            pr => guard(
-                pr.microformat,
-                mf => guard(
-                    mf.playerMicroformatRenderer,
-                    pmr => guard(
-                        pmr.category,
-                        category => view.querySelector('.yt-meta').dataset.category = category
-                    )
-                )
-            )
-        )
-    
-        // Add the related video cards
-        const rel = view.querySelector('.yt-related')
+        iframe.id = 'yt-iframe'
+        iframe.setAttribute('title', dict('view/iframeA11yLabel', videoInfo.title))
+        iframe.setAttribute('frameborder', 0)
+        iframe.src = `https://www.youtube.com/embed/${videoInfo.video_id}?autoplay=1&hl=${yt.dict.lang}`
+        iframe.setAttribute('allow', 'accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture')
+        iframe.setAttribute('allowfullscreen', true)
 
-        // Add the "Return to search" card first
-        ;((card) => {
-            card.href = '/search' + location.search
-            card.classList.add('yt-card')
-            card.classList.add('yt-card--back-to-search')
-            card.setAttribute('aria-label', dict('view/searchLabel'))
-            card.innerHTML = `
+        // Expose the iframe so we can manipulate it later
+        yt.iframe = iframe
+
+        div.append(iframe)
+
+        return div
+    }
+
+    function generateYtRelated(videoInfo) {
+        const related = document.createElement('div')
+        related.classList.add('yt-related')
+
+        // First, add the "Return to search" button
+        const backToSearch = document.createElement('a')
+
+        backToSearch.href = '/search' + location.search
+        backToSearch.classList.add('yt-card', 'yt-card--back-to-search')
+        backToSearch.setAttribute('aria-label', dict('view/searchLabel'))
+        backToSearch.innerHTML = `
             <div class="yt-card--back-to-search__container">
                 <i class="material-icons">search</i>
                 <span class="yt-card-label">${dict('view/searchLabel')}</span>
             </div>
         `
-            card.onclick = e => cont.classList.add('anim--fuck-this-shit-im-out')
+        backToSearch.style.setProperty('--anim-stagger', 0)
+        backToSearch.onclick = e => {
+            e.preventDefault()
+            yt.views.searchReplace()
+        }
 
-            rel.appendChild(card)
-        })(document.createElement('a'))
-            
-        // Add the other related video cards
-        ;info.related_videos.forEach(function (vid, i) {
+        related.append(backToSearch)
+
+        videoInfo.related_videos.forEach((vid, i) => {
             if (vid.list) return
-            let card = document.createElement('a')
+            const card = document.createElement('a')
             card.href = '/' + vid.id + location.search
             card.dataset.id = vid.id
             card.onclick = function (e) {
                 e.preventDefault()
-                const id = this.dataset.id
-                cont.classList.add('anim--fuck-this-shit-im-out')
-                bootstrapView(id)
+                yt.views.videoReplace(this.dataset.id)
             }
             card.classList.add('yt-card')
             card.style.setProperty('--card-bg-image', `url(https://img.youtube.com/vi/${vid.id}/mqdefault.jpg)`)
+            card.style.setProperty('--anim-stagger', i + 1)
             card.innerHTML = `
                 <div class="yt-card--info">
                     <strong>${vid.title}</strong>
@@ -300,112 +267,71 @@
                     <span>${dict('view/cardViews', vid.short_view_count_text)}</span>
                 </div>
             `
-            rel.appendChild(card)
+            related.append(card)
         })
 
-        view.querySelectorAll('[data-timestamp]').forEach(el => {
-            el.onclick = function (e) {
-                const iframe = document.getElementById('yt-iframe')
-                if (!iframe) return
-                e.preventDefault()
-                const url = new URL(iframe.src)
-                
-                // For every more significant group, multiply by powers of 60
-                const timestamp = el.dataset.timestamp
-                    .split(':')
-                    .reverse()
-                    .map((a, i) => +a * (60 ** i))
-                    .reduce((acc, v) => acc + v)
-                
-                // Set the timestamp and replace the src
-                url.searchParams.set('start', timestamp)
-                iframe.src = url
-
-                // Scroll to the iframe so the user sees it
-                scrollTo(0, 0)
-            }
-        })
-
-
-        return view
+        return related
     }
 
-    function cherryPickProperties(info) {
-        const vid = {}
-        const ps = info.player_response || {}
+    function generateYtMeta(videoInfo) {
+        const meta = document.createElement('div')
+        const cherry = cherryPickProperties(videoInfo)
+        meta.classList.add('yt-meta')
 
-        // Check media title (song title),
-        // then check the microformat title (translated?)
-        // then default the basic property
-        vid.title = (info.media && info.media[
-            yt.dict.propertyLookup.song
-        ]) || guard(ps.microformat, mf => guard(
-            mf.playerMicroformatRenderer,
-            r => guard(r.title, t => t.simpleText)
-        )) || info.title
+        // Set the title
+        meta.innerHTML = `<span class="yt-meta__title">${cherry.title}</span>`
 
-        vid.id = info.video_id
+        // Set the other info properties
+        ;(cherry.views != null) && meta.append(_createMetaTag(dict('view/metaViews', cherry.views)))
+        videoInfo.published && meta.append(_createMetaTag(dict('view/metaPublished', videoInfo.published)))
+        cherry.author && meta.append(_createMetaTag(
+            cherry.albumUrl ?
+                dict('view/metaAlbumAuthor', cherry.albumUrl, cherry.artistUrl) :
+                dict('view/metaAuthor', cherry.author)
+        ))
+        cherry.license && meta.append(_createMetaTag(dict('view/metaLicense', cherry.license)))
 
-        vid.author = (info.media && info.media[
-            yt.dict.propertyLookup.artist
-        ]) || info.author.name
+        // Set the category as a data-* property
+        guard(safeLookup(info.player_response, [
+            'microformat',
+            'playerMicroformatRenderer',
+            'category',
+        ]), category => meta.dataset.category = category)
 
-        vid.album = info.media && info.media[
-            yt.dict.propertyLookup.album
-        ]
+        meta.querySelectorAll('a').forEach(el => {
+            el.onclick = event => document.getElementById('view').classList.add('anim--fuck-this-shit-im-out')
+        })
 
-        vid.license = info.media && info.media[
-            yt.dict.propertyLookup.license
-        ]
+        return meta
+    }
 
-        vid.isExplicit = !!(info.media && info.media[
-            yt.dict.propertyLookup.explicit
-        ])
+    function generateYtDescription(videoInfo) {
+        const cherry = cherryPickProperties(videoInfo)
+        const desc = document.createElement('div')
+        desc.classList.add("yt-desc")
 
-        vid.description = guard(ps.microformat, mf => guard(
-            mf.playerMicroformatRenderer,
-            pmr => guard(
-                pmr.description, desc => desc.simpleText
-            )
-        )) || info.description
+        if (!cherry.description) {
+            desc.innerHTML = `<em class="yt-meta__data">${dict('view/noDesc')}</em>`
+            return desc
+        }
+        desc.innerHTML = cherry.description
 
-        vid.description =
-            vid.description
-            .replace(yt.REGEX_URL, match => {
-                let url
-                try {
-                    url = new URL(match)
-                } catch (e) {
-                    // If the regex matched but it couldn't be parsed by URL,
-                    // give up parsing
-                    console.log(`Warning: Matched “${match}” but marked as invalid by URL constructor`)
-                    return match
+        desc.querySelectorAll('a[data-timestamp]')
+            .forEach(el => {
+                el.onclick = function (event) {
+                    const frame = yt.iframe || document.getElementById('yt-iframe')
+                    if (!frame) return
+                    event.preventDefault()
+                    const url = new URL(frame.src)
+                    url.searchParams.set('start', +el.dataset.timestamp)
+                    frame.src = url
+
+                    // Scroll to the iframe so the user sees it
+                    window.scrollTo && window.scrollTo(0, 0)
                 }
-                let out = `<a href="${match}" target="_blank">`
-                out += url.hostname.replace(/^www\./, '')
-                out += (url.pathname !== '/' && url.pathname) || ''
-                out += '</a>'
-                return out
-            })
-            .replace(yt.REGEX_HASHTAG, match => {
-                const q = new URLSearchParams(location.search)
-                q.set('q', match)
-                return `<a href="/search?${q}">${match}</a>`
-            })
-            .replace(yt.REGEX_TIMESTAMP, match => {
-                return `<a href="/${vid.id}" data-timestamp="${match}">${match}</a>`
             })
 
-        vid.views = +ps.videoDetails.viewCount
-
-        return vid
-    }
-
-    function createMetaTag(innerHTML) {
-        const span = document.createElement('span')
-        span.classList.add('yt-meta__data')
-        span.innerHTML = innerHTML
-        return span
+        return desc
     }
 
     function createTable(filteredFormats) {
@@ -445,9 +371,104 @@
                 }</th>
                 <th>${f.audioSampleRate ? Math.round(+f.audioSampleRate / 100) / 10 + 'kHz' : ''}</th>
             `
-            tbody.appendChild(tr)
-        });
-        div.appendChild(table)
+            tbody.append(tr)
+        })
+        div.append(table)
         return div
+    } 
+
+    function cherryPickProperties(videoInfo = {}) {
+        const vid = {}
+
+        // Check media title (song title),
+        // then check the microformat title (translated?)
+        // then default the basic property
+        vid.title =
+            safeLookup(videoInfo.media, [yt.dict.propertyLookup.song]) ||
+            safeLookup(videoInfo, ['player_response', 'microformat', 'playerMicroformatRenderer', 'title', 'simpleText']) ||
+            videoInfo.title
+        ;
+
+        vid.id = videoInfo.video_id
+
+        vid.author =
+            safeLookup(videoInfo.media, [yt.dict.propertyLookup.artist]) ||
+            safeLookup(videoInfo.player_response, ['videoDetails', 'author']) ||
+            safeLookup(videoInfo.author, ['name'])
+        ;
+        
+        vid.album = safeLookup(videoInfo, ['media', yt.dict.propertyLookup.album])
+
+        if (vid.album && vid.author) {
+            const params = new URLSearchParams(location.search)
+            params.set('q', `${vid.author} ${vid.album}`)
+            vid.albumUrl = `<a href="/search?${params}">${vid.album}</a>`
+            params.set('q', vid.author)
+            vid.artistUrl = `<a href="/search?${params}">${vid.author}</a>`
+        }
+
+        vid.license = safeLookup(videoInfo.media, [yt.dict.propertyLookup.license])
+
+        vid.isExplicit = !!safeLookup(videoInfo.media, [yt.dict.propertyLookup.explicit])
+
+        vid.description = safeLookup(videoInfo.player_response, [
+            'microformat', 'playerMicroformatRenderer', 'description', 'simpleText'
+        ]) || videoInfo.description
+
+        vid.description = _parseDescription(vid.description)
+
+        vid.views = +safeLookup(videoInfo.player_response, ['videoDetails', 'viewCount'])
+
+        vid.ldRatio = NaN
+
+        if (safeLookup(videoInfo.player_response, ['videoDetails', 'allowRatings'])) {
+            vid.ldRatio = guard(
+                safeLookup(videoInfo.player_response, ['videoDetails', 'averageRating']),
+                ld => ld / 5 * 100
+            ) || NaN
+        }
+
+
+
+        return vid
     }
+
+    function _parseDescription(desc = '') {
+        return desc.replace(yt.regexps.url, match => {
+            let url
+            try {
+                url = new URL(match)
+            } catch (e) {
+                // If the regex matched but it couldn't be parsed by URL,
+                // give up parsing
+                console.log(`Warning: Matched “${match}” but marked as invalid by URL constructor`)
+                return match
+            }
+            let out = `<a href="${match}" target="_blank">`
+            out += url.hostname.replace(/^www\./, '')
+            out += decodeURI((url.pathname !== '/' && url.pathname) || '')
+            out += '</a>'
+            return out
+        })
+        .replace(yt.regexps.hashtag, match => {
+            const q = new URLSearchParams(location.search)
+            q.set('q', match)
+            return `<a href="/search?${q}">${match}</a>`
+        })
+        .replace(yt.regexps.timestamp, match => {
+            const seconds = match.split(':')
+                .reverse()
+                .map((a, i) => +a * (60 ** i))
+                .reduce((acc, v) => acc + v, 0)
+            return `<a href="#" data-timestamp="${seconds}">${match}</a>`
+        })
+    }
+
+    function _createMetaTag(innerHTML) {
+        const span = document.createElement('span')
+        span.classList.add('yt-meta__data')
+        span.innerHTML = innerHTML
+        return span
+    }
+
 })()
