@@ -1,9 +1,18 @@
 "use strict";
 
+function _toConsumableArray(arr) { return _arrayWithoutHoles(arr) || _iterableToArray(arr) || _nonIterableSpread(); }
+
+function _nonIterableSpread() { throw new TypeError("Invalid attempt to spread non-iterable instance"); }
+
+function _iterableToArray(iter) { if (Symbol.iterator in Object(iter) || Object.prototype.toString.call(iter) === "[object Arguments]") return Array.from(iter); }
+
+function _arrayWithoutHoles(arr) { if (Array.isArray(arr)) { for (var i = 0, arr2 = new Array(arr.length); i < arr.length; i++) { arr2[i] = arr[i]; } return arr2; } }
+
 // Assert the global yt is defined
 if (!yt) {
   throw Error("yt isn't defined, idk what to do.");
-}
+} // Declare accepted languages
+
 
 yt.langs = [{
   name: "English (US)",
@@ -13,14 +22,78 @@ yt.langs = [{
   name: "Español (Estados Unidos)",
   code: "es",
   full: "es-US"
-}]; // Matches a YouTube video id
+}]; // Declare regexes
 
 yt.regexps = {
   id: /([a-zA-Z\d\-_]{11})/,
   url: /(http(s)?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b([-a-zA-Z0-9@:%_\+.~#?&//=]*)/g,
   hashtag: /\B(#[a-zA-Z0-9\-_.]+)\b(?!#)/g,
   timestamp: /\b(\d+(?::\d{2})(?::\d{2})?)\b/g
+}; // Random videos (songs) in case the user doesn't know what to play
+
+yt.squiggleBooty = [// https://www.youtube.com/playlist?list=PLIm1cC9KsS_0AvI3B30PikS7A2k_puXTr
+'j3LHAt7jp68', // Android52 - Future Groove Product - Future Groove
+'63EAaS19NI4', // Android52 - Future Groove Product - Melt City
+'CGIOSIk5IJk', // Android52 - Future Groove Product - Everyday
+'94IN5JsR6Lw', // Android52 - Ultra Groove Product - Fall in Love
+'ckRSn2zWt_o', // Anri - Shyness Boy
+'wYY-XUXHofs', // Breakbot - Why (con Ruckazoid)
+'69oj-ISqaOA', // Cowboy Bebop - Jupiter Jazz
+'irbdwyEjF3M', // D-Real - Candy
+'8Vpzha5PzLg', // D-Real - It's Your Day
+'yfHzzXlSTxI', // D-Real - Just Bought a Dragon Maid
+'IRW3R_ATpKo', // Dark Cat - Crazy Milk
+'0RmNN1AFsbA', // Dark Cat - Maple Adventure
+'doRlssu0SEo', // Diveo - Daddy Like (Remix)
+'mUqgaE99L94', // Diveo - Hoverboard
+'Y0-92nVrK7c', // Diveo - Say Goodbye
+'H-AfGh8gmiQ', // Garoad - Every Day is Night
+'OJQyTnD74gk', // Gorillaz - Doncamatic (con Daley)
+'6gIXh0-e2R0', // Gyari - Moonlight Stage 10-year cover
+'xLQWFNZ-wIc', // Hopeful Romantics - Why Wont You Reach For Me
+'QNxfYXYIyLc', // Jamie Paige - Apple Shampoo (Remix)
+'znphh0fB-gA', // Jamie Paige - Swag pt. 2: Gumi Megpoid Gets Real (with Ricco Harver)
+'Wmlp3hiD6QA', // Jamie Paige - Anew, Again - Adelaide Delays
+'kDHWcv0whNY', // Jamie Paige - Autumn Every Day - To Atlantis
+'TfnRTifSWh0', // Madeon - Good Faith - Be Fine
+'D_EnyikMsEU', // Madeon - Good Faith - No Fear No More
+'omab6QAwBCA', // Marc Rebillet - Funk Emergency
+'LzWjdtTN3VM', // Marsy - Je N'ai Plus Confiance En Toi
+'ZwqOJlZ9Pc4', // Moe Shop - Tokyo Night Flyght (Remix)
+'VgUR1pna5cY', // Moe Shop - Natural
+'l2nbIwDj7iY', // Moe Shop - Moshi Moshi - Crosstalk
+'fkuynpzI3bI', // Moe Shop - Pure Pure - Say
+'FFyZzEJuymg', // Naz3nt - Love Taste (Remix)
+'yD2FSwTy2lw', // No one's around to help
+'dQw4w9WgXcQ' // get rickrolled lol
+]; // The order of query parameters
+
+yt.queryParamsOrder = ['v', 'q', 'lang'];
+
+yt.sortQueryParams = function (a, b) {
+  // Get the index based on the order
+  a = yt.queryParamsOrder.indexOf(a[0]);
+  b = yt.queryParamsOrder.indexOf(b[0]); // The unknown query parameters should be last no matter what
+
+  a = a === -1 ? Infinity : a;
+  b = b === -1 ? Infinity : b;
+  return a - b;
+}; // Cleans up the search paramaters and puts them in the order above.
+// Unknown parameters get placed at the end. Returns URLSearchParams
+
+
+yt.cleanUpSearchParams = function () {
+  var s = new URLSearchParams('');
+
+  _toConsumableArray(new URLSearchParams(location.search).entries()).filter(function (pair) {
+    return !!pair[1];
+  }).sort(yt.sortQueryParams).forEach(function (el) {
+    return s.set(el[0], el[1]);
+  });
+
+  return s;
 }; // Helper function for handling errors in fetch events
+
 
 yt.rejectOnFetchErr = function (r) {
   return r.error || r.errCode ? Promise.reject(r) : Promise.resolve(r);

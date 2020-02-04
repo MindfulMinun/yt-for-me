@@ -59,6 +59,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       don8: "Si te gust\xF3 esta p\xE1gina, <a href=\"https://ko-fi.com/mindfulminun\" target=\"_blank\">c\xF3mprame&nbsp;un&nbsp;caf\xE9.</a>",
       source: "\n                <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">C\xF3digo&nbsp;fuente</a>\n            ",
       nojs: "\n                <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.\n                Sin este, se te ser\xE1 casi imposible navegar el internet.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favor y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
+      thanks: "\n                Algunos iconos fueron creados por\n                <a href=\"https://www.flaticon.com/authors/freepik\" title=\"Freepik\">Freepik</a>\n                mediante <a href=\"https://www.flaticon.com/\" title=\"Flaticon\">flaticon.com</a>.\n            ",
       home: "Inicio",
       vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
       searchPre: "O busca lo que tu quieras:",
@@ -89,9 +90,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       loading: function loading(search) {
         return "Buscando resultados para \u201C".concat(search, "\u201D");
       },
-      emptySearch: function emptySearch() {
-        return "Parece que no buscaste nada. \xBFAcaso no quieres ver nada? Si te cambias de opini\xF3n, puedes intentarlo de nuevo con la barra de arriba.";
-      },
+      emptySearchTitle: "Busca algo",
+      emptySearch: "Puedes usar la barra de arriba para buscar videos, <a data-random>como este.</a>",
       by: function by(author) {
         return "por ".concat(author);
       },
@@ -110,7 +110,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       relTime: function relTime(ago) {
         var arr = ago.split(/\s/);
         return "Hace ".concat(arr[0] === '1' ? 'un' : arr[0], " ").concat(relativeTimes[arr[1]]);
-      }
+      },
+      loadMore: "Cargar más resultados"
     },
     view: {
       iframeA11yLabel: function iframeA11yLabel(title) {

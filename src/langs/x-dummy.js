@@ -19,18 +19,12 @@
         welcome: {
             hi: "welcome/hi",
             nojs: "welcome/nojs",
+            thanks: "welcome/thanks",
+            home: "welcome/home",
             vid: "welcome/vid",
             searchPre: "welcome/searchPre",
             searchPlaceholder: "welcome/searchPlaceholder",
             languageA11yLabel: "welcome/languageA11yLabel"
-        },
-        search: {
-            resultsFor: () => () => `search/resultsFor`,
-            emptySearch: () => `search/emptySearch`,
-            count: () => () => `search/count`,
-            by: () => () => `search/by`,
-            views: () => () => `search/views`,
-            relTime: () => () => `search/relTime`
         },
         propertyLookup: {
             // These can't be left out.

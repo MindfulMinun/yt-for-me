@@ -25,7 +25,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
   };
 
   function videoInit(videoId, wasReplaced) {
-    var searchParams = new URLSearchParams(location.search);
+    var searchParams = yt.cleanUpSearchParams();
     var view = document.getElementById('view');
 
     if (!yt.regexps.id.test(videoId)) {
@@ -62,7 +62,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
       window.info = videoInfo; // Prepare the content div for population
 
       view.innerHTML = '';
-      view.classList.remove('anim--fuck-this-shit-im-out'); // Populate the div
+      view.classList.remove('anim--fuck-this-shit-im-out', 'search--empty-state'); // Populate the div
 
       view.append(generateView(videoInfo));
     })["catch"](function (err) {
@@ -330,7 +330,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
 
       var out = "<a href=\"".concat(match, "\" target=\"_blank\">");
       out += url.hostname.replace(/^www\./, '');
-      out += url.pathname !== '/' && url.pathname || '';
+      out += decodeURI(url.pathname !== '/' && url.pathname || '');
       out += '</a>';
       return out;
     }).replace(yt.regexps.hashtag, function (match) {

@@ -14,7 +14,7 @@
 
     // Called when a search request is made.
     function searchInit(query, wasReplaced) {
-        const searchParams = new URLSearchParams(location.search)
+        const searchParams = yt.cleanUpSearchParams()
         if (query) {
             searchParams.set('q', query)
         }
@@ -35,12 +35,22 @@
 
         const view = document.getElementById('view')
 
+
         if (!query || query.trim() === '') {
             view.classList.add('search--empty-state')
             view.classList.remove('anim--fuck-this-shit-im-out')
             view.innerHTML = `
+                <img src="/icons/lupa.svg" alt="" class="search__lupa fade-in-out">
+                <h3 class="search-empty__title fade-in-out">${dict('search/emptySearchTitle')}</h3>
                 <p class="fade-in-out">${dict('search/emptySearch')}</p>
             `
+
+            view.querySelectorAll('[data-random]')
+                .forEach(el => {
+                    el.dataset.id = choose(yt.squiggleBooty)
+                    el.href = el.dataset.id + location.search
+                    el.onclick = event => yt.views.videoReplace(el.dataset.id)
+                })
             return
         }
         
@@ -63,7 +73,7 @@
 
                 const searchUl = document.createElement('ul')
                 searchUl.classList.add('a11y-list', 'search-list', 'mobile-edge-flush')
-                view.classList.remove('anim--fuck-this-shit-im-out')
+                view.classList.remove('anim--fuck-this-shit-im-out', 'search--empty-state')
 
                 _appendToUl(results, searchUl)
                 view.appendChild(searchUl) 
@@ -73,7 +83,7 @@
                 wrapper.classList.add('center')
                 const loadMore = document.createElement('button')
                 loadMore.classList.add('yt-btn', 'yt-btn--large')
-                loadMore.innerText = 'Cargar más resultados'
+                loadMore.innerText = dict('search/loadMore')
 
                 loadMore.addEventListener('click', event => {
                     // Disable the button while the search is being performed

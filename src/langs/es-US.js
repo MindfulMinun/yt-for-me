@@ -91,6 +91,11 @@
 
                 <p>Hazte un favor y <a href="https://www.enable-javascript.com/es/">habilítalo</a>.</p>
             `,
+            thanks: `
+                Algunos iconos fueron creados por
+                <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
+                mediante <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a>.
+            `,
             home: "Inicio",
             vid: "¿Te puedo sugerir <a href=\"/VgUR1pna5cY\" data-random>un video</a>?",
             searchPre: "O busca lo que tu quieras:",
@@ -149,7 +154,8 @@
             searchTitle: query => `${query} • yt-for-me`,
             resultsFor: query => `Resultados para la búsqueda “${query}”`,
             loading: search => `Buscando resultados para “${search}”`,
-            emptySearch: () => `Parece que no buscaste nada. ¿Acaso no quieres ver nada? Si te cambias de opinión, puedes intentarlo de nuevo con la barra de arriba.`,
+            emptySearchTitle: `Busca algo`,
+            emptySearch: `Puedes usar la barra de arriba para buscar videos, <a data-random>como este.</a>`,
             by: author => `por ${author}`,
             views: views => {
                 switch (views) {
@@ -164,7 +170,8 @@
             relTime: ago => {
                 let arr = ago.split(/\s/)
                 return `Hace ${arr[0] === '1' ? 'un' : arr[0]} ${relativeTimes[arr[1]]}`
-            }
+            },
+            loadMore: "Cargar más resultados"
         },
         view: {
             iframeA11yLabel: title => `${title} - Reproductor de YouTube`,

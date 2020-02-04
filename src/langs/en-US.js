@@ -60,6 +60,11 @@
                 
                 <p>Do yourself a favor and <a href="https://www.enable-javascript.com/">enable it</a>.</p>
             `,
+            thanks: `
+                Some icons were created by
+                <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
+                via <a href="https://www.flaticon.com/" title="Flaticon">flaticon.com</a>.
+            `,
             home: "Home",
             vid: "Might I suggest <a href=\"/VgUR1pna5cY\" data-random>a video</a>?",
             searchPre: "Or search for your own:",
@@ -115,7 +120,8 @@
             searchTitle: query => `${query} • yt-for-me`,
             resultsFor: (query) => `Results for “${query}”`,
             loading: (search) => `Searching for “${search}”...`,
-            emptySearch: () => `It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.`,
+            emptySearchTitle: `Search for something`,
+            emptySearch: `Use the search bar above to search for videos. <a data-random>Like this one.</a>`,
             by: author => `by ${author}`,
             views: views => {
                 switch (views) {
@@ -127,7 +133,8 @@
                         return `${numFormatter.format(views)} views`
                 }
             },
-            relTime: ago => ago // It's in English by default
+            relTime: ago => ago, // It's in English by default
+            loadMore: "Load more results"
         },
         view: {
             dlSummaryLabel: () => "Download",

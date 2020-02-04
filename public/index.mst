@@ -55,6 +55,10 @@
                         placeholder="{{ d.welcome.searchPlaceholder }}">
                 </form>
 
+                <hr>
+
+                <p>{{{ d.welcome.thanks }}}</p>
+
             </div>
         </main>
     </body>

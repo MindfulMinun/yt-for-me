@@ -16,7 +16,7 @@
     }
 
     function videoInit(videoId, wasReplaced) {
-        const searchParams = new URLSearchParams(location.search)
+        const searchParams = yt.cleanUpSearchParams()
         const view = document.getElementById('view')
 
         if (!yt.regexps.id.test(videoId)) {
@@ -53,7 +53,7 @@
 
             // Prepare the content div for population
             view.innerHTML = ''
-            view.classList.remove('anim--fuck-this-shit-im-out')
+            view.classList.remove('anim--fuck-this-shit-im-out', 'search--empty-state')
 
             // Populate the div
             view.append(generateView(videoInfo))
@@ -446,7 +446,7 @@
             }
             let out = `<a href="${match}" target="_blank">`
             out += url.hostname.replace(/^www\./, '')
-            out += (url.pathname !== '/' && url.pathname) || ''
+            out += decodeURI((url.pathname !== '/' && url.pathname) || '')
             out += '</a>'
             return out
         })

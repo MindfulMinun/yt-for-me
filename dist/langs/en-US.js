@@ -30,6 +30,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       don8: "If you like this website, <a href=\"https://ko-fi.com/mindfulminun\" target=\"_blank\">buy&nbsp;me&nbsp;a&nbsp;coffee.</a>",
       source: "\n                <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">Source</a>\n            ",
       nojs: "\n                <p>Unfortunately, this really cool website needs you to enable <em>JavaScript</em>.\n                The internet won't stop asking you to enable it if you don't.\n                But most importantly, you won't be able to watch YouTube videos. :(</p>\n                \n                <p>Do yourself a favor and <a href=\"https://www.enable-javascript.com/\">enable it</a>.</p>\n            ",
+      thanks: "\n                Some icons were created by\n                <a href=\"https://www.flaticon.com/authors/freepik\" title=\"Freepik\">Freepik</a>\n                via <a href=\"https://www.flaticon.com/\" title=\"Flaticon\">flaticon.com</a>.\n            ",
       home: "Home",
       vid: "Might I suggest <a href=\"/VgUR1pna5cY\" data-random>a video</a>?",
       searchPre: "Or search for your own:",
@@ -60,9 +61,8 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       loading: function loading(search) {
         return "Searching for \u201C".concat(search, "\u201D...");
       },
-      emptySearch: function emptySearch() {
-        return "It seems like you didn't search for anything. Are you not in the mood to watch anything? You can try again with the search bar above.";
-      },
+      emptySearchTitle: "Search for something",
+      emptySearch: "Use the search bar above to search for videos. <a data-random>Like this one.</a>",
       by: function by(author) {
         return "by ".concat(author);
       },
@@ -80,8 +80,9 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       },
       relTime: function relTime(ago) {
         return ago;
-      } // It's in English by default
-
+      },
+      // It's in English by default
+      loadMore: "Load more results"
     },
     view: {
       dlSummaryLabel: function dlSummaryLabel() {

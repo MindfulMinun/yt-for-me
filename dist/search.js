@@ -14,7 +14,7 @@
 
 
   function searchInit(query, wasReplaced) {
-    var searchParams = new URLSearchParams(location.search);
+    var searchParams = yt.cleanUpSearchParams();
 
     if (query) {
       searchParams.set('q', query);
@@ -37,7 +37,15 @@
     if (!query || query.trim() === '') {
       view.classList.add('search--empty-state');
       view.classList.remove('anim--fuck-this-shit-im-out');
-      view.innerHTML = "\n                <p class=\"fade-in-out\">".concat(dict('search/emptySearch'), "</p>\n            ");
+      view.innerHTML = "\n                <img src=\"/icons/lupa.svg\" alt=\"\" class=\"search__lupa fade-in-out\">\n                <h3 class=\"search-empty__title fade-in-out\">".concat(dict('search/emptySearchTitle'), "</h3>\n                <p class=\"fade-in-out\">").concat(dict('search/emptySearch'), "</p>\n            ");
+      view.querySelectorAll('[data-random]').forEach(function (el) {
+        el.dataset.id = choose(yt.squiggleBooty);
+        el.href = el.dataset.id + location.search;
+
+        el.onclick = function (event) {
+          return yt.views.videoReplace(el.dataset.id);
+        };
+      });
       return;
     }
 
@@ -49,7 +57,7 @@
       view.innerHTML = "\n                    <p class=\"fade-out\">".concat(dict('search/resultsFor', results.query), "</p>\n                ");
       var searchUl = document.createElement('ul');
       searchUl.classList.add('a11y-list', 'search-list', 'mobile-edge-flush');
-      view.classList.remove('anim--fuck-this-shit-im-out');
+      view.classList.remove('anim--fuck-this-shit-im-out', 'search--empty-state');
 
       _appendToUl(results, searchUl);
 
@@ -58,7 +66,7 @@
       wrapper.classList.add('center');
       var loadMore = document.createElement('button');
       loadMore.classList.add('yt-btn', 'yt-btn--large');
-      loadMore.innerText = 'Cargar más resultados';
+      loadMore.innerText = dict('search/loadMore');
       loadMore.addEventListener('click', function (event) {
         // Disable the button while the search is being performed
         loadMore.setAttribute('disabled', 'disabled'); // Load the results and disable the button again

@@ -57,6 +57,6 @@
     <script>
         document.documentElement.classList.remove("no-js");
         yt.views.searchInit()
-        document.querySelector('main').appendChild(makeFooter());
+        document.body.appendChild(makeFooter());
     </script>
 </html>

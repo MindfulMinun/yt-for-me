@@ -22,40 +22,12 @@
     welcome: {
       hi: "welcome/hi",
       nojs: "welcome/nojs",
+      thanks: "welcome/thanks",
+      home: "welcome/home",
       vid: "welcome/vid",
       searchPre: "welcome/searchPre",
       searchPlaceholder: "welcome/searchPlaceholder",
       languageA11yLabel: "welcome/languageA11yLabel"
-    },
-    search: {
-      resultsFor: function resultsFor() {
-        return function () {
-          return "search/resultsFor";
-        };
-      },
-      emptySearch: function emptySearch() {
-        return "search/emptySearch";
-      },
-      count: function count() {
-        return function () {
-          return "search/count";
-        };
-      },
-      by: function by() {
-        return function () {
-          return "search/by";
-        };
-      },
-      views: function views() {
-        return function () {
-          return "search/views";
-        };
-      },
-      relTime: function relTime() {
-        return function () {
-          return "search/relTime";
-        };
-      }
     },
     propertyLookup: {
       // These can't be left out.
