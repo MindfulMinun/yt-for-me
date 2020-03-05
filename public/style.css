@@ -568,7 +568,7 @@ ol.a11y-list {
     .yt {
         border-left: 0;
         border-right: 0;
-        margin-bottom: 0;
+        margin: 0 -1em -1em -1em;
     }
     .yt-dl__lists ul:nth-of-type(3) {
         flex: 1 100%;

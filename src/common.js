@@ -119,7 +119,7 @@ ready(function () {
             <span class="flex-stretch">${dict('dlSheet/labelDefault')}</span>
             <i class="material-icons">menu</i>
         </div>
-        <div id="slot-content" data-empty="true">
+        <div slot="content" id="slot-content" data-empty="true">
             <p>${dict('dlSheet/idle')}</p>
         </div>
     `
