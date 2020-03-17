@@ -320,7 +320,7 @@ function guard(what, mod) {
 /**
  * Retrieves a deep property without throwing if not deep enough
  * @param {*} what The object
- * @param {string[]} props The properties to look up
+ * @param {(string|number)[]} props The properties to look up
  * @returns {*} The retrieved property or undefined if not found
  * @author MindfulMinun
  * @since 2020-01-20

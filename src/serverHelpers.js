@@ -40,3 +40,24 @@ export function choose(arr) {
 export function guard(what, mod) {
     return (typeof what !== 'undefined' && what !== null) ? mod(what) : void 0
 }
+
+
+/**
+ * Retrieves a deep property without throwing if not deep enough
+ * @param {*} what The object
+ * @param {(string|number)[]} props The properties to look up
+ * @returns {*} The retrieved property or undefined if not found
+ * @author MindfulMinun
+ * @since 2020-01-20
+ * @version 1.0.0
+ */
+export function safeLookup(what, props) {
+    let currentProp;
+
+    while (props.length) {
+        if (what == null) { return void 0 }
+        currentProp = props.shift()
+        what = what[currentProp]
+    }
+    return what
+}

@@ -78,7 +78,7 @@ app.use(function (err, req, res, next) {
         if (req.accepts('json')) {
             res.send({
                 error: 'Not found',
-                errCode: 0x0012
+                errCode: 0x0102
             })
             return
         }
@@ -90,7 +90,7 @@ app.use(function (err, req, res, next) {
     res.status(500).send({
         // error: 'Server error',
         error: err.toString(),
-        errCode: 0x0050
+        errCode: 0x0501
     })
 })
 

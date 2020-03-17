@@ -21,7 +21,7 @@
 
         if (!yt.regexps.id.test(videoId)) {
             // ID didn't match regex, something's wrong.
-            view.innerHTML = dict('errors/idAssertionFailed', {errCode: 0x32})
+            view.innerHTML = dict('errors/idAssertionFailed', {errCode: 0x0302})
             return Promise.reject()
         }
 

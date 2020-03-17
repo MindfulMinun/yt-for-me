@@ -127,7 +127,7 @@ ready(function () {
   var sheet = document.createElement('xyz-sheet');
   var form = document.querySelector('form'); // sheet.setAttribute('peek', true)
 
-  sheet.innerHTML = "\n        <div slot=\"peek\" class=\"flex\">\n            <span class=\"flex-stretch\">".concat(dict('dlSheet/labelDefault'), "</span>\n            <i class=\"material-icons\">menu</i>\n        </div>\n        <div id=\"slot-content\" data-empty=\"true\">\n            <p>").concat(dict('dlSheet/idle'), "</p>\n        </div>\n    ");
+  sheet.innerHTML = "\n        <div slot=\"peek\" class=\"flex\">\n            <span class=\"flex-stretch\">".concat(dict('dlSheet/labelDefault'), "</span>\n            <i class=\"material-icons\">menu</i>\n        </div>\n        <div slot=\"content\" id=\"slot-content\" data-empty=\"true\">\n            <p>").concat(dict('dlSheet/idle'), "</p>\n        </div>\n    ");
   var lang = new URLSearchParams(location.search).get('lang');
 
   if (lang) {
@@ -318,7 +318,7 @@ function guard(what, mod) {
 /**
  * Retrieves a deep property without throwing if not deep enough
  * @param {*} what The object
- * @param {string[]} props The properties to look up
+ * @param {(string|number)[]} props The properties to look up
  * @returns {*} The retrieved property or undefined if not found
  * @author MindfulMinun
  * @since 2020-01-20

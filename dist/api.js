@@ -19,6 +19,8 @@ var _ytSearch = _interopRequireDefault(require("yt-search"));
 
 var _v = _interopRequireDefault(require("uuid/v4"));
 
+var _nodeFetch = _interopRequireDefault(require("node-fetch"));
+
 var _serverHelpers = require("./serverHelpers");
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
@@ -49,7 +51,8 @@ api.use(function (req, res, next) {
 
   if (!origin) {
     res.send({
-      errCode: 0x0013
+      // X-request
+      errCode: 0x0103
     });
     return;
   }
@@ -67,7 +70,47 @@ api.get('/info', function (req, res) {
   })["catch"](function (err) {
     res.status(500).json({
       error: err.toString().replace(/^Error(?::\s*)/, ''),
-      errCode: 0x0041
+      errCode: 0x0401
+    });
+  });
+});
+api.get('/infoPlaylist', function (req, res) {
+  // PLIm1cC9KsS_0AvI3B30PikS7A2k_puXTr
+  var lang = (0, _serverHelpers.getLang)(req);
+  var playlistId = req.query.id;
+  var opts = ['list=' + playlistId, 'hl=' + lang, 'bpctr=' + Math.ceil(Date.now() / 1000)].join('&');
+  (0, _nodeFetch["default"])('https://www.youtube.com/playlist?' + opts, {
+    'headers': {
+      'Accept-Language': lang,
+      // Setting the UA to a modern browser tricks yt into using the newer framework
+      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
+    }
+  }).then(function (res) {
+    return res.text();
+  }).then(function (txt) {
+    var payload = txt.split('window["ytInitialData"] = ').pop().split(';\n')[0];
+    var json = JSON.parse(payload); // Shit's deep:
+    // json.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].playlistVideoListRenderer.contents
+
+    var playlistElements = (0, _serverHelpers.guard)((0, _serverHelpers.safeLookup)(json, ['contents', 'twoColumnBrowseResultsRenderer', 'tabs', 0, 'tabRenderer', 'content', 'sectionListRenderer', 'contents', 0, 'itemSectionRenderer', 'contents', 0, 'playlistVideoListRenderer', 'contents']), function (playlistElements) {
+      return playlistElements.map(function (vid) {
+        return vid.playlistVideoRenderer;
+      });
+    });
+
+    if (!playlistElements) {
+      return res.json({
+        errCode: 0x0402
+      });
+    }
+
+    res.json({
+      elements: playlistElements,
+      info: json.microformat.microformatDataRenderer
+    });
+  })["catch"](function (err) {
+    return res.json({
+      errCode: 0x0402
     });
   });
 });
@@ -94,7 +137,7 @@ api.get('/search', function (req, res) {
     if (err) {
       res.status(500).json({
         error: err.toString().replace(/^Error(?::\s*)/, ''),
-        errCode: 0x0041
+        errCode: 0x0401
       });
       return;
     }
@@ -115,8 +158,8 @@ api.get('/search', function (req, res) {
 });
 api.get('/progress/:id', function (req, res) {
   res.json(progresses[req.params.id] || {
-    // error: 'Progress ID invalid',
-    errCode: 0x001a
+    // Progress ID invalid
+    errCode: 0x0410
   });
 });
 api.post('/download', function (req, res) {
@@ -126,7 +169,7 @@ api.post('/download', function (req, res) {
     res.status(400);
     res.json({
       // error: "YouTube video ID invalid",
-      errCode: 0x0044
+      errCode: 0x0302
     });
     return;
   }
@@ -140,7 +183,7 @@ api.post('/download', function (req, res) {
     res.status(400);
     res.json({
       // error: "Invalid output format",
-      errCode: 0x0045
+      errCode: 0x0411
     });
     return;
   } // Use this uuid to identify downloads.
@@ -154,7 +197,7 @@ api.post('/download', function (req, res) {
     res.status(400);
     res.json({
       // error: "No input files provided",
-      errCode: 0x0046
+      errCode: 0x0412
     });
     return;
   }
@@ -173,7 +216,7 @@ api.post('/download', function (req, res) {
 
     if (err) {
       // progresses[dlid].error = "Format download error"
-      progresses[dlid].errCode = 0x0048;
+      progresses[dlid].errCode = 0x0504;
       return;
     }
 
@@ -197,7 +240,7 @@ api.post('/download', function (req, res) {
     });
     command.on('error', function (e) {
       console.log(e);
-      progresses[dlid].error = e.toString() || "Conversion error", progresses[dlid].errCode = 0x0047;
+      progresses[dlid].error = e.toString() || "Conversion error", progresses[dlid].errCode = 0x0503;
     }); // Because if statements suck
 
     video && command.input(results[0].value.output);

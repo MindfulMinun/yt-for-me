@@ -15,27 +15,28 @@
     })
 
     const errors = {
-        [0x0010]: "Request error (HTTP 400)",
-            [0x0011]: "Empty request",
-            [0x0012]: "Not found",
-            [0x0013]: "Refused to serve cross-origin request",
-            [0x0014]: "Too many requests (HTTP 429)",
-            [0x0015]: "You're a bot",
-        [0x0030]: "Client-side error",
-            [0x0031]: "Assertion failed",
-            [0x0032]: "YouTube ID didn't match RegExp",
-        [0x0040]: "API error",
-            [0x0041]: "Failed to retrieve video information via ytdl-core",
-            [0x0042]: "Search via yt-search failed",
-            [0x0043]: "Download progress ID invalid",
-            [0x0044]: "YouTube video ID invalid",
-            [0x0045]: "Invalid output format",
-            [0x0046]: "No input files provided",
-            [0x0047]: "Conversion error",
-            [0x0048]: "Format download error",
-        [0x0050]: "Server error",
-            [0x0051]: "Unexpected server error",
-            [0x0052]: "Temporary outage (HTTP 503)",
+        [0x0100]: "Request error (HTTP 400)",
+            [0x0101]: "Empty request",
+            [0x0102]: "Not found",
+            [0x0103]: "Refused to serve cross-origin request",
+            [0x0104]: "Too many requests (HTTP 429)",
+            [0x0105]: "You're a bot",
+        [0x0300]: "Client-side error",
+            [0x0301]: "Assertion failed",
+            [0x0302]: "YouTube video ID invalid",
+            [0x0304]: "YouTube playlist ID invalid",
+        [0x0400]: "API error",
+            [0x0401]: "Failed to retrieve video information via ytdl-core",
+            [0x0402]: "Failed to retrieve playlist information",
+            [0x0403]: "Search failed",
+            [0x0410]: "Download progress ID invalid",
+            [0x0411]: "Invalid output format",
+            [0x0412]: "No input files provided",
+        [0x0500]: "Server error",
+            [0x0501]: "Unexpected server error",
+            [0x0502]: "Temporary outage (HTTP 503)",
+            [0x0503]: "Conversion error",
+            [0x0504]: "Format download error",
             [0xba11ad]: "Service discontinued",
         // For future use?
             [0x0961]: "L is real",
@@ -47,7 +48,10 @@
         welcome: {
             hi: "Hi there. This app lets you download videos from YouTube in any format you want. Give it a try.",
             love: `
-                Made with &lt;3 by <a href="https://benjic.xyz" target="_blank">MindfulMinun.</a>
+                Made with
+                <span aria-hidden="true">&lt;3</span>
+                <span class="sr-only">love</span>
+                by <a href="https://benjic.xyz" target="_blank">MindfulMinun.</a>
             `,
             don8: `If you like this website, <a href="https://ko-fi.com/mindfulminun" target="_blank">buy&nbsp;me&nbsp;a&nbsp;coffee.</a>`,
             source: `
@@ -85,7 +89,7 @@
                 <div class="error">
                     <h2>Ah snap,, an error occurred!!1!!</h2>
                     <p>Error: ${
-                        errors[err.errCode] || err.error
+                        errors[err.errCode] || err.error || '¿¡unknown error¿? (this is probably bad)'
                     } (code 0x${(err.errCode || 0).toString(16)})</p>
                     ${err.error ? `
                         <p>The server said: <samp>${err.error}</samp></p>
@@ -105,7 +109,7 @@
                     <p>Reload the page.</p>
                 </div>
             `,
-            idAssertionFailed: id => `
+            idAssertionFailed: () => `
                 <h1>This doesn't seem like a video.</h1>
                 <p>
                     Look, this app supposedly talks to YouTube.

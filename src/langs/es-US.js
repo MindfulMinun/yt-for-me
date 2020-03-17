@@ -46,28 +46,29 @@
     }
 
     const errors = {
-        [0x0010]: "Error del pedido (HTTP 400)",
-            [0x0011]: "Pedido vacío",
-            [0x0012]: "No se encontró",
-            [0x0013]: "Se denegó el pedido Cross-origin",
-            [0x0014]: "Demasiados pedidos (HTTP 429)",
-            [0x0015]: "Eres robot",
-        [0x0030]: "Error del lado del cliente",
-            [0x0031]: "Afirmación no cumplida",
-            [0x0032]: "El ID del video de YouTube is inválida",
-        [0x0040]: "API error",
-            [0x0041]: "Imposible conseguir los datos del video mediante ytdl-core",
-            [0x0042]: "Imposible completar la búsqueda mediante yt-search",
-            [0x0043]: "El ID del progreso de la descarga es inválida",
-            [0x0044]: "El ID del video de YouTube is inválida",
-            [0x0045]: "Formato de salida inválida",
-            [0x0046]: "No se proporcionó archivos de entrada",
-            [0x0047]: "Error al convertir el video",
-            [0x0048]: "Error al descargar el formato",
-        [0x0050]: "Error del lado del servidor",
-            [0x0051]: "Error del servidor inesperado",
-            [0x0052]: "Corte temporal (HTTP 503)",
-            [0xba11ad]: "Se suspendió el servicio",
+        [0x0100]: "Error del pedido (HTTP 400)",
+            [0x0101]: "Pedido vacío",
+            [0x0102]: "No se encontró",
+            [0x0103]: "Se denegó el pedido Cross-origin",
+            [0x0104]: "Demasiados pedidos (HTTP 429)",
+            [0x0105]: "Eres robot",
+        [0x0300]: "Error del cliente",
+            [0x0301]: "Afirmación no cumplida",
+            [0x0302]: "El ID del video de YouTube es inválida",
+            [0x0304]: "El ID de la lista de reproducción de YouTube es inválida",
+        [0x0400]: "Error del API",
+            [0x0401]: "Imposible conseguir los datos del video mediante ytdl-core",
+            [0x0402]: "Imposible conseguir información de la lista de reproducción",
+            [0x0403]: "Imposible completar la búsqueda",
+            [0x0410]: "El ID del progreso de la descarga es inválida",
+            [0x0411]: "Formato de salida inválida",
+            [0x0412]: "No se proporcionó archivos de entrada",
+        [0x0500]: "Error del servidor",
+            [0x0501]: "Error del servidor inesperado",
+            [0x0502]: "Corte temporal (HTTP 503)",
+            [0x0503]: "Error al convertir el video",
+            [0x0504]: "Error al descargar el formato",
+            [0xba11ad]: "El servicio se ha suspendido indefinidamente",
         // For future use?
             [0x0961]: "L is real",
             [0x0539]: "Depurando"
@@ -78,7 +79,10 @@
         welcome: {
             hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
             love: `
-                Hecho con &lt;3 por <a href="https://benjic.xyz" target="_blank">MindfulMinun.</a>
+                Hecho con 
+                <span aria-hidden="true">&lt;3</span>
+                <span class="sr-only">amor</span>
+                por <a href="https://benjic.xyz" target="_blank">MindfulMinun.</a>
             `,
             don8: `Si te gustó esta página, <a href="https://ko-fi.com/mindfulminun" target="_blank">cómprame&nbsp;un&nbsp;café.</a>`,
             source: `
@@ -117,7 +121,7 @@
                 <div class="error">
                     <h2>¡Caray! ¡Ocurrió un error!</h2>
                     <p>Error: ${
-                        errors[err.errCode] || err.error
+                        errors[err.errCode] || err.error || '¿¡un error desconocido¿? (qué mala pata)'
                     } (código 0x${(err.errCode || 0).toString(16)})</p>
                     ${err.error ? `
                         <p>El servidor también dijo: <samp>${err.error}</samp> (habla inglés)</p>
@@ -137,7 +141,7 @@
                     <p>Vuelve a cargar la página.</p>
                 </div>
             `,
-            idAssertionFailed: id => `
+            idAssertionFailed: () => `
                 <h1>Esto no parece un video.</h1>
                 <p>
                     Esta aplicación habla con YouTube para darte información sobre ella,
