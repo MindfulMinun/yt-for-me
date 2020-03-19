@@ -72,6 +72,14 @@ app.get('/video', function (req, res) {
     query: req.query.q || ''
   });
 });
+app.get('/playlist', function (req, res) {
+  var lang = (0, _serverHelpers.getLang)(req);
+  res.render(rootPath + "/public/playlist-list.mst", {
+    lang: lang,
+    d: require("./langs/".concat(lang, ".js")),
+    query: req.query.q || ''
+  });
+});
 app.use('/api', require('./api')["default"]); // Handle 500s
 
 app.use(function (err, req, res, next) {

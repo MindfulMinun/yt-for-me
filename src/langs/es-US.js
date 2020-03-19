@@ -79,7 +79,7 @@
         welcome: {
             hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
             love: `
-                Hecho con 
+                Hecho con
                 <span aria-hidden="true">&lt;3</span>
                 <span class="sr-only">amor</span>
                 por <a href="https://benjic.xyz" target="_blank">MindfulMinun.</a>
@@ -176,6 +176,20 @@
                 return `Hace ${arr[0] === '1' ? 'un' : arr[0]} ${relativeTimes[arr[1]]}`
             },
             loadMore: "Cargar más resultados"
+        },
+        playlist: {
+            count: count => {
+                switch (count) {
+                    case 0:
+                        return "Sin videos :("
+                    case 1:
+                        return "Un solo video :O"
+                    default:
+                        return `${numFormatter.format(count)} videos`
+                }
+            },
+            unlisted: 'No listado',
+            exceeds100: count => `La lista contiene ${numFormatter.format(count)} videos, pero solamente se muestran los primeros cien.`
         },
         view: {
             iframeA11yLabel: title => `${title} - Reproductor de YouTube`,
