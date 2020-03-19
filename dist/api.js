@@ -73,15 +73,27 @@ api.get('/info', function (req, res) {
       errCode: 0x0401
     });
   });
-});
+}); // api.get('/infoPlaylist', (req, res) => {
+//     // PLIm1cC9KsS_0AvI3B30PikS7A2k_puXTr
+//     const lang = getLang(req)
+//     ytSearch({
+//         listId: req.query.list
+//     }, (err, results) => {
+//         if (err) {
+//             console.log(err)
+//             return res.json({ errCode: 0x0402 })
+//         }
+//         res.json(results)
+//     })
+// })
+
 api.get('/infoPlaylist', function (req, res) {
   // PLIm1cC9KsS_0AvI3B30PikS7A2k_puXTr
   var lang = (0, _serverHelpers.getLang)(req);
-  var playlistId = req.query.id;
+  var playlistId = req.query.list;
   var opts = ['list=' + playlistId, 'hl=' + lang, 'bpctr=' + Math.ceil(Date.now() / 1000)].join('&');
   (0, _nodeFetch["default"])('https://www.youtube.com/playlist?' + opts, {
     'headers': {
-      'Accept-Language': lang,
       // Setting the UA to a modern browser tricks yt into using the newer framework
       'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
     }
@@ -92,24 +104,44 @@ api.get('/infoPlaylist', function (req, res) {
     var json = JSON.parse(payload); // Shit's deep:
     // json.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].playlistVideoListRenderer.contents
 
-    var playlistElements = (0, _serverHelpers.guard)((0, _serverHelpers.safeLookup)(json, ['contents', 'twoColumnBrowseResultsRenderer', 'tabs', 0, 'tabRenderer', 'content', 'sectionListRenderer', 'contents', 0, 'itemSectionRenderer', 'contents', 0, 'playlistVideoListRenderer', 'contents']), function (playlistElements) {
-      return playlistElements.map(function (vid) {
-        return vid.playlistVideoRenderer;
-      });
-    });
+    var playlistElements = (0, _serverHelpers.safeLookup)(json, ['contents', 'twoColumnBrowseResultsRenderer', 'tabs', 0, 'tabRenderer', 'content', 'sectionListRenderer', 'contents', 0, 'itemSectionRenderer', 'contents', 0, 'playlistVideoListRenderer']);
 
     if (!playlistElements) {
+      console.log(json);
       return res.json({
         errCode: 0x0402
       });
     }
 
+    var stats = (0, _serverHelpers.guard)((0, _serverHelpers.safeLookup)(json, ['sidebar', 'playlistSidebarRenderer', 'items', 0, 'playlistSidebarPrimaryInfoRenderer', 'stats']), function (stats) {
+      return stats.map(function (x) {
+        return x.runs ? x.runs[0].text : x.simpleText;
+      }).map(function (x) {
+        return x.replace(/[,.]/g, '');
+      });
+    });
+    var microformat = json.microformat.microformatDataRenderer;
     res.json({
-      elements: playlistElements,
-      info: json.microformat.microformatDataRenderer
+      elements: playlistElements.contents.map(function (vid) {
+        return vid.playlistVideoRenderer;
+      }),
+      info: {
+        title: microformat.title,
+        description: microformat.description,
+        url: microformat.urlCanonical,
+        pid: playlistElements.playlistId,
+        thumbnails: microformat.thumbnail.thumbnails,
+        // infoText: stats.join(' • '),
+        actualCount: parseInt(stats[0], 10),
+        views: parseInt(stats[1], 10),
+        updated: stats[2],
+        isUnlisted: !!microformat.unlisted
+      } // rawJSON: json
+
     });
   })["catch"](function (err) {
-    return res.json({
+    console.log(err);
+    res.json({
       errCode: 0x0402
     });
   });

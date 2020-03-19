@@ -140,6 +140,20 @@
             relTime: ago => ago, // It's in English by default
             loadMore: "Load more results"
         },
+        playlist: {
+            count: count => {
+                switch (count) {
+                    case 0:
+                        return "No videos :("
+                    case 1:
+                        return "A single video :O"
+                    default:
+                        return `${numFormatter.format(count)} videos`
+                }
+            },
+            unlisted: 'Unlisted',
+            exceeds100: count => `The playlist contains ${numFormatter.format(count)} videos, but only the first hundred are shown.`
+        },
         view: {
             dlSummaryLabel: () => "Download",
             dlSummaryPara: () => `
@@ -154,7 +168,7 @@
                     case 0:
                         return "No views :("
                     case 1:
-                        return "One single view :O"
+                        return "A single view :O"
                     default:
                         return `${numFormatter.format(views)} views`
                 }

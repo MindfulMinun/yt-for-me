@@ -40,7 +40,7 @@
         <main>
             <form action="/search" class="container flex">
                 <a class="yt-home-btn" href="/" aria-label="{{ d.welcome.home }}">
-                    <img src="/icons/icon.svg">
+                    <img src="/icons/icon.svg" aria-hidden="true">
                 </a>
                 <input type="search" class="yt-input no-js-hide"
                     id="search" name="q" pattern="^\s*(\S[\s\S]*)\s*$"
@@ -54,6 +54,7 @@
     </body>
     <script src="/js/video.js"></script>
     <script src="/js/search.js" async defer></script>
+    <script src="/js/playlist.js" async defer></script>
     <script>
         document.documentElement.classList.remove("no-js");
         yt.views.videoInit(new URLSearchParams(location.search).get('v'));

@@ -45,24 +45,27 @@ yt.squiggleBooty = [
     '6gIXh0-e2R0', // Gyari - Moonlight Stage 10-year cover
     'xLQWFNZ-wIc', // Hopeful Romantics - Why Wont You Reach For Me
     'QNxfYXYIyLc', // Jamie Paige - Apple Shampoo (Remix)
-    'znphh0fB-gA', // Jamie Paige - Swag pt. 2: Gumi Megpoid Gets Real (with Ricco Harver)
+    'znphh0fB-gA', // Jamie Paige - Swag pt. 2: Gumi Megpoid Gets Real (con Ricco Harver)
     'Wmlp3hiD6QA', // Jamie Paige - Anew, Again - Adelaide Delays
     'kDHWcv0whNY', // Jamie Paige - Autumn Every Day - To Atlantis
     'TfnRTifSWh0', // Madeon - Good Faith - Be Fine
     'D_EnyikMsEU', // Madeon - Good Faith - No Fear No More
     'omab6QAwBCA', // Marc Rebillet - Funk Emergency
     'LzWjdtTN3VM', // Marsy - Je N'ai Plus Confiance En Toi
+    '2w0ZJfsjjsI', // Mellow Fellow & Clairo - How Was Your Day?
     'ZwqOJlZ9Pc4', // Moe Shop - Tokyo Night Flyght (Remix)
     'VgUR1pna5cY', // Moe Shop - Natural
     'l2nbIwDj7iY', // Moe Shop - Moshi Moshi - Crosstalk
     'fkuynpzI3bI', // Moe Shop - Pure Pure - Say
+    '68UlL5Op9q4', // Moe Shop - WWW (con EDOGA-SULLIVAN)
     'FFyZzEJuymg', // Naz3nt - Love Taste (Remix)
+    '5xwFCtDc0fI', // Sunset Rollercoaster - My Jinji
     'yD2FSwTy2lw', // No one's around to help
     'dQw4w9WgXcQ'  // get rickrolled lol
 ]
 
 // The order of query parameters
-yt.queryParamsOrder = ['v', 'q', 'lang']
+yt.queryParamsOrder = ['v', 'list', 'q', 'lang']
 
 yt.sortQueryParams = (a, b) => {
     // Get the index based on the order
@@ -98,9 +101,14 @@ ready(function () {
     // Routing
     window.addEventListener('popstate', event => {
         if (event.state) {
+            scrollTo(0, 0)
             switch (event.state.view) {
                 case 'video':  return yt.views.videoReplace(event.state.id, true)
                 case 'search': return yt.views.searchReplace(null, true)
+                case 'playlist': return yt.views.playlistReplace(event.state.pid, true)
+                default:
+                    console.warn('Estado de navigación desconocido')
+                    history.back()
             }
         } else {
             history.back()
@@ -346,7 +354,7 @@ function dict(what, ...params) {
     
     // If the property is undefined~ish, log a warning
     if (null == dict) {
-        console.warn(`Error: Entrada del diccionario en "${what}" es nulo or no definido. En cambio se devolvió la ruta.`)
+        console.warn(`Error: Entrada del diccionario en "${what}" es nulo o no definido. En cambio se devolvió la ruta.`)
         return [what, ...params].join(' ')
     }
 

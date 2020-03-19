@@ -70,10 +70,28 @@ api.get('/info', function (req, res) {
     })
 })
 
+// api.get('/infoPlaylist', (req, res) => {
+//     // PLIm1cC9KsS_0AvI3B30PikS7A2k_puXTr
+//     const lang = getLang(req)
+
+//     ytSearch({
+//         listId: req.query.list
+//     }, (err, results) => {
+//         if (err) {
+//             console.log(err)
+//             return res.json({ errCode: 0x0402 })
+//         }
+            
+//         res.json(results)
+//     })
+
+// })
+
+
 api.get('/infoPlaylist', (req, res) => {
     // PLIm1cC9KsS_0AvI3B30PikS7A2k_puXTr
     const lang = getLang(req)
-    const playlistId = req.query.id
+    const playlistId = req.query.list
 
     const opts = [
         'list=' + playlistId,
@@ -83,7 +101,6 @@ api.get('/infoPlaylist', (req, res) => {
 
     fetch('https://www.youtube.com/playlist?' + opts, {
         'headers': {
-            'Accept-Language': lang,
             // Setting the UA to a modern browser tricks yt into using the newer framework
             'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_3) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.132 Safari/537.36'
         }
@@ -96,7 +113,7 @@ api.get('/infoPlaylist', (req, res) => {
         // Shit's deep:
         // json.contents.twoColumnBrowseResultsRenderer.tabs[0].tabRenderer.content.sectionListRenderer.contents[0].itemSectionRenderer.contents[0].playlistVideoListRenderer.contents
 
-        const playlistElements = guard(safeLookup(json, [
+        const playlistElements = safeLookup(json, [
             'contents',
             'twoColumnBrowseResultsRenderer',
             'tabs',
@@ -109,20 +126,49 @@ api.get('/infoPlaylist', (req, res) => {
             'itemSectionRenderer',
             'contents',
             0,
-            'playlistVideoListRenderer',
-            'contents'
-        ]), playlistElements => playlistElements.map(vid => vid.playlistVideoRenderer))
+            'playlistVideoListRenderer'
+        ])
 
         if (!playlistElements) {
+            console.log(json)
             return res.json({ errCode: 0x0402 })
         }
+
+        const stats = guard(safeLookup(json, [
+            'sidebar',
+            'playlistSidebarRenderer',
+            'items',
+            0,
+            'playlistSidebarPrimaryInfoRenderer',
+            'stats'
+        ]), stats => stats
+            .map(x => x.runs ? x.runs[0].text : x.simpleText)
+            .map(x => x.replace(/[,.]/g, ''))
+        )
         
+        const microformat = json.microformat.microformatDataRenderer
+
         res.json({
-            elements: playlistElements,
-            info: json.microformat.microformatDataRenderer
+            elements: playlistElements.contents.map(vid => vid.playlistVideoRenderer),
+            info: {
+                title: microformat.title,
+                description: microformat.description,
+                url: microformat.urlCanonical,
+                pid: playlistElements.playlistId,
+                thumbnails: microformat.thumbnail.thumbnails,
+                // infoText: stats.join(' • '),
+                actualCount: parseInt(stats[0], 10),
+                views: parseInt(stats[1], 10),
+                updated: stats[2],
+                isUnlisted: !!microformat.unlisted
+            }
+            // rawJSON: json
         })
     })
-    .catch(err => res.json({ errCode: 0x0402 }))
+    .catch(err => {
+        console.log(err)
+        res.json({ errCode: 0x0402 })
+    })
 })
 
 /**

@@ -64,6 +64,15 @@ app.get('/video', function (req, res) {
     })
 })
 
+app.get('/playlist', function (req, res) {
+    const lang = getLang(req)
+    res.render(rootPath + `/public/playlist-list.mst`, {
+        lang: lang,
+        d: require(`./langs/${lang}.js`),
+        query: req.query.q || ''
+    })
+})
+
 app.use('/api', require('./api').default)
 
 // Handle 500s

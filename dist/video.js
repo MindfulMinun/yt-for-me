@@ -220,7 +220,13 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     var cherry = cherryPickProperties(videoInfo);
     meta.classList.add('yt-meta'); // Set the title
 
-    meta.innerHTML = "<span class=\"yt-meta__title\">".concat(cherry.title, "</span>") // Set the other info properties
+    meta.innerHTML = "<span class=\"yt-meta__title\">".concat(cherry.title, "</span>");
+
+    if (cherry.isUnlisted) {
+      meta.querySelector('.yt-meta__title').innerHTML += "&nbsp;<span class=\"badge\">".concat(dict('playlist/unlisted'), "</span>");
+    } // Set the other info properties
+
+
     ;
     cherry.views != null && meta.append(_createMetaTag(dict('view/metaViews', cherry.views)));
     videoInfo.published && meta.append(_createMetaTag(dict('view/metaPublished', videoInfo.published)));
@@ -299,6 +305,7 @@ function _arrayWithHoles(arr) { if (Array.isArray(arr)) return arr; }
     }
 
     vid.license = safeLookup(videoInfo.media, [yt.dict.propertyLookup.license]);
+    vid.isUnlisted = !safeLookup(videoInfo.player_response, ['videoDetails', 'isCrawlable']);
     vid.isExplicit = !!safeLookup(videoInfo.media, [yt.dict.propertyLookup.explicit]);
     vid.description = safeLookup(videoInfo.player_response, ['microformat', 'playerMicroformatRenderer', 'description', 'simpleText']) || videoInfo.description;
     vid.description = _parseDescription(vid.description);

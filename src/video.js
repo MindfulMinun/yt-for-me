@@ -280,6 +280,11 @@
 
         // Set the title
         meta.innerHTML = `<span class="yt-meta__title">${cherry.title}</span>`
+            
+        if (cherry.isUnlisted) {
+            meta.querySelector('.yt-meta__title').innerHTML +=
+                `&nbsp;<span class="badge">${dict('playlist/unlisted')}</span>`
+        }
 
         // Set the other info properties
         ;(cherry.views != null) && meta.append(_createMetaTag(dict('view/metaViews', cherry.views)))
@@ -409,6 +414,8 @@
 
         vid.license = safeLookup(videoInfo.media, [yt.dict.propertyLookup.license])
 
+        vid.isUnlisted = !safeLookup(videoInfo.player_response, ['videoDetails', 'isCrawlable'])
+
         vid.isExplicit = !!safeLookup(videoInfo.media, [yt.dict.propertyLookup.explicit])
 
         vid.description = safeLookup(videoInfo.player_response, [
@@ -420,6 +427,7 @@
         vid.views = +safeLookup(videoInfo.player_response, ['videoDetails', 'viewCount'])
 
         vid.ldRatio = NaN
+
 
         if (safeLookup(videoInfo.player_response, ['videoDetails', 'allowRatings'])) {
             vid.ldRatio = guard(

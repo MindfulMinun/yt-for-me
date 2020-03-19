@@ -84,6 +84,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
       // It's in English by default
       loadMore: "Load more results"
     },
+    playlist: {
+      count: function count(_count) {
+        switch (_count) {
+          case 0:
+            return "No videos :(";
+
+          case 1:
+            return "A single video :O";
+
+          default:
+            return "".concat(numFormatter.format(_count), " videos");
+        }
+      },
+      unlisted: 'Unlisted',
+      exceeds100: function exceeds100(count) {
+        return "The playlist contains ".concat(numFormatter.format(count), " videos, but only the first hundred are shown.");
+      }
+    },
     view: {
       dlSummaryLabel: function dlSummaryLabel() {
         return "Download";
@@ -109,7 +127,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
             return "No views :(";
 
           case 1:
-            return "One single view :O";
+            return "A single view :O";
 
           default:
             return "".concat(numFormatter.format(views), " views");

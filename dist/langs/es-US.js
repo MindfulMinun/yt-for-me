@@ -55,7 +55,7 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
     lang: 'es-US',
     welcome: {
       hi: "Hola. Desde aquí puedes descargar videos de YouTube en cualquier formato que deseas.",
-      love: "\n                Hecho con \n                <span aria-hidden=\"true\">&lt;3</span>\n                <span class=\"sr-only\">amor</span>\n                por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun.</a>\n            ",
+      love: "\n                Hecho con\n                <span aria-hidden=\"true\">&lt;3</span>\n                <span class=\"sr-only\">amor</span>\n                por <a href=\"https://benjic.xyz\" target=\"_blank\">MindfulMinun.</a>\n            ",
       don8: "Si te gust\xF3 esta p\xE1gina, <a href=\"https://ko-fi.com/mindfulminun\" target=\"_blank\">c\xF3mprame&nbsp;un&nbsp;caf\xE9.</a>",
       source: "\n                <a href=\"https://github.com/MindfulMinun/yt-for-me\" target=\"_blank\">C\xF3digo&nbsp;fuente</a>\n            ",
       nojs: "\n                <p>Desafortunadamente, este sitio web requiere de <em>JavaScript</em>.\n                Sin este, se te ser\xE1 casi imposible navegar el internet.\n                Adem\xE1s, no podr\xE1s ver videos de YouTube ni aqu\xED ni all\xE1.</p>\n\n                <p>Hazte un favor y <a href=\"https://www.enable-javascript.com/es/\">habil\xEDtalo</a>.</p>\n            ",
@@ -112,6 +112,24 @@ function _defineProperty(obj, key, value) { if (key in obj) { Object.definePrope
         return "Hace ".concat(arr[0] === '1' ? 'un' : arr[0], " ").concat(relativeTimes[arr[1]]);
       },
       loadMore: "Cargar más resultados"
+    },
+    playlist: {
+      count: function count(_count) {
+        switch (_count) {
+          case 0:
+            return "Sin videos :(";
+
+          case 1:
+            return "Un solo video :O";
+
+          default:
+            return "".concat(numFormatter.format(_count), " videos");
+        }
+      },
+      unlisted: 'No listado',
+      exceeds100: function exceeds100(count) {
+        return "La lista contiene ".concat(numFormatter.format(count), " videos, pero solamente se muestran los primeros cien.");
+      }
     },
     view: {
       iframeA11yLabel: function iframeA11yLabel(title) {

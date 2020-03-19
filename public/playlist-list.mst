@@ -52,12 +52,12 @@
             </div>
         </main>
     </body>
-    <script src="/js/search.js"></script>
+    <script src="/js/playlist.js"></script>
     <script src="/js/video.js" async defer></script>
-    <script src="/js/playlist.js" async defer></script>
+    <script src="/js/search.js" async defer></script>
     <script>
         document.documentElement.classList.remove("no-js");
-        yt.views.searchInit()
+        yt.views.playlistInit(new URLSearchParams(location.search).get('list'));
         document.body.appendChild(makeFooter());
     </script>
 </html>
